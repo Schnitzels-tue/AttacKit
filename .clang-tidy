@@ -1,0 +1,14 @@
+---
+Checks: "*,
+        -altera-*,
+        -android-*,
+        -boost-*,
+        -fuchsia-*,
+        -llvmlibc-*,
+        -modernize-use-trailing-return-type,
+        -objc-*,
+        -openmp-*
+"
+WarningsAsErrors: ''
+HeaderFilterRegex: ''
+

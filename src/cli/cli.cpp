@@ -1,7 +1,7 @@
 #include <core.h>
 
 int main() {
-  poisonArp();
+    ARP::poisonArp();
 
-  return 0;
+    return 0;
 }

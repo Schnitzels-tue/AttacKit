@@ -1,14 +1,10 @@
-cmake_minimum_required(VERSION 3.12)
-project(core)
-
 # Specify the sources for the logger static library
-set(SOURCE_FILES
+set(SOURCES
     core.cpp
-    # Add other source files if applicable
 )
 
 # Declare the logger as a static library
-add_library(core STATIC ${SOURCE_FILES})
+add_library(core STATIC ${SOURCES})
 
 add_subdirectory(
     ${CMAKE_SOURCE_DIR}/thirdparty/PcapPlusPlus thirdparty/PcapPlusPlus
