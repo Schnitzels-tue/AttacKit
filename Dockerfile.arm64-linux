@@ -1,0 +1,41 @@
+# Use Ubuntu 18.04 as the base image
+FROM --platform=linux/arm64 ubuntu:18.04 AS base
+
+# Set non-interactive mode for apt
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install necessary build tools and dependencies including gcc
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    gcc \
+    wget \
+    libpcap-dev && apt-get clean
+
+RUN wget https://cmake.org/files/v3.12/cmake-3.12.0-Linux-aarch64.tar.gz && \
+    tar -xzf cmake-3.12.0-Linux-aarch64.tar.gz && \
+    mv cmake-3.12.0-Linux-aarch64 /opt/cmake && \
+    ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake && \
+    rm cmake-3.12.0-Linux-aarch64.tar.gz
+
+FROM base AS builder
+# Set the working directory inside the container
+WORKDIR /workspace
+
+# Copy the CMake project files into the container
+COPY . /workspace
+
+# Create a build directory and configure the build with CMake in release mode
+RUN mkdir -p /workspace/build && \
+    cd /workspace/build && \
+    cmake -DCMAKE_BUILD_TYPE=Release .. && \
+    make -j$(nproc)
+
+# Second stage: Only copy the build artifacts
+FROM scratch
+
+# Create a new directory for the build output
+COPY --from=builder /workspace/build /arm64-linux-build
+
+# Set the output as the final working directory
+WORKDIR /arm64-linux-build
+
