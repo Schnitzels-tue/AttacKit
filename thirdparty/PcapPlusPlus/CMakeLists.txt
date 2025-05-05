@@ -184,13 +184,8 @@ endif()
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
-if(MSVC)
-  # Other hacks for VStudio
-  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-else()
-  if(NOT CMAKE_USE_PTHREADS_INIT)
-    message(FATAL_ERROR "Pthreads not found!")
-  endif()
+if(NOT MSVC AND NOT CMAKE_USE_PTHREADS_INIT AND NOT CMAKE_USE_WIN32_THREADS_INIT)
+  message(FATAL_ERROR "Pthreads not found!")
 endif()
 
 if(PCAPPP_USE_DPDK)

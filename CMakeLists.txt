@@ -5,15 +5,24 @@ project(AttacKit VERSION 1.0)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# set(PCAP_ROOT ${CMAKE_SOURCE_DIR}/thirdparty/npcap-sdk-1.15)
+
+
 include(CTest)
 enable_testing()
 
-# Disable treating VLA warnings as errors for any compiler
-# Temporary
-add_compile_options(-Wvla -Wno-error=vla)
+# Disable warnings caused by third party code
+add_compile_options(
+    -Wvla 
+    -Wno-error=vla
+    -Wno-inconsistent-missing-override
+    -Wno-implicit-exception-spec-mismatch
+)
+
+
 
 # Specify the C++ standard
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Set output directories
