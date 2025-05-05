@@ -173,3 +173,6 @@ $RECYCLE.BIN/
 build/
 cross_build/
 thirdparty/npcap-sdk/
+.vs
+out/
+CMakeSettings.json
