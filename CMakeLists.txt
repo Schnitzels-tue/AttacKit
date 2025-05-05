@@ -13,17 +13,17 @@ enable_testing()
 
 # Disable warnings caused by third party code, temporary fix not sure how to disable library errors when compiling
 add_compile_options(
-    -Wvla 
+    -Wvla
     -Wno-error=vla
-    -Wno-error=deprecated-declarations
-    -Wno-error=inconsistent-missing-override
-    -Wno-error=implicit-exception-spec-mismatch
+    -Wno-deprecated-declarations
+    -Wno-inconsistent-missing-override
+    -Wno-implicit-exception-spec-mismatch
 )
 
 # Visual studio generates many warnings don't know why
-if (MSVC) 
+if (MSVC)
     add_compile_options(
-		-Wno-error=old-style-cast
+        -Wno-error=old-style-cast
         -Wno-error=error=c++98-compat
         -Wno-error=c++98-compat-pedantic
         -Wno-error=extra-semi
@@ -67,13 +67,13 @@ if (MSVC)
         -Wno-error=shadow
         -Wno-error=unreachable-code-return
         -Wno-error=unreachable-code-break
-	)
+ )
 endif()
 
 
 
 # Specify the C++ standard
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Set output directories
