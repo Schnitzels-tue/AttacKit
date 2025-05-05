@@ -5,7 +5,7 @@ project(AttacKit VERSION 1.0)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# set(PCAP_ROOT ${CMAKE_SOURCE_DIR}/thirdparty/npcap-sdk-1.15)
+set(PCAP_ROOT ${CMAKE_SOURCE_DIR}/thirdparty/npcap-sdk)
 
 
 include(CTest)
@@ -15,6 +15,7 @@ enable_testing()
 add_compile_options(
     -Wvla 
     -Wno-error=vla
+    -Wno-deprecated-declarations
     -Wno-inconsistent-missing-override
     -Wno-implicit-exception-spec-mismatch
 )

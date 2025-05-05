@@ -172,3 +172,4 @@ $RECYCLE.BIN/
 .cache
 build/
 cross_build/
+thirdparty/npcap-sdk/
