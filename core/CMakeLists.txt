@@ -23,8 +23,8 @@ target_link_libraries(core PRIVATE
 # Include directories for the logger
 target_include_directories(core
     PUBLIC
-        include/
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/
     PRIVATE
-        internal/helper/
+        ${CMAKE_CURRENT_SOURCE_DIR}/internal/
     # Include other third-party directories as needed
 )
