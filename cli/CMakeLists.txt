@@ -12,5 +12,5 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
 )
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
-    internal/helper/
+    ${CMAKE_CURRENT_SOURCE_DIR}/internal/
 )
