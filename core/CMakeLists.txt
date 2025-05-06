@@ -20,7 +20,7 @@ target_link_libraries(core PRIVATE
 )
 
 # Include directories for the logger
-target_include_directories(core PRIVATE
+target_include_directories(core PUBLIC
     ${CMAKE_SOURCE_DIR}/include/core
     # Include other third-party directories as needed
 )

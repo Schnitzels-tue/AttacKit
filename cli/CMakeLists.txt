@@ -12,5 +12,4 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/include/cli
-    ${CMAKE_SOURCE_DIR}/include/core
 )

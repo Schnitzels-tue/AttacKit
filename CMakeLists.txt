@@ -67,7 +67,7 @@ if (MSVC)
         -Wno-error=shadow
         -Wno-error=unreachable-code-return
         -Wno-error=unreachable-code-break
- )
+)
 endif()
 
 
@@ -79,5 +79,5 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Set output directories
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-add_subdirectory(src/core)
-add_subdirectory(src/cli)
+add_subdirectory(core)
+add_subdirectory(cli)
