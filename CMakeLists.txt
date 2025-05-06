@@ -7,11 +7,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(PCAP_ROOT ${CMAKE_SOURCE_DIR}/thirdparty/npcap-sdk)
 
-
 include(CTest)
 enable_testing()
 
-# Disable warnings caused by third party code, temporary fix not sure how to disable library errors when compiling
+# Disable warnings caused by third party code,
+# temporary fix not sure how to disable library errors when compiling
 add_compile_options(
     -Wvla
     -Wno-error=vla
@@ -21,7 +21,7 @@ add_compile_options(
 )
 
 # Visual studio generates many warnings don't know why
-if (MSVC)
+if(MSVC)
     add_compile_options(
         -Wno-error=old-style-cast
         -Wno-error=error=c++98-compat

@@ -1,6 +1,7 @@
 # Specify the sources for the logger static library
 set(SOURCES
-    core.cpp
+    src/core.cpp
+    src/helper/help.cpp
 )
 
 # Declare the logger as a static library
@@ -20,7 +21,10 @@ target_link_libraries(core PRIVATE
 )
 
 # Include directories for the logger
-target_include_directories(core PUBLIC
-    ${CMAKE_SOURCE_DIR}/include/core
+target_include_directories(core
+    PUBLIC
+        include/
+    PRIVATE
+        internal/helper/
     # Include other third-party directories as needed
 )

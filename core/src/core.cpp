@@ -1,3 +1,4 @@
+#include "help.h"
 #include <EthLayer.h>
 #include <IpAddress.h>
 #include <MacAddress.h>
@@ -8,6 +9,8 @@
 const int MAX_PACKET_LEN = 100;
 
 namespace ARP {
+void useHelper() { help(); }
+
 void poisonArp() {
     pcpp::MacAddress macAttacker("bc:24:11:e3:98:26");
     pcpp::IPv4Address ipAttacker("10.71.2.7");

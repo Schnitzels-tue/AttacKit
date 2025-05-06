@@ -1,6 +1,7 @@
 # Add source files
 set(SOURCES
-    cli.cpp
+    src/cli.cpp
+    src/helper/helper.cpp
 )
 
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCES})
@@ -11,5 +12,5 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
 )
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
-    ${CMAKE_SOURCE_DIR}/include/cli
+    internal/helper/
 )
