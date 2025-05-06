@@ -1,7 +1,6 @@
 # Specify the sources for the logger static library
 set(SOURCES
-    src/core.cpp
-    src/helper/help.cpp
+    src/arp_poisoning.cpp
 )
 
 # Declare the logger as a static library

