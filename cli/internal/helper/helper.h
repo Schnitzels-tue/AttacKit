@@ -2,12 +2,15 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
+#include <utility>
 #include <vector>
 
 
 void helper();
 
 class CLIParser {
+    using AnyFunction = std::function<void(const std::vector<std::string>&)>;
 
     std::string helpText =
         "This application is meant to provide the necessary functionality to perform ARP poisoning, "
@@ -17,17 +20,14 @@ class CLIParser {
     
     
     std::vector<std::string> args;
-    std::unordered_map<std::string, std::pair<void (CLIParser::*)(), std::string>> flags;
+    // Keys: string of flag name
+    // Values: a pair in the format of (function_to_call, helpText)
+    std::unordered_map<std::pair<char, std::string>, std::pair<AnyFunction, std::string>> flags;
 
 
 public:
     template <typename... Args>
-    explicit CLIParser(Args... args) : args({ args... }) {
-        flags["help"] = std::make_pair(&CLIParser::help, "Opens this help menu");
-        flags["arp"] = std::make_pair(&CLIParser::arp_poisoning, "env    Performs an ARP poisoning attack on the device with name 'env'");
-        flags["dns"] = std::make_pair(&CLIParser::dns_spoofing, "dummy    Lorem Ipsum");
-        flags["ssl"] = std::make_pair(&CLIParser::ssl_stripping, "dummy    Lorem Ipsum");
-    }
+    explicit CLIParser(Args... args) : args({ args... }) {}
 
     void print() {
         for (const auto& arg : args) {
@@ -62,13 +62,26 @@ public:
         std::string flagsText;
         for (const auto& tuple : flags) {
             flagsText.append("    -");
-            flagsText += tuple.first.at(0);
+            flagsText += tuple.first.first;
             flagsText.append(" --");
-            flagsText.append(tuple.first);
+            flagsText.append(tuple.first.second);
             flagsText.append("  ");
             flagsText.append(tuple.second.second);
             flagsText.append("\n");
         }
         return flagsText;
+    }
+
+    void add_flag(const std::string& flagName, const AnyFunction& associatedFunction, const std::string& helpText) {
+        std::unordered_set<char> takenChars;
+        for (const auto& flag: flags) {
+            takenChars.insert(flag.first.first);
+        }
+        char flagChar = flagName.at(0);
+        const int SIZE_OF_ALPHABET = 26;
+        while (takenChars.find(flagChar) != takenChars.end()) {
+            flagChar = static_cast<char>('a' + (flagChar - 'a' + 1) % SIZE_OF_ALPHABET);
+        }
+        flags[std::make_pair(flagChar, flagName)] = std::make_pair(associatedFunction, helpText);
     }
 };
