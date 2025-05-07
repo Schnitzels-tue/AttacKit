@@ -1,7 +1,17 @@
 #pragma once
 
 namespace ARP {
-void useHelper();
+    const int ARGS_AMOUNT = 1; // change as needed
 
-void poisonArp();
+    void useHelper();
+
+    void poisonArp();
 } // namespace ARP
+
+namespace DNS {
+    const int ARGS_AMOUNT = 2; // change as needed
+} // namespace DNS
+
+namespace SSL {
+    const int ARGS_AMOUNT = 2; // change as needed
+} // namespace SSL
