@@ -2,6 +2,7 @@
 set(SOURCES
     src/cli.cpp
     src/helper/helper.cpp
+    src/helper/CLIParser.cpp
 )
 
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCES})
