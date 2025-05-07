@@ -1,7 +1,1 @@
-#include "helper/helper.h"
-
-int main() {
-    helper();
-
-    return 0;
-}
+int main() { return 0; }
