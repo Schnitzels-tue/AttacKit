@@ -23,11 +23,11 @@ std::string CLIParser::generate_flags_text() {
     std::string flagsText;
     for (const auto& tuple : flags) {
         flagsText.append("    -");
-        flagsText += std::get<0>(tuple.second);
+        flagsText += std::get<1>(tuple);
         flagsText.append(" --");
-        flagsText.append(tuple.first);
+        flagsText.append(std::get<0>(tuple));
         flagsText.append("  ");
-        flagsText.append(std::get<2>(tuple.second));
+        flagsText.append(std::get<3>(tuple));
         flagsText.append("\n");
     }
     return flagsText;
@@ -36,12 +36,12 @@ std::string CLIParser::generate_flags_text() {
 void CLIParser::add_flag(const std::string& flagName, const AnyFunction& associatedFunction, const std::string& helpText) {
     std::unordered_set<char> takenChars;
     for (const auto& flag: flags) {
-        takenChars.insert(std::get<0>(flag.second));
+        takenChars.insert(std::get<1>(flag));
     }
     char flagChar = flagName.at(0);
     const int SIZE_OF_ALPHABET = 26;
     while (takenChars.find(flagChar) != takenChars.end()) {
         flagChar = static_cast<char>('a' + (flagChar - 'a' + 1) % SIZE_OF_ALPHABET);
     }
-    flags[flagName] = std::make_tuple(flagChar, associatedFunction, helpText);
+    flags.emplace_back(flagName, flagChar, associatedFunction, helpText);
 }

@@ -2,7 +2,6 @@
 
 #include <functional>
 #include <string>
-#include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <vector>
@@ -15,11 +14,15 @@ class CLIParser {
 
     // Keys: string of flag name
     // Values: a pair in the format of (flagChar, function_to_call, helpText)
-    std::unordered_map<std::string, std::tuple<char, AnyFunction, std::string>> flags;
+    std::vector<std::tuple<std::string, char, AnyFunction, std::string>> flags;
 
 public:
     template <typename... Args>
-    explicit CLIParser(Args... args) : args({ args... }) {}
+    explicit CLIParser(Args... args) : args({ args... }), 
+        helpText("This application is meant to provide the necessary functionality to perform ARP poisoning, "
+        "DNS spoofing and SSL stripping.\n"
+        "Usage: AttacKit [options] \n"
+        "  options: \n") {}
 
     void print();
     void parse();
