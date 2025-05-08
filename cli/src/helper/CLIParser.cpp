@@ -16,8 +16,8 @@ std::optional<std::vector<CLIParser::InvokeableFunction>> CLIParser::parse() {
             std::cout << "Found argument without corresponding flag: " << args[i] << std::endl;
             return std::nullopt;
         }
-        if (args[i].length() > 2 && args[i].at(1) == '-') {
-            std::string charFlags = args[i].substr(2, std::string::npos);
+        if (args[i].length() <= 2 || args[i].at(1) != '-') {
+            std::string charFlags = args[i].substr(1, std::string::npos);
             for (char charFlag : charFlags) {
                 int positionOfFlag = findCharFlag(charFlag);
                 if (positionOfFlag == -1) {
@@ -27,7 +27,7 @@ std::optional<std::vector<CLIParser::InvokeableFunction>> CLIParser::parse() {
                 setFlags.push_back(allFlags[positionOfFlag]);
             }
         } else {
-            std::string flagName = args[i].substr(1, std::string::npos);
+            std::string flagName = args[i].substr(2, std::string::npos);
             int positionOfFlag = findFlagName(flagName);
             if (positionOfFlag == -1) {
                 std::cout << "Gave non-existent flag " << flagName << std::endl;
