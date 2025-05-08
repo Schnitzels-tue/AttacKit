@@ -1,6 +1,7 @@
 # Specify the sources for the logger static library
 set(SOURCES
-    src/arp_poisoning.cpp
+    src/arp_poisoning/arp_poisoning.cpp
+    src/arp_poisoning/create_packet.cpp
 )
 
 # Declare the logger as a static library

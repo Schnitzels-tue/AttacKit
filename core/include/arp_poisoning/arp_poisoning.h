@@ -13,5 +13,5 @@ struct ArpPoisoningOptions {
     std::string interface;
 };
 
-int poisonArp(ArpPoisoningOptions &options);
+void poisonArp(ArpPoisoningOptions &options);
 } // namespace ARP
