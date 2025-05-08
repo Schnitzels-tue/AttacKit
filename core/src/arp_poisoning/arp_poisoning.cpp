@@ -28,16 +28,16 @@ void ARP::poisonArp(ArpPoisoningOptions &options) {
         pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(
             options.deviceName);
 
-    ARP::ArpPoisoningPacketPayload payload{ipAttacker, macAttacker, ipVictim,
-                                           macVictim, ipToSpoof};
-
-    pcpp::Packet packet = ARP::createPacket(payload);
-
     if (device == nullptr || !device->open()) {
         std::string msg =
             std::string("Unable to open interface ") + device->getName() + "\n";
         throw std::invalid_argument(msg);
     }
+
+    ARP::ArpPoisoningPacketPayload payload{ipAttacker, macAttacker, ipVictim,
+                                           macVictim, ipToSpoof};
+
+    pcpp::Packet packet = ARP::createPacket(payload);
 
     if (!device->sendPacket(&packet)) {
         device->close();
