@@ -24,7 +24,9 @@ jobs:
       
     # Install libpcap
     - name: install libpcap
-    - run: sudo apt-get install libpcap-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install libpcap-dev
 
 
     - name: Configure CMake
