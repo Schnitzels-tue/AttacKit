@@ -1,6 +1,7 @@
 set(SOURCES
     src/arp_poisoning/arp_poisoning.cpp
     src/arp_poisoning/create_packet.cpp
+    src/network_scout/network_scout.cpp
 )
 
 add_library(core STATIC ${SOURCES})
