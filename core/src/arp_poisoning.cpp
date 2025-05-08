@@ -19,7 +19,7 @@ int ARP::poisonArp(ArpPoisoningOptions &options) {
     // Open interface
     pcpp::PcapLiveDevice *dev =
         pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(
-            options.interface);
+            options.deviceName);
 
     if (dev == nullptr || !dev->open()) {
         std::cerr << "Unable to open interface ens18" << "\n";

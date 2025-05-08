@@ -10,7 +10,7 @@ struct ArpPoisoningOptions {
     std::string ipVictim;
     std::string macVictim;
     std::string ipToSpoof;
-    std::string interface;
+    std::string deviceName;
 };
 
 int poisonArp(ArpPoisoningOptions &options);
