@@ -3,20 +3,20 @@
 
 #include <vector>
 
-std::vector<Scout::DeviceInfo> Scout::getDevices() {
+std::vector<ATK::Common::DeviceInfo> ATK::Scout::getDevices() {
     auto devices =
         pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
-    std::vector<Scout::DeviceInfo> deviceInfoList;
+    std::vector<ATK::Common::DeviceInfo> deviceInfoList;
     deviceInfoList.reserve(devices.size());
 
     for (auto *device : devices) {
-        DeviceInfo DeviceInfo{.name = device->getName(),
-                              .iPv4Adress = device->getIPv4Address().toString(),
-                              .iPv6Adress = device->getIPv6Address().toString(),
-                              .macAdress = device->getMacAddress().toString(),
-                              .description = device->getDesc(),
-                              .active = device->captureActive()};
+        ATK::Common::DeviceInfo DeviceInfo{
+            .name = device->getName(),
+            .iPv4Adress = device->getIPv4Address().toString(),
+            .iPv6Adress = device->getIPv6Address().toString(),
+            .macAdress = device->getMacAddress().toString(),
+            .active = device->captureActive()};
 
         deviceInfoList.emplace_back(DeviceInfo);
     }

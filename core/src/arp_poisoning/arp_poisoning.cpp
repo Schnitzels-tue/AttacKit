@@ -14,7 +14,7 @@
  * @throws runtime_exception if construction of packet fails
  * @throws runtime_exception if sending of packet fails
  */
-void ARP::poisonArp(ArpPoisoningOptions &options) {
+void ATK::ARP::poisonArp(ArpPoisoningOptions &options) {
     pcpp::MacAddress macAttacker(options.macAttacker);
     pcpp::IPv4Address ipAttacker(options.ipAttacker);
 
@@ -34,10 +34,10 @@ void ARP::poisonArp(ArpPoisoningOptions &options) {
         throw std::invalid_argument(msg);
     }
 
-    ARP::ArpPoisoningPacketPayload payload{ipAttacker, macAttacker, ipVictim,
-                                           macVictim, ipToSpoof};
+    ATK::ARP::ArpPoisoningPacketPayload payload{ipAttacker, macAttacker,
+                                                ipVictim, macVictim, ipToSpoof};
 
-    pcpp::Packet packet = ARP::createPacket(payload);
+    pcpp::Packet packet = createPacket(payload);
 
     if (!device->sendPacket(&packet)) {
         device->close();

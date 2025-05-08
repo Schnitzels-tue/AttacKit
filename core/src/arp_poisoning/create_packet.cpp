@@ -10,7 +10,7 @@
  * @throws runtime_error if ARP layer fails to construct
  * @throws runtime_error if ethernet layer fails to construct
  */
-pcpp::Packet ARP::createPacket(ARP::ArpPoisoningPacketPayload &payload) {
+pcpp::Packet ATK::ARP::createPacket(ARP::ArpPoisoningPacketPayload &payload) {
 
     // Build ARP spoofing packet
     pcpp::EthLayer ethLayer(payload.macAttacker, payload.macVictim,

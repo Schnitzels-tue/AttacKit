@@ -4,7 +4,7 @@
 #include "MacAddress.h"
 #include "Packet.h"
 
-namespace ARP {
+namespace ATK::ARP {
 
 constexpr int MAX_PACKET_LEN = 100;
 
@@ -17,4 +17,4 @@ struct ArpPoisoningPacketPayload {
 };
 
 pcpp::Packet createPacket(ArpPoisoningPacketPayload &payload);
-} // namespace ARP
+} // namespace ATK::ARP

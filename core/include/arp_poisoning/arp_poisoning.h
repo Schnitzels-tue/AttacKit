@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace ARP {
+namespace ATK::ARP {
 
 struct ArpPoisoningOptions {
     std::string ipAttacker;
@@ -14,4 +14,4 @@ struct ArpPoisoningOptions {
 };
 
 void poisonArp(ArpPoisoningOptions &options);
-} // namespace ARP
+} // namespace ATK::ARP
