@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <optional>
 #include <string>
 #include <unordered_set>
 #include <utility>
@@ -13,8 +14,14 @@ class CLIParser {
     struct Flag {
         std::string flagName;
         char flagChar;
-        AnyFunction flagFunction; 
+        AnyFunction flagFunction;
         std::string flagHelpText;
+        int amountOfArguments;
+    };
+
+    struct InvokeableFunction {
+        AnyFunction function;
+        std::vector<std::string> arguments;
     };
 
     std::string helpText;
@@ -34,10 +41,12 @@ public:
         "  options: \n") {}
 
     void print();
-    void parse();
+    std::optional<std::vector<InvokeableFunction>> parse();
+    static void invokeFunction(const AnyFunction&, const std::vector<std::string>&);
     int findCharFlag(char);
+    int findFlagName(const std::string&);
     void help();
 
     std::string generate_flags_text();
-    void add_flag(const std::string& flagName, const AnyFunction& associatedFunction, const std::string& helpText);
+    void add_flag(const std::string& flagName, const AnyFunction& associatedFunction, const std::string& helpText, int amountOfArguments);
 };
