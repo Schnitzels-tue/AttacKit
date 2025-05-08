@@ -1,15 +1,24 @@
-# Specify the sources for the logger static library
 set(SOURCES
     src/arp_poisoning.cpp
 )
 
-# Declare the logger as a static library
 add_library(core STATIC ${SOURCES})
 
-# Add PcapPlusPlus subdirectory
+target_include_directories(core
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/internal/
+    # Include other third-party directories as needed
+)
+
 add_subdirectory(
     ${CMAKE_SOURCE_DIR}/thirdparty/PcapPlusPlus thirdparty/PcapPlusPlus
 )
+
+target_compile_options(Common++ PRIVATE -w)
+target_compile_options(Packet++ PRIVATE -w)
+target_compile_options(Pcap++ PRIVATE -w)
 
 # Link third-party dependencies
 target_link_libraries(core PRIVATE
@@ -17,13 +26,4 @@ target_link_libraries(core PRIVATE
     Packet++
     Pcap++
     # other third-party dependencies
-)
-
-# Include directories for the logger
-target_include_directories(core
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/internal/
-    # Include other third-party directories as needed
 )
