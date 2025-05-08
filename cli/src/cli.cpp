@@ -17,6 +17,7 @@ int main(int argc, char* argv[]) {
     // parser.add_flag("ssl", []() {SSL::stripSSL();}, "dummy    Lorem Ipsum");
 
     parser.help();
+    parser.print();
 
     ARP::useHelper();
     helper();

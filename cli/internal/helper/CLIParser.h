@@ -6,15 +6,24 @@
 #include <utility>
 #include <vector>
 
+
 class CLIParser {
     using AnyFunction = std::function<void(const std::vector<std::string>&)>;
+
+    struct Flag {
+        std::string flagName;
+        char flagChar;
+        AnyFunction flagFunction; 
+        std::string flagHelpText;
+    };
 
     std::string helpText;
     std::vector<std::string> args;
 
     // Keys: string of flag name
     // Values: a pair in the format of (flagChar, function_to_call, helpText)
-    std::vector<std::tuple<std::string, char, AnyFunction, std::string>> flags;
+    std::vector<Flag> allFlags;
+    std::vector<Flag> setFlags;
 
 public:
     template <typename... Args>
@@ -26,6 +35,7 @@ public:
 
     void print();
     void parse();
+    int findCharFlag(char);
     void help();
 
     std::string generate_flags_text();
