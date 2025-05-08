@@ -4,16 +4,6 @@
 #include "PcapLiveDeviceList.h"
 #include "arp_poisoning/create_packet.h"
 
-/**
- * Send a single arp poisoning packet.
- *
- * @param options strings containing mac and arp adresses
- * @throws invalid_argument if device is invalid
- * @throws invalid_argumnet if ip adresses are malformed
- * @throws invalid_argument if mac adresses are malformed
- * @throws runtime_exception if construction of packet fails
- * @throws runtime_exception if sending of packet fails
- */
 void ATK::ARP::poisonArp(ArpPoisoningOptions &options) {
     pcpp::MacAddress macAttacker(options.macAttacker);
     pcpp::IPv4Address ipAttacker(options.ipAttacker);

@@ -1,4 +1,5 @@
 #include <string>
+
 namespace ATK::Common {
 struct DeviceInfo {
     std::string name;
@@ -6,5 +7,9 @@ struct DeviceInfo {
     std::string iPv6Adress;
     std::string macAdress;
     bool active;
+};
+
+struct PacketInfo {
+    std::string d;
 };
 } // namespace ATK::Common

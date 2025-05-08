@@ -1,9 +1,10 @@
 #include "network_scout/network_scout.h"
+#include "PcapLiveDevice.h"
 #include "PcapLiveDeviceList.h"
 
 #include <vector>
 
-std::vector<ATK::Common::DeviceInfo> ATK::Scout::getDevices() {
+std::vector<ATK::Common::DeviceInfo> ATK::Scout::getInterfaces() {
     auto devices =
         pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
@@ -22,4 +23,16 @@ std::vector<ATK::Common::DeviceInfo> ATK::Scout::getDevices() {
     }
 
     return deviceInfoList;
+}
+
+std::vector<ATK::Common::PacketInfo>
+ATK::Scout::sniffPackets(const std::string &deviceIpOrName, int numPackets) {
+    std::vector<ATK::Common::PacketInfo> packetInfoList;
+    packetInfoList.reserve(numPackets);
+
+    pcpp::PcapLiveDevice *device =
+        pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(
+            deviceIpOrName);
+
+    return packetInfoList;
 }
