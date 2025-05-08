@@ -19,10 +19,6 @@ class CLIParser {
         int amountOfArguments;
     };
 
-    struct InvokeableFunction {
-        AnyFunction function;
-        std::vector<std::string> arguments;
-    };
 
     std::string helpText;
     std::vector<std::string> args;
@@ -33,6 +29,11 @@ class CLIParser {
     std::vector<Flag> setFlags;
 
 public:
+    struct InvokeableFunction {
+        AnyFunction function;
+        std::vector<std::string> arguments;
+    };
+
     template <typename... Args>
     explicit CLIParser(Args... args) : args({ args... }), 
         helpText("This application is meant to provide the necessary functionality to perform ARP poisoning, "
