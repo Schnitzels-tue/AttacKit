@@ -9,7 +9,27 @@ struct DeviceInfo {
     bool active;
 };
 
+struct DataLinkLayer {
+    std::string name;
+    std::string sourceMAC;
+    std::string destinationMAC;
+};
+
+struct NetworkLayer {
+    std::string name;
+    std::string sourceIP;
+    std::string destinationIP;
+};
+
+struct TransportLayer {
+    std::string name;
+    std::string sourcePort;
+    std::string destinationPort;
+};
+
 struct PacketInfo {
-    std::string d;
+    DataLinkLayer dataLinkLayer;
+    NetworkLayer networkLayer;
+    TransportLayer transportLayer;
 };
 } // namespace ATK::Common
