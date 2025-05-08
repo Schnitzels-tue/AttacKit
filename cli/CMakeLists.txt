@@ -1,7 +1,6 @@
 # Add source files
 set(SOURCES
     src/cli.cpp
-    src/helper/helper.cpp
     src/helper/CLIParser.cpp
 )
 

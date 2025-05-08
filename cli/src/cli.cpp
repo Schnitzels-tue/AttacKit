@@ -1,7 +1,5 @@
-#include "helper/helper.h"
 #include "helper/CLIParser.h"
 
-#include <core.h>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -22,10 +20,5 @@ int main(int argc, char* argv[]) {
             CLIParser::invokeFunction(parsedFunction.function, parsedFunction.arguments);
         }
     }
-
-    ARP::useHelper();
-    helper();
-
-    ARP::poisonArp();
     return 0;
 }
