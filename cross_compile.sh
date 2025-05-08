@@ -25,6 +25,8 @@ check_status() {
 
 echo "This is a temporary solution that bears inconsistent results, in the future switch to on-machine building or some other solution."
 
+mkdir cross_build
+
 # Start the Docker build processes in the background and redirect logs
 docker build --progress=quiet -f Dockerfile.amd64-linux-static -t amd64-linux-static-builder --output type=local,dest=./cross_build . >cross_build/amd64-linux-static-build.log 2>&1 &
 pid1=$!
@@ -49,3 +51,6 @@ clear
 check_status $pid1 "amd64-linux-static" "cross_build/amd64-linux-static-build.log"
 check_status $pid2 "amd64-linux" "cross_build/amd64-linux-build.log"
 check_status $pid3 "arm64-linux" "cross_build/arm64-linux-build.log"
+
+echo "cleaning up..."
+rm cross_build/*.log

@@ -26,7 +26,7 @@ void ARP::poisonArp(ArpPoisoningOptions &options) {
     // Open interface
     pcpp::PcapLiveDevice *device =
         pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(
-            options.interface);
+            options.deviceName);
 
     ARP::ArpPoisoningPacketPayload payload{ipAttacker, macAttacker, ipVictim,
                                            macVictim, ipToSpoof};
