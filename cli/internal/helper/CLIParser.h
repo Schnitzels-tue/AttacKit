@@ -23,8 +23,6 @@ class CLIParser {
     std::string helpText;
     std::vector<std::string> args;
 
-    // Keys: string of flag name
-    // Values: a pair in the format of (flagChar, function_to_call, helpText)
     std::vector<Flag> allFlags;
     std::vector<Flag> setFlags;
 
