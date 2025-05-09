@@ -1,7 +1,9 @@
+#pragma once
+
 #include <string>
 
 namespace ATK::Common {
-struct DeviceInfo {
+struct InterfaceInfo {
     std::string name;
     std::string iPv4Adress;
     std::string iPv6Adress;
@@ -23,11 +25,17 @@ struct NetworkLayer {
 
 struct TransportLayer {
     std::string name;
-    std::string sourcePort;
-    std::string destinationPort;
+    int sourcePort;
+    int destinationPort;
+};
+
+struct PayloadLayer {
+    int length;
 };
 
 struct PacketInfo {
+    int length;
+    std::string arrivalTime;
     DataLinkLayer dataLinkLayer;
     NetworkLayer networkLayer;
     TransportLayer transportLayer;
