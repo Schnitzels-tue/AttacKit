@@ -20,7 +20,7 @@ void ATK::ARP::poisonArp(ArpPoisoningOptions &options) {
 
     if (device == nullptr || !device->open()) {
         std::string msg =
-            std::string("Unable to open interface ") + device->getName() + "\n";
+            std::string("Unable to open interface ") + options.deviceName + "\n";
         throw std::invalid_argument(msg);
     }
 
