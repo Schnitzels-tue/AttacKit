@@ -3,6 +3,7 @@ set(SOURCES
     src/arp_poisoning/create_packet.cpp
     src/network_scout/network_scout.cpp
     src/network_scout/sniffing.cpp
+    src/common/pcap_to_common.cpp
 )
 
 add_library(core STATIC ${SOURCES})

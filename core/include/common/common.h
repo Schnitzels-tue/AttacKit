@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 namespace ATK::Common {
 struct InterfaceInfo {
@@ -11,33 +12,11 @@ struct InterfaceInfo {
     std::string description;
 };
 
-struct DataLinkLayer {
-    std::string name;
-    std::string sourceMAC;
-    std::string destinationMAC;
-};
-
-struct NetworkLayer {
-    std::string name;
-    std::string sourceIP;
-    std::string destinationIP;
-};
-
-struct TransportLayer {
-    std::string name;
-    int sourcePort;
-    int destinationPort;
-};
-
-struct PayloadLayer {
-    int length;
-};
-
+/**
+ * For now only has the string representation of each layer.
+ * Lots of work to pattern match all the layers and parse them.
+ */
 struct PacketInfo {
-    int length;
-    std::string arrivalTime;
-    DataLinkLayer dataLinkLayer;
-    NetworkLayer networkLayer;
-    TransportLayer transportLayer;
+    std::vector<std::string> info;
 };
 } // namespace ATK::Common
