@@ -1,4 +1,4 @@
-#include "arp_poisoning/arp_poisoning.h"
+#include "arp/arp_poisoning.h"
 #include "IpAddress.h"
 #include "MacAddress.h"
 #include "PcapLiveDeviceList.h"
@@ -19,8 +19,8 @@ void ATK::ARP::poisonArp(ArpPoisoningOptions &options) {
             options.deviceName);
 
     if (device == nullptr || !device->open()) {
-        std::string msg =
-            std::string("Unable to open interface ") + options.deviceName + "\n";
+        std::string msg = std::string("Unable to open interface ") +
+                          options.deviceName + "\n";
         throw std::invalid_argument(msg);
     }
 
