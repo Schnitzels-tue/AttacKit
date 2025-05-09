@@ -2,7 +2,7 @@
 #include "IpAddress.h"
 #include "MacAddress.h"
 #include "PcapLiveDeviceList.h"
-#include "arp_poisoning/create_packet.h"
+#include "arp/create_packet.h"
 
 void ATK::ARP::poisonArp(ArpPoisoningOptions &options) {
     pcpp::MacAddress macAttacker(options.macAttacker);
