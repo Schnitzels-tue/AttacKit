@@ -16,10 +16,10 @@ struct ArpPoisoningOptions {
 /**
  * Send a single arp poisoning packet.
  *
- * @param options strings containing mac and arp adresses
+ * @param options strings containing MAC and ARP addresses
  * @throws invalid_argument if device is invalid
- * @throws invalid_argumnet if ip adresses are malformed
- * @throws invalid_argument if mac adresses are malformed
+ * @throws invalid_argument if IP addresses are malformed
+ * @throws invalid_argument if MAC addresses are malformed
  * @throws runtime_exception if construction of packet fails
  * @throws runtime_exception if sending of packet fails
  */
