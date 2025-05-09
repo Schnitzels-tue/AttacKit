@@ -6,9 +6,9 @@
 namespace ATK::Common {
 struct InterfaceInfo {
     std::string name;
-    std::string iPv4Adress;
-    std::string iPv6Adress;
-    std::string macAdress;
+    std::string iPv4Address;
+    std::string iPv6Address;
+    std::string macAddress;
     std::string description;
 };
 
