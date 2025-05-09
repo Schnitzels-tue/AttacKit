@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-void test_function(int x, int y) {
+void testFunction(int x, int y) {
     int z = x + y;
     std::cout << z << std::endl;
 }
@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
         try {
             int x = std::stoi(funcArgs[0]);
             int y = std::stoi(funcArgs[1]);
-            test_function(x, y);
+            testFunction(x, y);
         } catch (const std::invalid_argument& e) {
             std::cout << "Invalid arguments, sum arguments are not numbers" << std::endl;
         }
