@@ -8,7 +8,7 @@ struct InterfaceInfo {
     std::string iPv4Adress;
     std::string iPv6Adress;
     std::string macAdress;
-    bool active;
+    std::string description;
 };
 
 struct DataLinkLayer {

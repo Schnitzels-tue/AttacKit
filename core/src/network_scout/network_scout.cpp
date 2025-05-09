@@ -1,6 +1,8 @@
 #include "network_scout/network_scout.h"
+#include "PcapLiveDevice.h"
 #include "PcapLiveDeviceList.h"
 #include "common/common.h"
+#include "common/pcap_to_common.h"
 
 std::vector<ATK::Common::InterfaceInfo> ATK::Scout::getInterfaces() {
     auto devices =
@@ -9,15 +11,8 @@ std::vector<ATK::Common::InterfaceInfo> ATK::Scout::getInterfaces() {
     std::vector<ATK::Common::InterfaceInfo> deviceInfoList;
     deviceInfoList.reserve(devices.size());
 
-    for (auto *device : devices) {
-        ATK::Common::InterfaceInfo DeviceInfo{
-            .name = device->getName(),
-            .iPv4Adress = device->getIPv4Address().toString(),
-            .iPv6Adress = device->getIPv6Address().toString(),
-            .macAdress = device->getMacAddress().toString(),
-            .active = device->captureActive()};
-
-        deviceInfoList.emplace_back(DeviceInfo);
+    for (const pcpp::PcapLiveDevice *device : devices) {
+        deviceInfoList.emplace_back(ATK::Common::toInterfaceInfo(*device));
     }
 
     return deviceInfoList;

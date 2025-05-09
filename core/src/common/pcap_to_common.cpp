@@ -5,4 +5,10 @@
 ATK::Common::PacketInfo ATK::Common::toPacketInfo(const pcpp::Packet &packet) {}
 
 ATK::Common::InterfaceInfo
-ATK::Common::toInterfaceInfo(const pcpp::PcapLiveDevice &device) {}
+ATK::Common::toInterfaceInfo(const pcpp::PcapLiveDevice &device) {
+    return {.name = device.getName(),
+            .iPv4Adress = device.getIPv4Address().toString(),
+            .iPv6Adress = device.getIPv6Address().toString(),
+            .macAdress = device.getMacAddress().toString(),
+            .description = device.getDesc()};
+}
