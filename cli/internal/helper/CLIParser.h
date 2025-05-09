@@ -40,6 +40,7 @@ public:
         "  options: \n") {}
 
     void print();
+    std::optional<std::vector<InvokeableFunction>> flagsToFunctions(int&);
     std::optional<std::vector<InvokeableFunction>> parse();
     static void invokeFunction(const AnyFunction&, const std::vector<std::string>&);
 

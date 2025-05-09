@@ -8,6 +8,27 @@ void CLIParser::print() {
     }
 }
 
+std::optional<std::vector<CLIParser::InvokeableFunction>> CLIParser::flagsToFunctions(int& iteration) {
+    std::vector<InvokeableFunction> parsedFunctions;
+    
+    for (const Flag& setFlag : setFlags) {
+        std::vector<std::string> flagArgs;
+        flagArgs.reserve(setFlag.amountOfArguments);
+
+        for (int j = 0; j < setFlag.amountOfArguments; ++j) {
+            if (args.size() <= ++iteration) {
+                std::cout << "Did not supply enough arguments for flag " << setFlag.flagName << std::endl;
+                return std::nullopt;
+            }
+            flagArgs.push_back(args[iteration]);
+        }
+
+        parsedFunctions.push_back(InvokeableFunction {setFlag.flagFunction, flagArgs});
+    }
+
+    return parsedFunctions;
+}
+
 std::optional<std::vector<CLIParser::InvokeableFunction>> CLIParser::parse() {
     std::vector<InvokeableFunction> parsedFunctions;
 
@@ -47,15 +68,11 @@ std::optional<std::vector<CLIParser::InvokeableFunction>> CLIParser::parse() {
             std::cerr << "Something went wrong while processing the command." << std::endl;
         }
 
-        for (const Flag& setFlag : setFlags) {
-            std::vector<std::string> flagArgs;
-            flagArgs.reserve(setFlag.amountOfArguments);
-            for (int j = 0; j < setFlag.amountOfArguments; ++j) {
-                flagArgs.push_back(args[++i]);
-            }
-
-            parsedFunctions.push_back(InvokeableFunction {setFlag.flagFunction, flagArgs});
+        auto optionalParsedFunctions = flagsToFunctions(i);
+        if (!optionalParsedFunctions) {
+            return std::nullopt;
         }
+        parsedFunctions = *optionalParsedFunctions;
     }
     return parsedFunctions;
 }
