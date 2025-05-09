@@ -16,4 +16,4 @@ std::vector<ATK::Common::InterfaceInfo> ATK::Scout::getInterfaces() {
     }
 
     return deviceInfoList;
-} // namespace std::vector
+} // namespace ATK::Scout
