@@ -27,7 +27,7 @@ jobs:
       - name: Check code format with clang-format
         run: |
           # Run clang-format on all .cpp, .h, and other source files excluding thirdparty folder
-          find . -path ./thirdparty -prune -o -name '*.[chcpp]' -exec clang-format -i -style=.clang-format {} \; | tee clang-format-output.txt
+          find . -path ./thirdparty -prune -o -name '*.{c,cpp,h}' -exec clang-format -i -style=.clang-format {} \; | tee clang-format-output.txt
           # Check if there are any issues in clang-format output
           if [ -s clang-format-output.txt ]; then
             echo "clang-format issues found:"
