@@ -3,7 +3,12 @@
 #include "IpAddress.h"
 #include "MacAddress.h"
 #include "PcapLiveDevice.h"
+#include <chrono>
 namespace ATK::ARP {
+constexpr int ARP_PING_ATTEMPTS = 10;
+constexpr std::chrono::duration ARP_TIMEOUT_DURATION =
+    std::chrono::milliseconds(4000);
+constexpr int PACKET_SIZE = 60;
 /**
  * Get the MAC Adress of an ip
  *

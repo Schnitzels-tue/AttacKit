@@ -8,36 +8,17 @@
 #include "PcapLiveDevice.h"
 #include "ProtocolType.h"
 #include "RawPacket.h"
+#include <exception>
 #include <future>
 #include <stdexcept>
 
 namespace {
-
-constexpr int PACKET_SIZE = 60;
 
 struct Packetinfo {
     pcpp::IPv4Address sourceIp;
     pcpp::IPv4Address targetIp;
     pcpp::MacAddress sourceMac;
 };
-
-pcpp::Packet createPacket(const Packetinfo &info) {
-
-    pcpp::EthLayer ethLayer(info.sourceMac,
-                            pcpp::MacAddress("ff:ff:ff:ff:ff:ff"),
-                            PCPP_ETHERTYPE_ARP);
-
-    pcpp::ArpLayer arpLayer(pcpp::ARP_REQUEST, info.sourceMac,
-                            pcpp::MacAddress("00:00:00:00:00:00"),
-                            info.sourceIp, info.targetIp);
-
-    pcpp::Packet arpRequest(PACKET_SIZE);
-    arpRequest.addLayer(&ethLayer);
-    arpRequest.addLayer(&arpLayer);
-    arpRequest.computeCalculateFields();
-
-    return arpRequest;
-}
 
 struct PacketArrivalCookie {
     std::promise<pcpp::MacAddress> *macPromise{};
@@ -52,6 +33,7 @@ struct PacketArrivalCookie {
  */
 void onPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device,
                      void *cookie) {
+
     auto *packetArrivalCookie = static_cast<PacketArrivalCookie *>(cookie);
     pcpp::Packet parsedPacket(packet);
 
@@ -62,8 +44,7 @@ void onPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device,
 
     if (arpLayer->getSenderIpAddr() == packetArrivalCookie->requestedIp) {
         packetArrivalCookie->macPromise->set_value(
-            arpLayer->getSenderMacAddress());
-        device->stopCapture();
+            arpLayer->getTargetMacAddress());
     }
 }
 
@@ -77,12 +58,19 @@ pcpp::MacAddress ATK::ARP::resolveArp(pcpp::IPv4Address targetIp,
     }
 
     pcpp::IPv4Address sourceIp = device.getIPv4Address();
-
     pcpp::MacAddress sourceMac = device.getMacAddress();
-    Packetinfo packetInfo{
-        .sourceIp = sourceIp, .targetIp = targetIp, .sourceMac = sourceMac};
 
-    pcpp::Packet packet = createPacket(packetInfo);
+    pcpp::EthLayer ethLayer(sourceMac, pcpp::MacAddress("ff:ff:ff:ff:ff:ff"),
+                            PCPP_ETHERTYPE_ARP);
+
+    pcpp::ArpLayer arpLayer(pcpp::ARP_REQUEST, sourceMac,
+                            pcpp::MacAddress("00:00:00:00:00:00"), sourceIp,
+                            targetIp);
+
+    pcpp::Packet packet(PACKET_SIZE);
+    packet.addLayer(&ethLayer);
+    packet.addLayer(&arpLayer);
+    packet.computeCalculateFields();
 
     // set filters
     pcpp::ProtoFilter protoFilter(pcpp::ARP);
@@ -94,12 +82,19 @@ pcpp::MacAddress ATK::ARP::resolveArp(pcpp::IPv4Address targetIp,
 
     std::promise<pcpp::MacAddress> promise;
     std::future<pcpp::MacAddress> future = promise.get_future();
-    bool canceled = false;
-    PacketArrivalCookie cookie{&promise, targetIp, false};
+    PacketArrivalCookie cookie{&promise, targetIp};
 
-    device.sendPacket(&packet);
+    device.startCapture(onPacketArrives, &cookie);
+    for (int i = 0; i < ARP_PING_ATTEMPTS; i++) {
+        device.sendPacket(&packet);
+        if (future.wait_for(ARP_TIMEOUT_DURATION) ==
+            std::future_status::ready) {
+            device.stopCapture();
+            device.close();
 
-    device.startCapture(onPacketArrives, &promise);
+            return future.get();
+        };
+    }
 
-    return future.get();
+    throw std::runtime_error("No reply from ARP");
 }
