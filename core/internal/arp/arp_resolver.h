@@ -10,7 +10,7 @@ constexpr std::chrono::duration ARP_TIMEOUT_DURATION =
     std::chrono::milliseconds(4000);
 constexpr int PACKET_SIZE = 60;
 /**
- * Get the MAC Adress of an ip
+ * Get the MAC Address of an ip
  *
  * @throws invalid_argument if not a valid ip
  * @throws runtime_error if unable to open interface
