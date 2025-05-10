@@ -77,7 +77,7 @@ pcpp::MacAddress ATK::ARP::resolveArp(pcpp::IPv4Address targetIp,
     pcpp::AndFilter andfilter;
     andfilter.addFilter(&protoFilter);
     if (!device.setFilter(andfilter)) {
-        throw std::runtime_error("Failed to set BRP filter");
+        throw std::runtime_error("Failed to set BPF filter");
     };
 
     std::promise<pcpp::MacAddress> promise;
