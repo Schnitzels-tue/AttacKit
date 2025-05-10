@@ -39,7 +39,7 @@ jobs:
       - name: Run clang-tidy
         run: |
           # Run clang-tidy on all .cpp, .h, and other source files excluding thirdparty folder
-          find . -path ./thirdparty -prune -o -name '*.[chcpp]' | xargs clang-tidy -config=,clang-tidy -checks='*' --quiet | tee clang-tidy-output.txt
+          find . -path ./thirdparty -prune -o -name '*.{c,cpp,h}' | xargs clang-tidy -config='' -checks='*' --quiet | tee clang-tidy-output.txt
           # Check if there are any issues in clang-tidy output
           if [ -s clang-tidy-output.txt ]; then
             echo "clang-tidy issues found:"
