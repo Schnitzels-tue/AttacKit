@@ -54,7 +54,7 @@ pcpp::MacAddress ATK::ARP::resolveArp(pcpp::IPv4Address targetIp,
                                       pcpp::PcapLiveDevice &device) {
 
     if (!device.open()) {
-        throw std::runtime_error("unable to open inerface" + device.getName());
+        throw std::runtime_error("unable to open interface" + device.getName());
     }
 
     pcpp::IPv4Address sourceIp = device.getIPv4Address();
