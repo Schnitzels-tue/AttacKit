@@ -29,5 +29,6 @@ target_link_libraries(core PRIVATE
     Common++
     Packet++
     Pcap++
+    logger
     # other third-party dependencies
 )
