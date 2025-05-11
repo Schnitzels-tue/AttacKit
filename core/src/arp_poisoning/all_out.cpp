@@ -6,7 +6,6 @@
 #include "PcapLiveDevice.h"
 #include "RawPacket.h"
 #include <future>
-#include <iostream>
 #include <stdexcept>
 
 namespace {
