@@ -1,5 +1,6 @@
 set(SOURCES
     src/arp_poisoning/all_out.cpp
+    src/arp_poisoning/public.cpp
     src/network_scout/network_scout.cpp
     src/network_scout/sniffing.cpp
     src/common/pcap_to_common.cpp

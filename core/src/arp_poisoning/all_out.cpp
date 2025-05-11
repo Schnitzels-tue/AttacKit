@@ -6,6 +6,7 @@
 #include "PcapLiveDevice.h"
 #include "RawPacket.h"
 #include <future>
+#include <iostream>
 #include <stdexcept>
 
 namespace {
@@ -57,6 +58,7 @@ void ATK::ARP::AllOutArpPoisoningStrategy::execute() {
     pcpp::ArpFilter arpFilter(pcpp::ArpOpcode::ARP_REQUEST);
     device_->setFilter(arpFilter);
 
+    std::cout << "done" << "\n";
     device_->startCapture(onPacketArrives, &cookie);
 
     completionFuture.wait();
