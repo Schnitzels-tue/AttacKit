@@ -7,6 +7,10 @@
 #include <memory>
 #include <stdexcept>
 
+/**
+ * In the current implementation this method will not terminate and keep
+ * peforming the attack.
+ */
 void ATK::ARP::allOutPoison(const AllOutPoisonOptions &options) {
     pcpp::PcapLiveDevice *device =
         pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(
