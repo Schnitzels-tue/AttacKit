@@ -18,7 +18,7 @@ void ATK::ARP::allOutPoison(const AllOutPoisonOptions &options) {
     }
 
     std::unique_ptr<ATK::ARP::AllOutArpPoisoningStrategy> strategy;
-    if (options.attackerMacAddress != "") {
+    if (!options.attackerMacAddress.empty()) {
 
         pcpp::MacAddress macAddress(options.attackerMacAddress);
         strategy = std::make_unique<ATK::ARP::AllOutArpPoisoningStrategy>(
