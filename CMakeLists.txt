@@ -7,6 +7,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(PCAP_ROOT ${CMAKE_SOURCE_DIR}/thirdparty/npcap-sdk)
 
+# Check if we are in Debug mode and define the DEBUG macro
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_definitions(-DDEBUG)  # Define DEBUG for Debug builds
+endif()
+
 include(CTest)
 enable_testing()
 
@@ -19,3 +24,4 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_subdirectory(core)
 add_subdirectory(cli)
+add_subdirectory(logging)
