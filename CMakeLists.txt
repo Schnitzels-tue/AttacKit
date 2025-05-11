@@ -9,7 +9,7 @@ set(PCAP_ROOT ${CMAKE_SOURCE_DIR}/thirdparty/npcap-sdk)
 
 # Check if we are in Debug mode and define the DEBUG macro
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_definitions(-DDEBUG)  # Define DEBUG for Debug builds
+  add_definitions(-DDEBUG)  # Define DEBUG for Debug builds
 endif()
 
 include(CTest)
