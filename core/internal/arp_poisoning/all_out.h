@@ -7,13 +7,13 @@ namespace ATK::ARP {
 class AllOutArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
   public:
     AllOutArpPoisoningStrategy(pcpp::PcapLiveDevice *device,
-                               pcpp::MacAddress attackerMacAddress) {
+                               pcpp::MacAddress attackerMac) {
         if (device == nullptr) {
             throw std::invalid_argument("Not a valid interface");
         }
 
         device_ = device;
-        attackerMacAddress_ = attackerMacAddress;
+        attackerMac_ = attackerMac;
     }
 
     explicit AllOutArpPoisoningStrategy(pcpp::PcapLiveDevice *device) {
@@ -22,13 +22,13 @@ class AllOutArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
         }
 
         device_ = device;
-        attackerMacAddress_ = device->getMacAddress();
+        attackerMac_ = device->getMacAddress();
     }
 
     void execute() override;
 
   private:
     pcpp::PcapLiveDevice *device_;
-    pcpp::MacAddress attackerMacAddress_;
+    pcpp::MacAddress attackerMac_;
 };
 } // namespace ATK::ARP
