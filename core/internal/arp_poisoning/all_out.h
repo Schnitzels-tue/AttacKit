@@ -2,6 +2,7 @@
 
 #include "MacAddress.h"
 #include "PcapLiveDevice.h"
+#include "RawPacket.h"
 #include "arp_poisoning/arp_poisoning_strategy.h"
 #include <memory>
 #include <optional>
@@ -32,14 +33,18 @@ class AllOutArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
 
   private:
     AllOutArpPoisoningStrategy(pcpp::PcapLiveDevice *device,
-                               std::optional<pcpp::MacAddress> attackerMac) {
+                               std::optional<pcpp::MacAddress> attackerMac)
+        : device_(device) {
         if (device == nullptr) {
             throw std::invalid_argument("Not a valid interface");
         }
 
-        device_ = device;
         attackerMac_ = attackerMac.value_or(device->getMacAddress());
     }
+
+    void onPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device,
+                         void *cookie) override;
+
     pcpp::PcapLiveDevice *device_;
     pcpp::MacAddress attackerMac_;
 };

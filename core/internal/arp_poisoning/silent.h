@@ -50,6 +50,10 @@ class SilentArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
 
         attackerMac_ = attackerMac.value_or(device->getMacAddress());
     }
+
+    void onPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device,
+                         void *cookie) override;
+
     pcpp::PcapLiveDevice *device_;
     std::optional<pcpp::IPv4Address> victimIp_;
     pcpp::MacAddress attackerMac_;

