@@ -25,11 +25,11 @@ void ATK::ARP::allOutPoison(const AllOutPoisonOptions &options) {
     if (!options.attackerMacAddress.empty()) {
 
         pcpp::MacAddress macAddress(options.attackerMacAddress);
-        strategy = std::make_unique<ATK::ARP::AllOutArpPoisoningStrategy>(
-            device, macAddress);
+        strategy = AllOutArpPoisoningStrategy::Builder(device)
+                       .attackerMac(macAddress)
+                       .build();
     } else {
-        strategy =
-            std::make_unique<ATK::ARP::AllOutArpPoisoningStrategy>(device);
+        strategy = AllOutArpPoisoningStrategy::Builder(device).build();
     }
 
     ArpPoisoningContext arpPoisoningContext(std::move(strategy));
