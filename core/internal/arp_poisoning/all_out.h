@@ -4,6 +4,7 @@
 #include "PcapLiveDevice.h"
 #include "arp_poisoning/arp_poisoning_strategy.h"
 #include <memory>
+#include <optional>
 #include <stdexcept>
 
 namespace ATK::ARP {
@@ -13,7 +14,7 @@ class AllOutArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
       public:
         explicit Builder(pcpp::PcapLiveDevice *device) : device_(device) {}
         Builder &attackerMac(pcpp::MacAddress attackerMac) {
-            this->attackerMac_ = attackerMac;
+            this->attackerMac_ = std::optional<pcpp::MacAddress>(attackerMac);
             return *this;
         }
         std::unique_ptr<AllOutArpPoisoningStrategy> build() {
