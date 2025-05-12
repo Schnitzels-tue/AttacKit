@@ -48,7 +48,12 @@ void ATK::ARP::AllOutArpPoisoningStrategy::execute() {
     std::future completionFuture = completionPromise.get_future();
 
     pcpp::ArpFilter arpFilter(pcpp::ArpOpcode::ARP_REQUEST);
-    device_->setFilter(arpFilter);
+    pcpp::EtherTypeFilter etherTypeFilter(PCPP_ETHERTYPE_ARP);
+    pcpp::AndFilter andFilter{};
+    andFilter.addFilter(&arpFilter);
+    andFilter.addFilter(&etherTypeFilter);
+
+    device_->setFilter(andFilter);
 
     device_->startCapture(
         [this](pcpp::RawPacket *packet, pcpp::PcapLiveDevice *dev,
