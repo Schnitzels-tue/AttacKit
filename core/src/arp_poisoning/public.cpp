@@ -22,14 +22,14 @@ void ATK::ARP::allOutPoison(const AllOutPoisonOptions &options) {
     }
 
     std::unique_ptr<ATK::ARP::AllOutArpPoisoningStrategy> strategy;
-    if (!options.attackerMacAddress.empty()) {
+    if (!options.attackerMac.empty()) {
 
-        pcpp::MacAddress macAddress(options.attackerMacAddress);
-        strategy = std::make_unique<ATK::ARP::AllOutArpPoisoningStrategy>(
-            device, macAddress);
+        pcpp::MacAddress macAddress(options.attackerMac);
+        strategy = AllOutArpPoisoningStrategy::Builder(device)
+                       .attackerMac(macAddress)
+                       .build();
     } else {
-        strategy =
-            std::make_unique<ATK::ARP::AllOutArpPoisoningStrategy>(device);
+        strategy = AllOutArpPoisoningStrategy::Builder(device).build();
     }
 
     ArpPoisoningContext arpPoisoningContext(std::move(strategy));
