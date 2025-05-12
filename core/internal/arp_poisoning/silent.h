@@ -1,70 +1,47 @@
+#pragma once
+
 #include "IpAddress.h"
 #include "MacAddress.h"
 #include "PcapLiveDevice.h"
 #include "arp_poisoning/arp_poisoning_strategy.h"
 #include <optional>
-#include <stdexcept>
 
 namespace ATK::ARP {
 class SilentArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
   public:
-    SilentArpPoisoningStrategy(pcpp::PcapLiveDevice *device,
-                               pcpp::IPv4Address victimIp,
-                               pcpp::MacAddress attackerMac,
-                               pcpp::IPv4Address ipToSpoof) {
-        if (device == nullptr) {
-            throw std::invalid_argument("Not a valid interface");
+    class Builder {
+        Builder(pcpp::PcapLiveDevice *device, pcpp::IPv4Address ipToSpoof)
+            : device_(device), ipToSpoof_(ipToSpoof) {}
+        Builder &victimIp(pcpp::IPv4Address victimIp) {
+            victimIp_ = victimIp;
+            return *this;
+        }
+        Builder &attackerMac(pcpp::MacAddress attackerMac) {
+            attackerMac_ = attackerMac;
+            return *this;
+        }
+        SilentArpPoisoningStrategy build() {
+            return {this->device_, this->victimIp_, this->attackerMac_,
+                    this->ipToSpoof_};
         }
 
-        device_ = device;
-        victimIp_ = std::optional<pcpp::IPv4Address>(victimIp);
-        attackerMac_ = attackerMac;
-        ipToSpoof_ = ipToSpoof;
-    }
-
-    SilentArpPoisoningStrategy(pcpp::PcapLiveDevice *device,
-                               pcpp::MacAddress attackerMac,
-                               pcpp::IPv4Address ipToSpoof) {
-        if (device == nullptr) {
-            throw std::invalid_argument("Not a valid interface");
-        }
-
-        device_ = device;
-        attackerMac_ = attackerMac;
-        victimIp_ = std::nullopt;
-        ipToSpoof_ = ipToSpoof;
-    }
-
-    SilentArpPoisoningStrategy(pcpp::PcapLiveDevice *device,
-                               pcpp::IPv4Address victimIp,
-                               pcpp::IPv4Address ipToSpoof) {
-        if (device == nullptr) {
-            throw std::invalid_argument("Not a valid interface");
-        }
-
-        device_ = device;
-        attackerMac_ = std::nullopt;
-        victimIp_ = std::optional<pcpp::IPv4Address>(victimIp);
-        ipToSpoof_ = ipToSpoof;
-    }
-
-    SilentArpPoisoningStrategy(pcpp::PcapLiveDevice *device,
-                               pcpp::IPv4Address ipToSpoof) {
-        if (device == nullptr) {
-            throw std::invalid_argument("Not a valid interface");
-        }
-
-        device_ = device;
-        attackerMac_ = std::nullopt;
-        victimIp_ = std::nullopt;
-        ipToSpoof_ = ipToSpoof;
-    }
+      private:
+        pcpp::PcapLiveDevice *device_;
+        std::optional<pcpp::IPv4Address> victimIp_;
+        std::optional<pcpp::MacAddress> attackerMac_;
+        pcpp::IPv4Address ipToSpoof_;
+    };
 
     void execute() override;
 
   private:
+    SilentArpPoisoningStrategy(pcpp::PcapLiveDevice *device,
+                               std::optional<pcpp::IPv4Address> victimIp,
+                               std::optional<pcpp::MacAddress> attackerMac,
+                               pcpp::IPv4Address ipToSpoof)
+        : device_(device), victimIp_(victimIp), attackerMac_(attackerMac),
+          ipToSpoof_(ipToSpoof) {}
     pcpp::PcapLiveDevice *device_;
-    // optional if you want to target any request
     std::optional<pcpp::IPv4Address> victimIp_;
     std::optional<pcpp::MacAddress> attackerMac_;
     pcpp::IPv4Address ipToSpoof_;
