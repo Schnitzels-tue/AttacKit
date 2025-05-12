@@ -9,11 +9,19 @@
 #include <stdexcept>
 
 namespace ATK::ARP {
+/**
+ * Silent ARP poisoning attack.
+ *
+ * Will try to spoof only a single ip address.
+ */
 class SilentArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
   public:
     class Builder {
         Builder(pcpp::PcapLiveDevice *device, pcpp::IPv4Address ipToSpoof)
             : device_(device), ipToSpoof_(ipToSpoof) {}
+        /**
+         * If no victimIp is supplied, it will respond to all sources.
+         */
         Builder &victimIp(pcpp::IPv4Address victimIp) {
             victimIp_ = victimIp;
             return *this;
@@ -22,6 +30,11 @@ class SilentArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
             attackerMac_ = attackerMac;
             return *this;
         }
+
+        /**
+         * If no attackerMac is supplied it will default to the mac adress of
+         * the interface.
+         */
         std::unique_ptr<SilentArpPoisoningStrategy> build() {
             return std::unique_ptr<SilentArpPoisoningStrategy>(
                 new SilentArpPoisoningStrategy(this->device_, this->victimIp_,
@@ -36,6 +49,14 @@ class SilentArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
         pcpp::IPv4Address ipToSpoof_;
     };
 
+    /**
+     * Executes silent arp poisoning attack.
+     *
+     * Replies to incoming arp requests for the ip address ipToSpoof.
+     * If victimIp is set, it will only reply to arp requests to the victim.
+     * When no attackerMac
+     *
+     */
     void execute() override;
 
   private:
