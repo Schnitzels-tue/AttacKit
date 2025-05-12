@@ -10,7 +10,7 @@
 
 namespace {
 struct AllOutArpPoisoningCookie {
-    pcpp::MacAddress attackerMacAddress;
+    pcpp::MacAddress attackerMac;
     std::promise<void> completionPromise;
 };
 
@@ -28,7 +28,7 @@ void onPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device,
     // determine whether or not to handle packet
     if ((requestEthLayer->getSourceMac() == device->getMacAddress() ||
          requestEthLayer->getSourceMac() ==
-             allOutArpPoisoningCookie->attackerMacAddress) ||
+             allOutArpPoisoningCookie->attackerMac) ||
         requestArpLayer->getTargetIpAddr() != device->getIPv4Address()) {
         return;
     }
@@ -38,8 +38,7 @@ void onPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device,
                                     requestEthLayer->getSourceMac());
 
     pcpp::ArpLayer responseArpLayer(
-        pcpp::ArpOpcode::ARP_REPLY,
-        allOutArpPoisoningCookie->attackerMacAddress,
+        pcpp::ArpOpcode::ARP_REPLY, allOutArpPoisoningCookie->attackerMac,
         requestArpLayer->getSenderMacAddress(),
         requestArpLayer->getTargetIpAddr(), requestArpLayer->getSenderIpAddr());
 
@@ -59,7 +58,7 @@ void ATK::ARP::AllOutArpPoisoningStrategy::execute() {
     std::promise<void> completionPromise;
     std::future completionFuture = completionPromise.get_future();
 
-    AllOutArpPoisoningCookie cookie{.attackerMacAddress = attackerMacAddress_,
+    AllOutArpPoisoningCookie cookie{.attackerMac = attackerMac_,
                                     .completionPromise =
                                         std::move(completionPromise)};
 

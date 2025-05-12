@@ -4,7 +4,7 @@
 namespace ATK::ARP {
 struct AllOutPoisonOptions {
     std::string ifaceIpOrName;
-    std::string attackerMacAddress;
+    std::string attackerMac;
 };
 
 void allOutPoison(const AllOutPoisonOptions &options);
