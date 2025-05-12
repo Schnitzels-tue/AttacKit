@@ -52,7 +52,7 @@ void ATK::ARP::AllOutArpPoisoningStrategy::execute() {
 
     device_->startCapture(
         [this](pcpp::RawPacket *packet, pcpp::PcapLiveDevice *dev,
-               void *userData) { onPacketArrives(packet, dev, userData); },
+               void *cookie) { onPacketArrives(packet, dev, cookie); },
         &completionFuture);
 
     completionFuture.wait();
