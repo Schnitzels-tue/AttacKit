@@ -4,7 +4,9 @@
 #include "MacAddress.h"
 #include "PcapLiveDevice.h"
 #include "arp_poisoning/arp_poisoning_strategy.h"
+#include <memory>
 #include <optional>
+#include <stdexcept>
 
 namespace ATK::ARP {
 class SilentArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
@@ -20,9 +22,11 @@ class SilentArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
             attackerMac_ = attackerMac;
             return *this;
         }
-        SilentArpPoisoningStrategy build() {
-            return {this->device_, this->victimIp_, this->attackerMac_,
-                    this->ipToSpoof_};
+        std::unique_ptr<SilentArpPoisoningStrategy> build() {
+            return std::unique_ptr<SilentArpPoisoningStrategy>(
+                new SilentArpPoisoningStrategy(this->device_, this->victimIp_,
+                                               this->attackerMac_,
+                                               this->ipToSpoof_));
         }
 
       private:
@@ -39,11 +43,16 @@ class SilentArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
                                std::optional<pcpp::IPv4Address> victimIp,
                                std::optional<pcpp::MacAddress> attackerMac,
                                pcpp::IPv4Address ipToSpoof)
-        : device_(device), victimIp_(victimIp), attackerMac_(attackerMac),
-          ipToSpoof_(ipToSpoof) {}
+        : device_(device), victimIp_(victimIp), ipToSpoof_(ipToSpoof) {
+        if (device == nullptr) {
+            throw std::invalid_argument("Not a valid interface");
+        }
+
+        attackerMac_ = attackerMac.value_or(device->getMacAddress());
+    }
     pcpp::PcapLiveDevice *device_;
     std::optional<pcpp::IPv4Address> victimIp_;
-    std::optional<pcpp::MacAddress> attackerMac_;
+    pcpp::MacAddress attackerMac_;
     pcpp::IPv4Address ipToSpoof_;
 };
 } // namespace ATK::ARP
