@@ -26,9 +26,9 @@ void onPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device,
     auto *requestArpLayer = parsedPacket.getLayerOfType<pcpp::ArpLayer>();
 
     // determine whether or not to handle packet
-    if (requestEthLayer->getSourceMac() == device->getMacAddress() ||
-        requestEthLayer->getSourceMac() ==
-            allOutArpPoisoningCookie->attackerMacAddress ||
+    if ((requestEthLayer->getSourceMac() == device->getMacAddress() ||
+         requestEthLayer->getSourceMac() ==
+             allOutArpPoisoningCookie->attackerMacAddress) ||
         requestArpLayer->getTargetIpAddr() != device->getIPv4Address()) {
         return;
     }
