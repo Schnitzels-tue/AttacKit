@@ -2,12 +2,17 @@
 
 #include "MacAddress.h"
 #include "PcapLiveDevice.h"
+#include "RawPacket.h"
 #include "arp_poisoning/arp_poisoning_strategy.h"
 #include <memory>
 #include <optional>
 #include <stdexcept>
 
 namespace ATK::ARP {
+/**
+ * All out arp poisoning strategy, will capture every arp request packet except
+ * the attacker's and send back the attackerMac.
+ */
 class AllOutArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
   public:
     class Builder {
@@ -17,6 +22,10 @@ class AllOutArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
             this->attackerMac_ = std::optional<pcpp::MacAddress>(attackerMac);
             return *this;
         }
+        /**
+         * If no attackerMac is supplied, default to the mac address of the
+         * interface
+         */
         std::unique_ptr<AllOutArpPoisoningStrategy> build() {
             return std::unique_ptr<AllOutArpPoisoningStrategy>(
                 new AllOutArpPoisoningStrategy(this->device_,
@@ -28,18 +37,28 @@ class AllOutArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
         std::optional<pcpp::MacAddress> attackerMac_;
     };
 
+    /**
+     * Executes Arp all out poisoning attack.
+     *
+     * Will reply to every incoming ARP packet, except those to the attacker's
+     * interface with the attackerMac.
+     */
     void execute() override;
 
   private:
     AllOutArpPoisoningStrategy(pcpp::PcapLiveDevice *device,
-                               std::optional<pcpp::MacAddress> attackerMac) {
+                               std::optional<pcpp::MacAddress> attackerMac)
+        : device_(device) {
         if (device == nullptr) {
             throw std::invalid_argument("Not a valid interface");
         }
 
-        device_ = device;
         attackerMac_ = attackerMac.value_or(device->getMacAddress());
     }
+
+    void onPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device,
+                         void *cookie) override;
+
     pcpp::PcapLiveDevice *device_;
     pcpp::MacAddress attackerMac_;
 };

