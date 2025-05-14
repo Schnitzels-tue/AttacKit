@@ -21,7 +21,7 @@ CLIParser::flagsToFunctions(int &iteration) {
 
         for (int j = 0; j < setFlag.amountOfArguments; ++j) {
             if (args.size() <= ++iteration) {
-    std::cout << "Did not supply enough arguments for flag "
+                std::cout << "Did not supply enough arguments for flag "
                           << setFlag.flagName << '\n';
                 return std::nullopt;
             }
