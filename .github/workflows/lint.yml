@@ -1,10 +1,12 @@
-name: C/C++ CI
+name: Lint
 
 on:
   push:
     branches: [ "main" ]
+    paths: ['**.c', '**.cpp', '**.h', '**.hpp', '**.cxx', '**.hxx', '**.cc', '**.hh', '**CMakeLists.txt', 'meson.build', '**.cmake']
   pull_request:
-    branches: [ "main" ]
+    branches: [ "*" ]
+    paths: ['**.c', '**.cpp', '**.h', '**.hpp', '**.cxx', '**.hxx', '**.cc', '**.hh', '**CMakeLists.txt', 'meson.build', '**.cmake']
 
 jobs:
   build:
