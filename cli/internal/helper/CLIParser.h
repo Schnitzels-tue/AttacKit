@@ -16,9 +16,8 @@ class CLIParser {
     std::vector<std::string> args;
 
     std::vector<Flag> allFlags;
-    std::vector<Flag> setFlags;
 
-    std::optional<std::vector<InvokeableFunction>> flagsToFunctions(int&);
+    std::optional<std::vector<InvokeableFunction>> flagsToFunctions(int&, std::vector<Flag>& setFlags);
     int findCharFlag(char);
     int findFlagName(const std::string&);
 
