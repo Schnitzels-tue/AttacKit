@@ -9,6 +9,7 @@ using AnyFunction = std::function<void(const std::vector<std::string>&)>;
 
 struct FlagOptions {
     bool sensitiveToQuiet = false;
+    bool priorityFlag = false; // when a flag sets a boolean, they should be parsed first
     // can be extended
 };
 

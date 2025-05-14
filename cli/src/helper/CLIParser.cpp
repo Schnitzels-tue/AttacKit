@@ -11,19 +11,26 @@ void CLIParser::printArguments() {
 
 std::optional<std::vector<InvokeableFunction>> CLIParser::flagsToFunctions(int& iteration) {
     std::vector<InvokeableFunction> parsedFunctions;
-    int beginIteration = iteration;
     
     for (const Flag& setFlag : setFlags) {
         std::vector<std::string> flagArgs;
         flagArgs.reserve(*setFlag.amountOfArguments.end());
+        int beginIteration = iteration;
 
         for (int j = 0; j < *setFlag.amountOfArguments.end(); ++j) {
             ++iteration;
-            if (args.size() <= iteration || 
-                (args[iteration].rfind("-", 0) == 0 
-                    && *setFlag.amountOfArguments.begin() > iteration - beginIteration)) {
+            if (args.size() <= iteration) {
                 LOG_ERROR("Did not supply enough arguments for flag " + setFlag.flagName);
                 return std::nullopt;
+            } 
+            if (args[iteration].rfind("-", 0) == 0
+                && *setFlag.amountOfArguments.find(iteration - beginIteration) == *setFlag.amountOfArguments.end()) {
+                LOG_ERROR("Found an invalid amount of arguments for flag " + setFlag.flagName);
+                return std::nullopt;
+            }
+            if (args[iteration].rfind("-", 0) == 0) {
+                --iteration;
+                break;
             }
             flagArgs.push_back(args[iteration]);
         }

@@ -28,22 +28,31 @@ void CLIExecutor::invokeArpPoison(std::vector<std::string> args) {
             .attackerMac = args[1]
         });
     } else {
+        LOG_INFO("Poisoning silently...");
         // TODO(QuinnCaris)
     }
     
 }
 
 void CLIExecutor::execute(CLIParser& parser) const {
-    if (this->help) {
-        parser.printHelp();
-        return;
-    }
     auto parsedCli = parser.parse();
     if (!parsedCli) {
         LOG_ERROR("Error while parsing command");
         return;
     }
     for (const auto& parsedFunction : *parsedCli) {
+        if (parsedFunction.options.priorityFlag) {
+            parsedFunction.function(parsedFunction.arguments);
+        }
+    }
+    if (this->help) {
+        parser.printHelp();
+        return;
+    }
+    for (const auto& parsedFunction : *parsedCli) {
+        if (parsedFunction.options.priorityFlag) {
+            continue;
+        }
         if (parsedFunction.options.sensitiveToQuiet) {
             auto parsedArguments = parsedFunction.arguments;
             parsedArguments.push_back(boolToString(this->quiet));
