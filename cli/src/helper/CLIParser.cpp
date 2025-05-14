@@ -81,7 +81,8 @@ std::optional<std::vector<InvokeableFunction>> CLIParser::parse() {
         }
 
         if (setFlags.empty()) {
-            LOG_ERROR("Something went wrong while processing the command")
+            LOG_ERROR("Something went wrong while processing the command");
+            return std::nullopt;
         }
 
         auto optionalParsedFunctions = flagsToFunctions(i, setFlags);
