@@ -40,7 +40,7 @@ public:
         "Usage: AttacKit [options] \n"
         "  options: \n") {}
 
-    void printFlags();
+    void printArguments();
     std::optional<std::vector<InvokeableFunction>> parse();
     static void invokeFunction(const AnyFunction&, const std::vector<std::string>&);
     

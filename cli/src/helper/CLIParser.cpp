@@ -1,10 +1,9 @@
 #include "helper/CLIParser.h"
-#include <iostream>
+#include "log.h"
 
-
-void CLIParser::printFlags() {
+void CLIParser::printArguments() {
     for (const auto& arg : args) {
-        std::cout << arg << std::endl;
+        LOG_INFO(arg);
     }
 }
 
@@ -17,7 +16,7 @@ std::optional<std::vector<InvokeableFunction>> CLIParser::flagsToFunctions(int& 
 
         for (int j = 0; j < setFlag.amountOfArguments; ++j) {
             if (args.size() <= ++iteration) {
-                std::cout << "Did not supply enough arguments for flag " << setFlag.flagName << std::endl;
+                LOG_ERROR("Did not supply enough arguments for flag " + setFlag.flagName);
                 return std::nullopt;
             }
             flagArgs.push_back(args[iteration]);
@@ -36,7 +35,7 @@ std::optional<std::vector<InvokeableFunction>> CLIParser::parse() {
         std::vector<Flag> setFlags;
 
         if (args[i].at(0) != '-') {
-            std::cout << "Found argument without corresponding flag: " << args[i] << std::endl;
+            LOG_ERROR("Found argument without corresponding flag: " + args[i]);
             return std::nullopt;
         }
 
@@ -45,7 +44,7 @@ std::optional<std::vector<InvokeableFunction>> CLIParser::parse() {
 
             int positionOfFlag = findFlagName(flagName);
             if (positionOfFlag == -1) {
-                std::cout << "Gave non-existent flag " << flagName << std::endl;
+                LOG_ERROR("Gave non-existent flag " + flagName);
                 return std::nullopt;
             }
 
@@ -56,7 +55,7 @@ std::optional<std::vector<InvokeableFunction>> CLIParser::parse() {
             for (char charFlag : charFlags) {
                 int positionOfFlag = findCharFlag(charFlag);
                 if (positionOfFlag == -1) {
-                    std::cout << "Gave non-existent flag " << charFlag << std::endl;
+                    LOG_ERROR(std::string("Gave non-existent flag ").append(1, charFlag));
                     return std::nullopt;
                 }
 
@@ -65,7 +64,7 @@ std::optional<std::vector<InvokeableFunction>> CLIParser::parse() {
         }
 
         if (setFlags.empty()) {
-            std::cerr << "Something went wrong while processing the command." << std::endl;
+            LOG_ERROR("Something went wrong while processing the command")
         }
 
         auto optionalParsedFunctions = flagsToFunctions(i);

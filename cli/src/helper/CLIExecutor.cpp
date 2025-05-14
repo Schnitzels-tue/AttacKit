@@ -1,7 +1,6 @@
 #include "helper/CLIExecutor.h"
-
 #include "arp_poisoning/public.h"
-#include <iostream>
+#include "log.h"
 
 inline std::string boolToString(bool value) {
     return value ? "true" : "false";
@@ -21,7 +20,7 @@ void CLIExecutor::setQuiet(bool value) {
 
 void CLIExecutor::invokeArpPoison(std::vector<std::string> args) {
     if (args.size() != 3) {
-        std::cerr << "Found wrong number of arguments for executing poisoning attack" << std::endl;
+        LOG_ERROR("Found wrong number of arguments for executing poisoning attack");
     }
     if (!stringToBool(args[2])) {
         ATK::ARP::allOutPoison({
@@ -41,7 +40,7 @@ void CLIExecutor::execute(CLIParser& parser) const {
     }
     auto parsedCli = parser.parse();
     if (!parsedCli) {
-        std::cerr << "Error while parsing command" << std::endl;
+        LOG_ERROR("Error while parsing command");
         return;
     }
     for (const auto& parsedFunction : *parsedCli) {
