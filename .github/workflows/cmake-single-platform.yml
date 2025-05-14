@@ -45,6 +45,7 @@ jobs:
       run: ctest -C ${{env.BUILD_TYPE}}
 
     - name: Run clang-tidy
+      working-directory: ${{ github.workspace }}
       run: |
         find . \( -path './build' -o -path './thirdparty' \) -prune -o -name '*.cpp' -print0 \
         | xargs -0 -I{} clang-tidy --warnings-as-errors='*' -p build {}
