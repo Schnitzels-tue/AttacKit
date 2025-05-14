@@ -59,6 +59,7 @@ void ATK::ARP::AllOutArpPoisoningStrategy::execute() {
     if (!device_->open()) {
         throw std::runtime_error("Unable to open device");
     }
+
     std::promise<void> completionPromise;
     std::future completionFuture = completionPromise.get_future();
 
@@ -85,7 +86,6 @@ void ATK::ARP::AllOutArpPoisoningStrategy::execute() {
     };
 
     try {
-
         completionFuture.get();
     } catch (const std::exception &e) {
         device_->close();

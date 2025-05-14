@@ -87,8 +87,8 @@ void ATK::ARP::SilentArpPoisoningStrategy::execute() {
         device_->close();
         throw std::runtime_error("Unable to start capturing arp packets");
     };
-    try {
 
+    try {
         completionFuture.get();
     } catch (const std::exception &e) {
         device_->close();
