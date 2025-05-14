@@ -27,6 +27,10 @@ class CLIParser {
     std::vector<Flag> allFlags;
     std::vector<Flag> setFlags;
 
+    std::optional<std::vector<InvokeableFunction>> flagsToFunctions(int&);
+    int findCharFlag(char);
+    int findFlagName(const std::string&);
+
 public:
 
     template <typename... Args>
@@ -36,15 +40,11 @@ public:
         "Usage: AttacKit [options] \n"
         "  options: \n") {}
 
-    void print();
-    std::optional<std::vector<InvokeableFunction>> flagsToFunctions(int&);
+    void printFlags();
     std::optional<std::vector<InvokeableFunction>> parse();
     static void invokeFunction(const AnyFunction&, const std::vector<std::string>&);
-
-    int findCharFlag(char);
-    int findFlagName(const std::string&);
     
-    void help();
+    void printHelp();
 
     std::string generate_flags_text();
     void add_flag(const std::string& flagName, const AnyFunction& associatedFunction, const std::string& helpText, int amountOfArguments);

@@ -2,7 +2,7 @@
 #include <iostream>
 
 
-void CLIParser::print() {
+void CLIParser::printFlags() {
     for (const auto& arg : args) {
         std::cout << arg << std::endl;
     }
@@ -101,7 +101,7 @@ int CLIParser::findFlagName(const std::string& flagName) {
     return -1;
 }
 
-void CLIParser::help() {
+void CLIParser::printHelp() {
     helpText += generate_flags_text();
     std::cout << helpText << std::endl;
 }
