@@ -19,9 +19,7 @@ void CLIExecutor::setQuiet(bool value) {
 }
 
 void CLIExecutor::doMeaningfulThing(std::vector<std::string> args) {
-    std::cout << "sus" << std::endl;
     bool quiet = stringToBool(args[2]);
-    std::cout << "got here tho!" << std::endl;
     if (quiet) {
         std::cout << args[0] << std::endl;
     } else {
