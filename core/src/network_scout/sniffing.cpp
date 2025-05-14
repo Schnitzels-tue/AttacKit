@@ -1,6 +1,5 @@
 #include "network_scout/sniffing.h"
 #include "PcapLiveDeviceList.h"
-#include "RawPacket.h"
 #include "common/pcap_to_common.h"
 
 namespace {
@@ -22,7 +21,7 @@ bool onPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice * /*dev*/,
                      void *cookie) {
 
     auto *packetTracker = static_cast<PacketTracker *>(cookie);
-    pcpp::Packet parsedPacket(packet);
+    const pcpp::Packet parsedPacket(packet);
 
     packetTracker->packetInfoList->emplace_back(
         ATK::Common::toPacketInfo(parsedPacket));
