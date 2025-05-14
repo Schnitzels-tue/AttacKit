@@ -44,7 +44,7 @@ void CLIExecutor::execute(CLIParser& parser) const {
         return;
     }
     for (const auto& parsedFunction : *parsedCli) {
-        if (parsedFunction.flagName == "arp") {
+        if (parsedFunction.options.sensitiveToQuiet) {
             auto parsedArguments = parsedFunction.arguments;
             parsedArguments.push_back(boolToString(this->quiet));
             parsedFunction.function(parsedArguments);

@@ -9,16 +9,7 @@
 
 #include "helper/CLITypes.h"
 
-
 class CLIParser {
-
-    struct Flag {
-        std::string flagName;
-        char flagChar;
-        AnyFunction flagFunction;
-        std::string flagHelpText;
-        int amountOfArguments;
-    };
 
 
     std::string helpText;
@@ -47,5 +38,9 @@ public:
     void printHelp();
 
     std::string generate_flags_text();
-    void add_flag(const std::string& flagName, const AnyFunction& associatedFunction, const std::string& helpText, int amountOfArguments);
+    void add_flag(const std::string& flagName, 
+        const AnyFunction& associatedFunction, 
+        const std::string& helpText, 
+        int amountOfArguments,
+        FlagOptions options = {});
 };

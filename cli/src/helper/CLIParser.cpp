@@ -22,7 +22,7 @@ std::optional<std::vector<InvokeableFunction>> CLIParser::flagsToFunctions(int& 
             flagArgs.push_back(args[iteration]);
         }
 
-        parsedFunctions.push_back(InvokeableFunction {setFlag.flagName, setFlag.flagFunction, flagArgs});
+        parsedFunctions.push_back(InvokeableFunction {setFlag.flagFunction, flagArgs});
     }
 
     return parsedFunctions;
@@ -124,11 +124,18 @@ std::string CLIParser::generate_flags_text() {
 void CLIParser::add_flag(const std::string& flagName, 
     const AnyFunction& associatedFunction, 
     const std::string& helpText,
-    const int amountOfArguments) {
+    const int amountOfArguments,
+    const FlagOptions options) {
     std::unordered_set<char> takenChars;
+    std::unordered_set<std::string> takenNames;
 
     for (const auto& flag: allFlags) {
         takenChars.insert(flag.flagChar);
+        takenNames.insert(flag.flagName);
+    }
+
+    if (takenNames.find(flagName) != takenNames.end()) {
+        LOG_ERROR("Tried adding a flag with name " + flagName + " but it already exists");
     }
 
     char flagChar = flagName.at(0);
@@ -137,5 +144,10 @@ void CLIParser::add_flag(const std::string& flagName,
         flagChar = static_cast<char>('a' + (flagChar - 'a' + 1) % SIZE_OF_ALPHABET);
     }
     
-    allFlags.emplace_back(Flag {flagName, flagChar, associatedFunction, helpText, amountOfArguments});
+    allFlags.emplace_back(Flag {flagName, 
+        flagChar, 
+        associatedFunction, 
+        helpText, 
+        amountOfArguments,
+        options});
 }
