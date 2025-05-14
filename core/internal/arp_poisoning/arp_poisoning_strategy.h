@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+
 namespace ATK::ARP {
 /**
  * Arp poisoning execution strategy.

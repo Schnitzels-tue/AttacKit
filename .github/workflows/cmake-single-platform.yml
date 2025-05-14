@@ -6,7 +6,7 @@ on:
   push:
     branches: [ "main" ]
   pull_request:
-    branches: [ "main", "*" ]
+    branches: [ "*" ]
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
@@ -44,3 +44,8 @@ jobs:
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C ${{env.BUILD_TYPE}}
 
+    - name: Run clang-tidy
+      working-directory: ${{ github.workspace }}
+      run: |
+        find . \( -path './build' -o -path './thirdparty' \) -prune -o -name '*.cpp' -print0 \
+        | xargs -0 -I{} clang-tidy --warnings-as-errors='*' -p build {}
