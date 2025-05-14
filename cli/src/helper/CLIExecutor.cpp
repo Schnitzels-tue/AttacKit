@@ -51,12 +51,9 @@ void CLIExecutor::execute(CLIParser& parser) const {
         LOG_ERROR("Error while parsing command");
         return;
     }
-    LOG_ERROR(parsedCli->size());
     for (const auto& parsedFunction : *parsedCli) {
         if (parsedFunction.options.priorityFlag) {
-            LOG_ERROR("test");
             parsedFunction.function(parsedFunction.arguments);
-            LOG_ERROR("test2");
         }
     }
 
@@ -66,7 +63,6 @@ void CLIExecutor::execute(CLIParser& parser) const {
     }
 
     for (const auto& parsedFunction : *parsedCli) {
-        LOG_ERROR("test3");
         if (parsedFunction.options.priorityFlag) {
             continue;
         }
@@ -74,8 +70,6 @@ void CLIExecutor::execute(CLIParser& parser) const {
         if (parsedFunction.options.sensitiveToQuiet) {
             parsedArguments.push_back(boolToString(this->quiet));
         }
-        LOG_ERROR("test4");
         parsedFunction.function(parsedArguments);
-        LOG_ERROR("test5");
     }
 }
