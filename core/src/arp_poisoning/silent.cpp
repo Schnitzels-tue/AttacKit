@@ -6,25 +6,23 @@
 #include "PcapLiveDevice.h"
 #include "RawPacket.h"
 #include "log.h"
+#include <exception>
 #include <future>
 #include <stdexcept>
 
 void ATK::ARP::SilentArpPoisoningStrategy::onPacketArrives(
-    pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device, void * /*cookie*/) {
-    // currently unused, no termination condition
-    // auto *completionFuture = static_cast<std::promise<void> *>(cookie);
+    pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device, void *cookie) {
+    auto *completionFuture = static_cast<std::promise<void> *>(cookie);
 
     pcpp::Packet parsedPacket(packet);
     auto *requestEthLayer = parsedPacket.getLayerOfType<pcpp::EthLayer>();
     auto *requestArpLayer = parsedPacket.getLayerOfType<pcpp::ArpLayer>();
 
     if (requestEthLayer == nullptr || requestArpLayer == nullptr) {
+        completionFuture->set_exception_at_thread_exit(
+            std::make_exception_ptr(std::runtime_error(
+                "Invalid filter settings, found packet with missing layers")));
         device->stopCapture();
-        device->close();
-        LOG_ERROR(
-            "Inavlid filter configuration, found packets wiht missing layers");
-        throw std::runtime_error(
-            "Invalid filter settings, found packet with missing layers");
     }
 
     // determine whether or not to handle packet
@@ -54,7 +52,9 @@ void ATK::ARP::SilentArpPoisoningStrategy::onPacketArrives(
 
     if (!device->sendPacket(&responsePacket)) {
         LOG_ERROR("Failed to send packet");
-        throw std::runtime_error("Failed to send packet");
+        completionFuture->set_exception_at_thread_exit(std::make_exception_ptr(
+            std::runtime_error("Failed to send packet")));
+        device->stopCapture();
     };
 }
 
@@ -85,12 +85,14 @@ void ATK::ARP::SilentArpPoisoningStrategy::execute() {
                    void *cookie) { onPacketArrives(packet, device, cookie); },
             &completionFuture)) {
         device_->close();
-
-        LOG_ERROR("Unable to start capturing arp packets");
         throw std::runtime_error("Unable to start capturing arp packets");
     };
+    try {
 
-    completionFuture.wait();
+        completionFuture.get();
+    } catch (const std::exception &e) {
+        device_->close();
+    }
 
     device_->close();
 }
