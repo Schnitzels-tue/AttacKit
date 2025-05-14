@@ -1,7 +1,14 @@
 #include "arp_poisoning/silent.h"
+#include "ArpLayer.h"
 #include "EthLayer.h"
+#include "Packet.h"
+#include "PcapFilter.h"
+#include "PcapLiveDevice.h"
+#include "RawPacket.h"
 #include "log.h"
+#include <exception>
 #include <future>
+#include <stdexcept>
 
 void ATK::ARP::SilentArpPoisoningStrategy::onPacketArrives(
     pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device, void *cookie) {

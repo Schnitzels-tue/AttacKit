@@ -1,5 +1,6 @@
 #include "arp_poisoning/public.h"
 #include "log.h"
+#include <exception>
 
 int main(int argc, char *argv[]) noexcept {
     try {

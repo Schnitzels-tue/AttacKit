@@ -1,8 +1,14 @@
 #include "arp_poisoning/public.h"
+#include "IpAddress.h"
+#include "MacAddress.h"
+#include "PcapLiveDevice.h"
 #include "PcapLiveDeviceList.h"
 #include "arp_poisoning/all_out.h"
 #include "arp_poisoning/arp_poisoning_strategy.h"
 #include "arp_poisoning/silent.h"
+#include <memory>
+#include <stdexcept>
+#include <utility>
 
 /**
  * In the current implementation this method will not terminate and keep

@@ -1,6 +1,9 @@
 #include "network_scout/network_scout.h"
+#include "PcapLiveDevice.h"
 #include "PcapLiveDeviceList.h"
+#include "common/common.h"
 #include "common/pcap_to_common.h"
+#include <vector>
 
 std::vector<ATK::Common::InterfaceInfo> ATK::Scout::getInterfaces() {
     auto devices =

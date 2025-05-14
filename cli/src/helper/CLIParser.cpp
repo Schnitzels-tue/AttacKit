@@ -1,6 +1,9 @@
 #include "helper/CLIParser.h"
 #include <iostream>
+#include <optional>
+#include <string>
 #include <unordered_set>
+#include <vector>
 
 void CLIParser::print() {
     for (const auto &arg : args) {

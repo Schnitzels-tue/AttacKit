@@ -1,6 +1,13 @@
 #include "network_scout/sniffing.h"
+#include "Packet.h"
+#include "PcapLiveDevice.h"
 #include "PcapLiveDeviceList.h"
+#include "RawPacket.h"
+#include "common/common.h"
 #include "common/pcap_to_common.h"
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 namespace {
 constexpr int MAX_CAPTURE_TIMEOUT = 10;

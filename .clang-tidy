@@ -9,7 +9,6 @@ Checks: "*,
         -objc-*,
         -openmp-*,
         -bugprone-easily-swappable-parameters
-        -misc-include-cleaner
 "
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
