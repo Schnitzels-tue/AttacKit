@@ -8,7 +8,7 @@ void CLIParser::print() {
     }
 }
 
-std::optional<std::vector<CLIParser::InvokeableFunction>> CLIParser::flagsToFunctions(int& iteration) {
+std::optional<std::vector<InvokeableFunction>> CLIParser::flagsToFunctions(int& iteration) {
     std::vector<InvokeableFunction> parsedFunctions;
     
     for (const Flag& setFlag : setFlags) {
@@ -23,13 +23,13 @@ std::optional<std::vector<CLIParser::InvokeableFunction>> CLIParser::flagsToFunc
             flagArgs.push_back(args[iteration]);
         }
 
-        parsedFunctions.push_back(InvokeableFunction {setFlag.flagFunction, flagArgs});
+        parsedFunctions.push_back(InvokeableFunction {setFlag.flagName, setFlag.flagFunction, flagArgs});
     }
 
     return parsedFunctions;
 }
 
-std::optional<std::vector<CLIParser::InvokeableFunction>> CLIParser::parse() {
+std::optional<std::vector<InvokeableFunction>> CLIParser::parse() {
     std::vector<InvokeableFunction> parsedFunctions;
 
     for (int i = 0; i < args.size(); ++i) {

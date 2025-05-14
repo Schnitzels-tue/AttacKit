@@ -7,9 +7,10 @@
 #include <utility>
 #include <vector>
 
+#include "helper/CLITypes.h"
+
 
 class CLIParser {
-    using AnyFunction = std::function<void(const std::vector<std::string>&)>;
 
     struct Flag {
         std::string flagName;
@@ -27,10 +28,6 @@ class CLIParser {
     std::vector<Flag> setFlags;
 
 public:
-    struct InvokeableFunction {
-        AnyFunction function;
-        std::vector<std::string> arguments;
-    };
 
     template <typename... Args>
     explicit CLIParser(Args... args) : args({ args... }), 
