@@ -18,6 +18,17 @@ void CLIExecutor::setQuiet(bool value) {
     this->quiet = value;
 }
 
+void CLIExecutor::doMeaningfulThing(std::vector<std::string> args) {
+    std::cout << "sus" << std::endl;
+    bool quiet = stringToBool(args[2]);
+    std::cout << "got here tho!" << std::endl;
+    if (quiet) {
+        std::cout << args[0] << std::endl;
+    } else {
+        std::cout << args[1] << std::endl;
+    }
+}
+
 void CLIExecutor::invokeArpPoison(std::vector<std::string> args) {
     if (args.size() != 3) {
         LOG_ERROR("Found wrong number of arguments for executing poisoning attack");
@@ -40,23 +51,31 @@ void CLIExecutor::execute(CLIParser& parser) const {
         LOG_ERROR("Error while parsing command");
         return;
     }
+    LOG_ERROR(parsedCli->size());
     for (const auto& parsedFunction : *parsedCli) {
         if (parsedFunction.options.priorityFlag) {
+            LOG_ERROR("test");
             parsedFunction.function(parsedFunction.arguments);
+            LOG_ERROR("test2");
         }
     }
+
     if (this->help) {
         parser.printHelp();
         return;
     }
+
     for (const auto& parsedFunction : *parsedCli) {
+        LOG_ERROR("test3");
         if (parsedFunction.options.priorityFlag) {
             continue;
         }
+        auto parsedArguments = parsedFunction.arguments;
         if (parsedFunction.options.sensitiveToQuiet) {
-            auto parsedArguments = parsedFunction.arguments;
             parsedArguments.push_back(boolToString(this->quiet));
-            parsedFunction.function(parsedArguments);
         }
+        LOG_ERROR("test4");
+        parsedFunction.function(parsedArguments);
+        LOG_ERROR("test5");
     }
 }
