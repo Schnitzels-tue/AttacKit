@@ -1,7 +1,9 @@
 #pragma once
 #include <functional>
+#include <set>
 #include <string>
 #include <vector>
+
 
 using AnyFunction = std::function<void(const std::vector<std::string>&)>;
 
@@ -15,7 +17,7 @@ struct Flag {
     char flagChar;
     AnyFunction flagFunction;
     std::string flagHelpText;
-    int amountOfArguments;
+    std::set<int> amountOfArguments;
     FlagOptions options;
 };
 

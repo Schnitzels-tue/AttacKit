@@ -1,6 +1,8 @@
 #include "helper/CLIParser.h"
 #include "log.h"
 
+#include <unordered_set>
+
 void CLIParser::printArguments() {
     for (const auto& arg : args) {
         LOG_INFO(arg);
@@ -9,13 +11,17 @@ void CLIParser::printArguments() {
 
 std::optional<std::vector<InvokeableFunction>> CLIParser::flagsToFunctions(int& iteration) {
     std::vector<InvokeableFunction> parsedFunctions;
+    int beginIteration = iteration;
     
     for (const Flag& setFlag : setFlags) {
         std::vector<std::string> flagArgs;
-        flagArgs.reserve(setFlag.amountOfArguments);
+        flagArgs.reserve(*setFlag.amountOfArguments.end());
 
-        for (int j = 0; j < setFlag.amountOfArguments; ++j) {
-            if (args.size() <= ++iteration) {
+        for (int j = 0; j < *setFlag.amountOfArguments.end(); ++j) {
+            ++iteration;
+            if (args.size() <= iteration || 
+                (args[iteration].rfind("-", 0) == 0 
+                    && *setFlag.amountOfArguments.begin() > iteration - beginIteration)) {
                 LOG_ERROR("Did not supply enough arguments for flag " + setFlag.flagName);
                 return std::nullopt;
             }
@@ -124,7 +130,7 @@ std::string CLIParser::generate_flags_text() {
 void CLIParser::add_flag(const std::string& flagName, 
     const AnyFunction& associatedFunction, 
     const std::string& helpText,
-    const int amountOfArguments,
+    const std::set<int>& amountOfArguments,
     const FlagOptions options) {
     std::unordered_set<char> takenChars;
     std::unordered_set<std::string> takenNames;

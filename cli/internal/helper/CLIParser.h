@@ -2,8 +2,8 @@
 
 #include <functional>
 #include <optional>
+#include <set>
 #include <string>
-#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -41,6 +41,6 @@ public:
     void add_flag(const std::string& flagName, 
         const AnyFunction& associatedFunction, 
         const std::string& helpText, 
-        int amountOfArguments,
+        const std::set<int>& amountOfArguments,
         FlagOptions options = {});
 };
