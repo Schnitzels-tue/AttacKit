@@ -1,7 +1,9 @@
 #pragma once
 
 #include <functional>
+#include <optional>
 #include <string>
+#include <vector>
 
 class CLIParser {
     using AnyFunction = std::function<void(const std::vector<std::string> &)>;
