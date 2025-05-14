@@ -1,6 +1,8 @@
 #pragma once
 
+#include <optional>
 #include <string>
+
 namespace ATK::ARP {
 struct AllOutPoisoningOptions {
     std::string ifaceIpOrName;
