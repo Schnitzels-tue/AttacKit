@@ -57,7 +57,7 @@ class AllOutArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
     }
 
     void onPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device,
-                         void *cookie) override;
+                         void *cookie);
 
     pcpp::PcapLiveDevice *device_;
     pcpp::MacAddress attackerMac_;

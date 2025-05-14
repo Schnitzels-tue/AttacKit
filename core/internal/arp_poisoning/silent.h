@@ -73,7 +73,7 @@ class SilentArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
     }
 
     void onPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device,
-                         void *cookie) override;
+                         void *cookie);
 
     pcpp::PcapLiveDevice *device_;
     std::optional<pcpp::IPv4Address> victimIp_;
