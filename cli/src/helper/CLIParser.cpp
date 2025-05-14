@@ -1,5 +1,6 @@
 #include "helper/CLIParser.h"
 #include <iostream>
+#include <string>
 #include <unordered_set>
 
 void CLIParser::print() {
