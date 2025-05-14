@@ -2,6 +2,7 @@
 
 #include "PcapLiveDevice.h"
 #include "arp_poisoning/arp_poisoning_strategy.h"
+#include <optional>
 
 namespace ATK::ARP {
 /**
