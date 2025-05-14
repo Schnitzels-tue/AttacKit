@@ -36,7 +36,7 @@ std::optional<std::vector<InvokeableFunction>> CLIParser::flagsToFunctions(int& 
             flagArgs.push_back(args[iteration]);
         }
 
-        parsedFunctions.push_back(InvokeableFunction {setFlag.flagFunction, flagArgs});
+        parsedFunctions.push_back(InvokeableFunction {setFlag.flagFunction, flagArgs, setFlag.options});
     }
 
     return parsedFunctions;
