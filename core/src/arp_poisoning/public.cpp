@@ -7,6 +7,7 @@
 #include "arp_poisoning/arp_poisoning_strategy.h"
 #include "arp_poisoning/silent.h"
 #include <memory>
+#include <pcap/pcap.h>
 #include <stdexcept>
 
 /**
@@ -31,7 +32,7 @@ void ATK::ARP::allOutPoison(const AllOutPoisoningOptions &options) {
     }
 
     std::unique_ptr<ATK::ARP::AllOutArpPoisoningStrategy> strategy =
-        AllOutArpPoisoningStrategy::Builder(device).build();
+        builder.build();
 
     ArpPoisoningContext arpPoisoningContext(std::move(strategy));
 
@@ -62,8 +63,8 @@ void ATK::ARP::silentPoison(const SilentPoisoningOptions &options) {
         builder = builder.victimIp(victimIp);
     }
 
-    std::unique_ptr<ATK::ARP::AllOutArpPoisoningStrategy> strategy =
-        AllOutArpPoisoningStrategy::Builder(device).build();
+    std::unique_ptr<ATK::ARP::SilentArpPoisoningStrategy> strategy =
+        builder.build();
 
     ArpPoisoningContext arpPoisoningContext(std::move(strategy));
 
