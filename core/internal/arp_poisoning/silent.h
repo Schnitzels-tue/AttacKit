@@ -17,6 +17,7 @@ namespace ATK::ARP {
 class SilentArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
   public:
     class Builder {
+      public:
         Builder(pcpp::PcapLiveDevice *device, pcpp::IPv4Address ipToSpoof)
             : device_(device), ipToSpoof_(ipToSpoof) {}
         /**
