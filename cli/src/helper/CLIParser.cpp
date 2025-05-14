@@ -29,6 +29,7 @@ std::optional<std::vector<InvokeableFunction>> CLIParser::flagsToFunctions(int& 
         LOG_INFO("iteration: " + std::to_string(iteration));
         int beginIteration = iteration;
         for (int i = 0; i < *setFlag.amountOfArguments.rbegin(); ++i) {
+            ++iteration;
             if (args.size() <= iteration) {
                 LOG_ERROR("Did not supply enough arguments for flag " + setFlag.flagName);
                 return std::nullopt;
@@ -42,7 +43,7 @@ std::optional<std::vector<InvokeableFunction>> CLIParser::flagsToFunctions(int& 
                 --iteration;
                 break;
             }
-            flagArgs.push_back(args[iteration++]);
+            flagArgs.push_back(args[iteration]);
         }
 
         parsedFunctions.push_back(InvokeableFunction {setFlag.flagFunction, flagArgs, setFlag.options});
