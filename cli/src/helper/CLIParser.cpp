@@ -147,6 +147,13 @@ void CLIParser::add_flag(const std::string& flagName,
     const std::string& helpText,
     const std::set<int>& amountOfArguments,
     const FlagOptions options) {
+    if (amountOfArguments.empty()) {
+        LOG_ERROR("Amount of arguments was not specified correctly for flag " + flagName);
+        return;
+    }
+    if (helpText.empty()) {
+        LOG_WARN("No help text was provided for flag " + flagName);
+    }
     std::unordered_set<char> takenChars;
     std::unordered_set<std::string> takenNames;
 
