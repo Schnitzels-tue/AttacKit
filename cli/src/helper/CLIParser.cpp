@@ -4,19 +4,21 @@
 #include <unordered_set>
 
 void CLIParser::printArguments() {
-    for (const auto& arg : args) {
+    for (const auto &arg : args) {
         LOG_INFO(arg);
     }
 }
 
-std::optional<std::vector<InvokeableFunction>> CLIParser::flagsToFunctions(int& iteration,
-        std::vector<Flag>& setFlags) {
+std::optional<std::vector<InvokeableFunction>>
+CLIParser::flagsToFunctions(int &iteration, std::vector<Flag> &setFlags) {
     std::vector<InvokeableFunction> parsedFunctions;
-    
-    for (const Flag& setFlag : setFlags) {
-        if (setFlag.amountOfArguments.size() == 1 
-            && setFlag.amountOfArguments.find(0) != setFlag.amountOfArguments.end()) {
-            parsedFunctions.push_back(InvokeableFunction {setFlag.flagFunction, {}, setFlag.options});
+
+    for (const Flag &setFlag : setFlags) {
+        if (setFlag.amountOfArguments.size() == 1 &&
+            setFlag.amountOfArguments.find(0) !=
+                setFlag.amountOfArguments.end()) {
+            parsedFunctions.push_back(
+                InvokeableFunction{setFlag.flagFunction, {}, setFlag.options});
             continue;
         }
         std::vector<std::string> flagArgs;
@@ -25,12 +27,15 @@ std::optional<std::vector<InvokeableFunction>> CLIParser::flagsToFunctions(int& 
         for (int i = 0; i < *setFlag.amountOfArguments.rbegin(); ++i) {
             ++iteration;
             if (args.size() <= iteration) {
-                LOG_ERROR("Did not supply enough arguments for flag " + setFlag.flagName);
+                LOG_ERROR("Did not supply enough arguments for flag " +
+                          setFlag.flagName);
                 return std::nullopt;
             }
-            if (args[iteration].rfind("-", 0) == 0
-                && setFlag.amountOfArguments.find(iteration - beginIteration) == setFlag.amountOfArguments.end()) {
-                LOG_ERROR("Found an invalid amount of arguments for flag " + setFlag.flagName);
+            if (args[iteration].rfind("-", 0) == 0 &&
+                setFlag.amountOfArguments.find(iteration - beginIteration) ==
+                    setFlag.amountOfArguments.end()) {
+                LOG_ERROR("Found an invalid amount of arguments for flag " +
+                          setFlag.flagName);
                 return std::nullopt;
             }
             if (args[iteration].rfind("-", 0) == 0) {
@@ -40,7 +45,8 @@ std::optional<std::vector<InvokeableFunction>> CLIParser::flagsToFunctions(int& 
             flagArgs.push_back(args[iteration]);
         }
 
-        parsedFunctions.push_back(InvokeableFunction {setFlag.flagFunction, flagArgs, setFlag.options});
+        parsedFunctions.push_back(InvokeableFunction{
+            setFlag.flagFunction, flagArgs, setFlag.options});
     }
 
     return parsedFunctions;
@@ -72,7 +78,8 @@ std::optional<std::vector<InvokeableFunction>> CLIParser::parse() {
             for (char charFlag : charFlags) {
                 int positionOfFlag = findCharFlag(charFlag);
                 if (positionOfFlag == -1) {
-                    LOG_ERROR(std::string("Gave non-existent flag ").append(1, charFlag));
+                    LOG_ERROR(std::string("Gave non-existent flag ")
+                                  .append(1, charFlag));
                     return std::nullopt;
                 }
 
@@ -89,15 +96,15 @@ std::optional<std::vector<InvokeableFunction>> CLIParser::parse() {
         if (!optionalParsedFunctions) {
             return std::nullopt;
         }
-        parsedFunctions.insert(parsedFunctions.end(), 
-            (*optionalParsedFunctions).begin(), 
-            (*optionalParsedFunctions).end());
-        
+        parsedFunctions.insert(parsedFunctions.end(),
+                               (*optionalParsedFunctions).begin(),
+                               (*optionalParsedFunctions).end());
     }
     return parsedFunctions;
 }
 
-void CLIParser::invokeFunction(const AnyFunction& flagFunction, const std::vector<std::string>& arguments) {
+void CLIParser::invokeFunction(const AnyFunction &flagFunction,
+                               const std::vector<std::string> &arguments) {
     flagFunction(arguments);
 }
 
@@ -111,7 +118,7 @@ int CLIParser::findCharFlag(char charFlag) {
     return -1;
 }
 
-int CLIParser::findFlagName(const std::string& flagName) {
+int CLIParser::findFlagName(const std::string &flagName) {
     for (int i = 0; i < allFlags.size(); ++i) {
         if (allFlags[i].flagName == flagName) {
             return i;
@@ -129,7 +136,7 @@ void CLIParser::printHelp() {
 std::string CLIParser::generate_flags_text() {
     std::string flagsText;
 
-    for (const auto& flag : allFlags) {
+    for (const auto &flag : allFlags) {
         flagsText.append("    -");
         flagsText += flag.flagChar;
         flagsText.append(" --");
@@ -142,13 +149,14 @@ std::string CLIParser::generate_flags_text() {
     return flagsText;
 }
 
-void CLIParser::add_flag(const std::string& flagName, 
-    const AnyFunction& associatedFunction, 
-    const std::string& helpText,
-    const std::set<int>& amountOfArguments,
-    const FlagOptions options) {
+void CLIParser::add_flag(const std::string &flagName,
+                         const AnyFunction &associatedFunction,
+                         const std::string &helpText,
+                         const std::set<int> &amountOfArguments,
+                         const FlagOptions options) {
     if (amountOfArguments.empty()) {
-        LOG_ERROR("Amount of arguments was not specified correctly for flag " + flagName);
+        LOG_ERROR("Amount of arguments was not specified correctly for flag " +
+                  flagName);
         return;
     }
     if (helpText.empty()) {
@@ -157,25 +165,23 @@ void CLIParser::add_flag(const std::string& flagName,
     std::unordered_set<char> takenChars;
     std::unordered_set<std::string> takenNames;
 
-    for (const auto& flag: allFlags) {
+    for (const auto &flag : allFlags) {
         takenChars.insert(flag.flagChar);
         takenNames.insert(flag.flagName);
     }
 
     if (takenNames.find(flagName) != takenNames.end()) {
-        LOG_ERROR("Tried adding a flag with name " + flagName + " but it already exists");
+        LOG_ERROR("Tried adding a flag with name " + flagName +
+                  " but it already exists");
     }
 
     char flagChar = flagName.at(0);
     const int SIZE_OF_ALPHABET = 26;
     while (takenChars.find(flagChar) != takenChars.end()) {
-        flagChar = static_cast<char>('a' + (flagChar - 'a' + 1) % SIZE_OF_ALPHABET);
+        flagChar =
+            static_cast<char>('a' + (flagChar - 'a' + 1) % SIZE_OF_ALPHABET);
     }
-    
-    allFlags.emplace_back(Flag {flagName, 
-        flagChar, 
-        associatedFunction, 
-        helpText, 
-        amountOfArguments,
-        options});
+
+    allFlags.emplace_back(Flag{flagName, flagChar, associatedFunction, helpText,
+                               amountOfArguments, options});
 }

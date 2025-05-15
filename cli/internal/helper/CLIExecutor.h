@@ -8,10 +8,10 @@ class CLIExecutor {
     bool help = false;
     bool quiet = false;
 
-public:
+  public:
     static void invokeArpPoison(std::vector<std::string> args);
     static void doMeaningfulThing(std::vector<std::string> args);
     void setHelp(bool);
     void setQuiet(bool);
-    void execute(CLIParser&) const;
+    void execute(CLIParser &) const;
 };
