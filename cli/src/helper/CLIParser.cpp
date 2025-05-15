@@ -1,7 +1,12 @@
 #include "helper/CLIParser.h"
+#include "helper/CLITypes.h"
 #include "log.h"
 
+#include <iostream>
+#include <optional>
+#include <set>
 #include <unordered_set>
+#include <vector>
 
 void CLIParser::printArguments() {
     for (const auto &arg : args) {
@@ -23,7 +28,7 @@ CLIParser::flagsToFunctions(int &iteration, std::vector<Flag> &setFlags) {
         }
         std::vector<std::string> flagArgs;
         flagArgs.reserve(*setFlag.amountOfArguments.rbegin());
-        int beginIteration = iteration;
+        const int beginIteration = iteration;
         for (int i = 0; i < *setFlag.amountOfArguments.rbegin(); ++i) {
             ++iteration;
             if (args.size() <= iteration) {

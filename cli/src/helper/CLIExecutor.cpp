@@ -1,6 +1,11 @@
 #include "helper/CLIExecutor.h"
 #include "arp_poisoning/public.h"
+#include "helper/CLIParser.h"
 #include "log.h"
+
+#include <iostream>
+#include <string>
+#include <vector>
 
 inline std::string boolToString(bool value) { return value ? "true" : "false"; }
 
@@ -11,11 +16,11 @@ void CLIExecutor::setHelp(bool value) { this->help = value; }
 void CLIExecutor::setQuiet(bool value) { this->quiet = value; }
 
 void CLIExecutor::doMeaningfulThing(std::vector<std::string> args) {
-    bool quiet = stringToBool(args[2]);
+    const bool quiet = stringToBool(args[2]);
     if (quiet) {
-        std::cout << args[0] << std::endl;
+        std::cout << args[0] << '\n';
     } else {
-        std::cout << args[1] << std::endl;
+        std::cout << args[1] << '\n';
     }
 }
 
