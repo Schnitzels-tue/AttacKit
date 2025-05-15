@@ -2,6 +2,7 @@
 
 #include <optional>
 #include <string>
+#include <unordered_set>
 
 namespace ATK::ARP {
 struct AllOutPoisoningOptions {
@@ -15,7 +16,7 @@ struct SilentPoisoningOptions {
     std::string ifaceIpOrName;
     std::optional<std::string> attackerMac;
     std::optional<std::string> victimIp;
-    std::string ipToSpoof;
+    std::unordered_set<std::string> ipsToSpoof;
 };
 
 void silentPoison(const SilentPoisoningOptions &options);

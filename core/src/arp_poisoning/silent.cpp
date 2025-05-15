@@ -26,12 +26,11 @@ void ATK::ARP::SilentArpPoisoningStrategy::onPacketArrives(
     }
 
     // determine whether or not to handle packet
-    if ((requestEthLayer->getSourceMac() == device->getMacAddress() ||
-         requestEthLayer->getSourceMac() == attackerMac_) ||
-        (requestArpLayer->getTargetIpAddr() != ipToSpoof_ ||
+    if (requestEthLayer->getSourceMac() == device->getMacAddress() ||
+        requestEthLayer->getSourceMac() == attackerMac_ ||
+        (ipsToSpoof_.count(requestArpLayer->getTargetIpAddr()) != 0U ||
          requestArpLayer->getTargetIpAddr() == device->getIPv4Address()) ||
-        (victimIp_.has_value() &&
-         requestArpLayer->getSenderIpAddr() != victimIp_.value())) {
+        victimIps_.count(requestArpLayer->getSenderIpAddr()) != 0U) {
         LOG_INFO("skipped packet");
         return;
     }
