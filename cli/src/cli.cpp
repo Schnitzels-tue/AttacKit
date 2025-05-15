@@ -2,11 +2,12 @@
 #include "helper/CLITypes.h"
 #include "log.h"
 
+#include <exception>
 #include <helper/CLIParser.h>
 #include <string>
 #include <vector>
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) noexcept(false) {
     try {
 
         // Parse command line arguments
@@ -50,4 +51,5 @@ int main(int argc, char *argv[]) {
         LOG_ERROR(std::string("Unhandled exception: ") + e.what());
         return 1;
     }
+    return 0;
 }
