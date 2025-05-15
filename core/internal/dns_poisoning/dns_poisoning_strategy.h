@@ -19,8 +19,8 @@ class DnsPoisoningStrategy {
     /**
      * Execute the DNS Attack
      *
-     * @throws runtime_error if class is misconfigured(e.g, interface not
-     * copmatible with DNS, failed to send packet).
+     * @throws runtime_error if class is misconfigured (e.g, interface not
+     * compatible with DNS, failed to send packet).
      */
     virtual void execute() = 0;
 
