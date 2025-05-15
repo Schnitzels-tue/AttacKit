@@ -185,7 +185,7 @@ void CLIParser::add_flag(const std::string &flagName,
     const int SIZE_OF_ALPHABET = 26;
     while (takenChars.find(flagChar) != takenChars.end()) {
         flagChar =
-            static_cast<char>('a' + (flagChar - 'a' + 1) % SIZE_OF_ALPHABET);
+            static_cast<char>('a' + ((flagChar - 'a' + 1) % SIZE_OF_ALPHABET));
     }
 
     allFlags.emplace_back(Flag{flagName, flagChar, associatedFunction, helpText,

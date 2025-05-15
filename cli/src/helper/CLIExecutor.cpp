@@ -7,9 +7,11 @@
 #include <string>
 #include <vector>
 
+namespace {
 inline std::string boolToString(bool value) { return value ? "true" : "false"; }
 
 inline bool stringToBool(std::string &value) { return value == "true"; }
+} // namespace
 
 void CLIExecutor::setHelp(bool value) { this->help = value; }
 
