@@ -7,8 +7,8 @@
 #include "arp_poisoning/arp_poisoning_strategy.h"
 #include "arp_poisoning/silent.h"
 #include <memory>
-#include <pcap/pcap.h>
 #include <stdexcept>
+#include <utility>
 
 /**
  * In the current implementation this method will not terminate and keep
@@ -27,7 +27,7 @@ void ATK::ARP::allOutPoison(const AllOutPoisoningOptions &options) {
     ATK::ARP::AllOutArpPoisoningStrategy::Builder builder(device);
 
     if (options.attackerMac.has_value()) {
-        pcpp::MacAddress macAddress(options.attackerMac.value());
+        const pcpp::MacAddress macAddress(options.attackerMac.value());
         builder = builder.attackerMac(macAddress);
     }
 
@@ -49,17 +49,17 @@ void ATK::ARP::silentPoison(const SilentPoisoningOptions &options) {
                                     " is not a valid interface");
     }
 
-    pcpp::IPv4Address ipToSpoof(options.ipToSpoof);
+    const pcpp::IPv4Address ipToSpoof(options.ipToSpoof);
 
     ATK::ARP::SilentArpPoisoningStrategy::Builder builder(device, ipToSpoof);
 
     if (options.attackerMac.has_value()) {
-        pcpp::MacAddress macAddress(options.attackerMac.value());
+        const pcpp::MacAddress macAddress(options.attackerMac.value());
         builder = builder.attackerMac(macAddress);
     }
 
     if (options.victimIp.has_value()) {
-        pcpp::IPv4Address victimIp(options.victimIp.value());
+        const pcpp::IPv4Address victimIp(options.victimIp.value());
         builder = builder.victimIp(victimIp);
     }
 

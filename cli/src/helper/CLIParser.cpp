@@ -63,9 +63,9 @@ std::optional<std::vector<InvokeableFunction>> CLIParser::parse() {
         }
 
         if (args[i].length() > 2 && args[i].at(1) == '-') {
-            std::string flagName = args[i].substr(2, std::string::npos);
+            const std::string flagName = args[i].substr(2, std::string::npos);
 
-            int positionOfFlag = findFlagName(flagName);
+            const int positionOfFlag = findFlagName(flagName);
             if (positionOfFlag == -1) {
                 LOG_ERROR("Gave non-existent flag " + flagName);
                 return std::nullopt;
@@ -73,10 +73,10 @@ std::optional<std::vector<InvokeableFunction>> CLIParser::parse() {
 
             setFlags.push_back(allFlags[positionOfFlag]);
         } else {
-            std::string charFlags = args[i].substr(1, std::string::npos);
+            const std::string charFlags = args[i].substr(1, std::string::npos);
 
-            for (char charFlag : charFlags) {
-                int positionOfFlag = findCharFlag(charFlag);
+            for (const char charFlag : charFlags) {
+                const int positionOfFlag = findCharFlag(charFlag);
                 if (positionOfFlag == -1) {
                     LOG_ERROR(std::string("Gave non-existent flag ")
                                   .append(1, charFlag));
@@ -130,7 +130,7 @@ int CLIParser::findFlagName(const std::string &flagName) {
 
 void CLIParser::printHelp() {
     helpText += generate_flags_text();
-    std::cout << helpText << std::endl;
+    std::cout << helpText << '\n';
 }
 
 std::string CLIParser::generate_flags_text() {

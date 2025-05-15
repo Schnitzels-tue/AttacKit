@@ -14,7 +14,7 @@ void ATK::ARP::SilentArpPoisoningStrategy::onPacketArrives(
     pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device, void *cookie) {
     auto *completionFuture = static_cast<std::promise<void> *>(cookie);
 
-    pcpp::Packet parsedPacket(packet);
+    const pcpp::Packet parsedPacket(packet);
     auto *requestEthLayer = parsedPacket.getLayerOfType<pcpp::EthLayer>();
     auto *requestArpLayer = parsedPacket.getLayerOfType<pcpp::ArpLayer>();
 

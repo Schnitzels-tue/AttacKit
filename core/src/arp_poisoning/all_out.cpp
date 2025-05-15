@@ -1,7 +1,7 @@
 #include "arp_poisoning/all_out.h"
 #include "ArpLayer.h"
 #include "EthLayer.h"
-#include "MacAddress.h"
+#include "Packet.h"
 #include "PcapFilter.h"
 #include "PcapLiveDevice.h"
 #include "RawPacket.h"
@@ -14,7 +14,7 @@ void ATK::ARP::AllOutArpPoisoningStrategy::onPacketArrives(
     pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device, void *cookie) {
     auto *completionFuture = static_cast<std::promise<void> *>(cookie);
 
-    pcpp::Packet parsedPacket(packet);
+    const pcpp::Packet parsedPacket(packet);
     auto *requestEthLayer = parsedPacket.getLayerOfType<pcpp::EthLayer>();
     auto *requestArpLayer = parsedPacket.getLayerOfType<pcpp::ArpLayer>();
 
