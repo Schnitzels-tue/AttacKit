@@ -37,14 +37,14 @@ CLIParser::flagsToFunctions(int &iteration, std::vector<Flag> &setFlags) {
                           setFlag.flagName);
                 return std::nullopt;
             }
-            if (args[iteration].rfind("-", 0) == 0 &&
+            if (args[iteration].rfind('-', 0) == 0 &&
                 setFlag.amountOfArguments.find(iteration - beginIteration) ==
                     setFlag.amountOfArguments.end()) {
                 LOG_ERROR("Found an invalid amount of arguments for flag " +
                           setFlag.flagName);
                 return std::nullopt;
             }
-            if (args[iteration].rfind("-", 0) == 0) {
+            if (args[iteration].rfind('-', 0) == 0) {
                 --iteration;
                 break;
             }
