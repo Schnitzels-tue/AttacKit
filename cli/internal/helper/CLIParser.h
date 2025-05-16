@@ -13,7 +13,7 @@ class CLIParser {
 
     std::vector<Flag> allFlags;
 
-    std::optional<std::vector<InvokeableFunction>>
+    std::optional<std::vector<InvocableFunction>>
     flagsToFunctions(int &, std::vector<Flag> &setFlags);
     int findCharFlag(char);
     int findFlagName(const std::string &);
@@ -29,7 +29,7 @@ class CLIParser {
                    "  options: \n") {}
 
     void printArguments();
-    std::optional<std::vector<InvokeableFunction>> parse();
+    std::optional<std::vector<InvocableFunction>> parse();
     static void invokeFunction(const AnyFunction &,
                                const std::vector<std::string> &);
 

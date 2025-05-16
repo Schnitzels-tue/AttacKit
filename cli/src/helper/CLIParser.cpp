@@ -15,16 +15,16 @@ void CLIParser::printArguments() {
     }
 }
 
-std::optional<std::vector<InvokeableFunction>>
+std::optional<std::vector<InvocableFunction>>
 CLIParser::flagsToFunctions(int &iteration, std::vector<Flag> &setFlags) {
-    std::vector<InvokeableFunction> parsedFunctions;
+    std::vector<InvocableFunction> parsedFunctions;
 
     for (const Flag &setFlag : setFlags) {
         if (setFlag.amountOfArguments.size() == 1 &&
             setFlag.amountOfArguments.find(0) !=
                 setFlag.amountOfArguments.end()) {
             parsedFunctions.push_back(
-                InvokeableFunction{setFlag.flagFunction, {}, setFlag.options});
+                InvocableFunction{setFlag.flagFunction, {}, setFlag.options});
             continue;
         }
         std::vector<std::string> flagArgs;
@@ -51,15 +51,15 @@ CLIParser::flagsToFunctions(int &iteration, std::vector<Flag> &setFlags) {
             flagArgs.push_back(args[iteration]);
         }
 
-        parsedFunctions.push_back(InvokeableFunction{
+        parsedFunctions.push_back(InvocableFunction{
             setFlag.flagFunction, flagArgs, setFlag.options});
     }
 
     return parsedFunctions;
 }
 
-std::optional<std::vector<InvokeableFunction>> CLIParser::parse() {
-    std::vector<InvokeableFunction> parsedFunctions;
+std::optional<std::vector<InvocableFunction>> CLIParser::parse() {
+    std::vector<InvocableFunction> parsedFunctions;
 
     for (int i = 0; i < args.size(); ++i) {
         std::vector<Flag> setFlags;

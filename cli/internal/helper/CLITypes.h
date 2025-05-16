@@ -30,7 +30,7 @@ struct UnparsedFlag {
     FlagOptions options = {};
 };
 
-struct InvokeableFunction {
+struct InvocableFunction {
     AnyFunction function;
     std::vector<std::string> arguments;
     FlagOptions options;
