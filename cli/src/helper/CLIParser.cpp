@@ -142,11 +142,6 @@ std::optional<std::vector<InvocableFunction>> CLIParser::parse() {
     return parsedFunctions;
 }
 
-void CLIParser::invokeFunction(const AnyFunction &flagFunction,
-                               const std::vector<std::string> &arguments) {
-    flagFunction(arguments);
-}
-
 int CLIParser::findCharFlag(char charFlag) {
     for (int i = 0; i < allFlags.size(); ++i) {
         if (allFlags[i].flagChar == charFlag) {

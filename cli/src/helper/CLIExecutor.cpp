@@ -68,3 +68,8 @@ void CLIExecutor::execute(CLIParser &parser) const {
         parsedFunction.function(parsedArguments);
     }
 }
+
+void CLIExecutor::invokeFunction(const AnyFunction &flagFunction,
+                               const std::vector<std::string> &arguments) {
+    flagFunction(arguments);
+}

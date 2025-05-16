@@ -59,12 +59,6 @@ class CLIParser {
     std::optional<std::vector<InvocableFunction>> parse();
 
     /**
-     * Will simply call the passed function with the given arguments.
-     */
-    static void invokeFunction(const AnyFunction &,
-                               const std::vector<std::string> &);
-
-    /**
      * Will print the full help menu. Needs an instance of CLIParser with all
      * needed flags.
      */
