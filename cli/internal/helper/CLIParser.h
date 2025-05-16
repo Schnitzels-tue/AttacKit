@@ -1,7 +1,6 @@
 #pragma once
 
 #include <optional>
-#include <set>
 #include <string>
 #include <vector>
 
@@ -37,9 +36,5 @@ class CLIParser {
     void printHelp();
 
     std::string generate_flags_text();
-    void add_flag(const std::string &flagName,
-                  const AnyFunction &associatedFunction,
-                  const std::string &helpText,
-                  const std::set<int> &amountOfArguments,
-                  FlagOptions options = {});
+    void add_flag(const UnparsedFlag &unparsedFlag);
 };

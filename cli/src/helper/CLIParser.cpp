@@ -155,18 +155,14 @@ std::string CLIParser::generate_flags_text() {
     return flagsText;
 }
 
-void CLIParser::add_flag(const std::string &flagName,
-                         const AnyFunction &associatedFunction,
-                         const std::string &helpText,
-                         const std::set<int> &amountOfArguments,
-                         const FlagOptions options) {
-    if (amountOfArguments.empty()) {
+void CLIParser::add_flag(const UnparsedFlag &unparsedFlag) {
+    if (unparsedFlag.amountOfArguments.empty()) {
         LOG_ERROR("Amount of arguments was not specified correctly for flag " +
-                  flagName);
+                  unparsedFlag.flagName);
         return;
     }
     if (helpText.empty()) {
-        LOG_WARN("No help text was provided for flag " + flagName);
+        LOG_WARN("No help text was provided for flag " + unparsedFlag.flagName);
     }
     std::unordered_set<char> takenChars;
     std::unordered_set<std::string> takenNames;
@@ -176,18 +172,19 @@ void CLIParser::add_flag(const std::string &flagName,
         takenNames.insert(flag.flagName);
     }
 
-    if (takenNames.find(flagName) != takenNames.end()) {
-        LOG_ERROR("Tried adding a flag with name " + flagName +
+    if (takenNames.find(unparsedFlag.flagName) != takenNames.end()) {
+        LOG_ERROR("Tried adding a flag with name " + unparsedFlag.flagName +
                   " but it already exists");
     }
 
-    char flagChar = flagName.at(0);
+    char flagChar = unparsedFlag.flagName.at(0);
     const int SIZE_OF_ALPHABET = 26;
     while (takenChars.find(flagChar) != takenChars.end()) {
         flagChar =
             static_cast<char>('a' + ((flagChar - 'a' + 1) % SIZE_OF_ALPHABET));
     }
 
-    allFlags.emplace_back(Flag{flagName, flagChar, associatedFunction, helpText,
-                               amountOfArguments, options});
+    allFlags.emplace_back(
+        Flag{unparsedFlag.flagName, flagChar, unparsedFlag.flagFunction,
+             helpText, unparsedFlag.amountOfArguments, unparsedFlag.options});
 }

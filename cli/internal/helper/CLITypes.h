@@ -22,6 +22,14 @@ struct Flag {
     FlagOptions options;
 };
 
+struct UnparsedFlag {
+    std::string flagName;
+    AnyFunction flagFunction;
+    std::string flagHelpText;
+    std::set<int> amountOfArguments;
+    FlagOptions options = {};
+};
+
 struct InvokeableFunction {
     AnyFunction function;
     std::vector<std::string> arguments;
