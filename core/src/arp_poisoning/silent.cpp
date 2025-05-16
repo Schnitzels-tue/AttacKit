@@ -8,6 +8,7 @@
 #include "ProtocolType.h"
 #include "RawPacket.h"
 #include "log.h"
+#include <algorithm>
 #include <exception>
 #include <future>
 #include <stdexcept>
@@ -28,14 +29,14 @@ void ATK::ARP::SilentArpPoisoningStrategy::onPacketArrives(
         device->stopCapture();
     }
 
-    bool isMessageToAttacker =
+    const bool isMessageToAttacker =
         requestEthLayer->getSourceMac() == device->getMacAddress() ||
         requestEthLayer->getSourceMac() == attackerMac_ ||
         requestArpLayer->getTargetIpAddr() == device->getIPv4Address();
-    bool isIpToSpoof =
+    const bool isIpToSpoof =
         std::find(ipsToSpoof_.begin(), ipsToSpoof_.end(),
                   requestArpLayer->getTargetIpAddr()) != ipsToSpoof_.end();
-    bool isFromVictim =
+    const bool isFromVictim =
         std::find(victimIps_.begin(), victimIps_.end(),
                   requestArpLayer->getSenderIpAddr()) != victimIps_.end();
 

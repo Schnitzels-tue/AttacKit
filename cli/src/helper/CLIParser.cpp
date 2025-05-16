@@ -23,7 +23,7 @@ CLIParser::flagsToFunctions(int &iteration, std::vector<Flag> &setFlags) {
         if (setFlag.amountOfArguments.size() == 1 &&
             setFlag.amountOfArguments.find(0) !=
                 setFlag.amountOfArguments.end()) {
-            parsedFunctions.push_back(
+            parsedFunctions.emplace_back(
                 InvokeableFunction{setFlag.flagFunction, {}, setFlag.options});
             continue;
         }
