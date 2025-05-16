@@ -86,6 +86,7 @@ void ATK::ARP::SilentArpPoisoningStrategy::execute() {
     pcpp::MacAddressFilter deviceMacAdressFilter(device_->getMacAddress(),
                                                  pcpp::Direction::SRC_OR_DST);
     pcpp::NotFilter notDeviceMacAdress(&deviceMacAdressFilter);
+
     pcpp::AndFilter andFilter;
     andFilter.addFilter(&arpFilter);
     andFilter.addFilter(&etherTypeFilter);
