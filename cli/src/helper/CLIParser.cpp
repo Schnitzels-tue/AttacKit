@@ -23,8 +23,10 @@ CLIParser::flagsToFunctions(int &iteration, std::vector<Flag> &setFlags) {
         if (setFlag.amountOfArguments.size() == 1 &&
             setFlag.amountOfArguments.find(0) !=
                 setFlag.amountOfArguments.end()) {
+            // parsedFunctions.emplace_back(setFlag.flagFunction, {},
+            //                              setFlag.options);
             parsedFunctions.emplace_back(
-                InvokeableFunction{setFlag.flagFunction, {}, setFlag.options});
+                InvokeableFunction(setFlag.flagFunction, {}, setFlag.options));
             continue;
         }
         std::vector<std::string> flagArgs;
@@ -51,8 +53,8 @@ CLIParser::flagsToFunctions(int &iteration, std::vector<Flag> &setFlags) {
             flagArgs.push_back(args[iteration]);
         }
 
-        parsedFunctions.push_back(InvokeableFunction{
-            setFlag.flagFunction, flagArgs, setFlag.options});
+        parsedFunctions.emplace_back(setFlag.flagFunction, flagArgs,
+                                     setFlag.options);
     }
 
     return parsedFunctions;
