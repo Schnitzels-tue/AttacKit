@@ -1,7 +1,11 @@
 #include "dns_poisoning/all_out.h"
+#include "DnsLayerEnums.h"
+#include "DnsResourceData.h"
 #include "EthLayer.h"
+#include "Packet.h"
 #include "PcapFilter.h"
 #include "PcapLiveDevice.h"
+#include "ProtocolType.h"
 #include "RawPacket.h"
 #include "log.h"
 #include <DnsLayer.h>

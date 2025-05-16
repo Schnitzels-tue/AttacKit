@@ -1,10 +1,12 @@
 #include "dns_poisoning/public.h"
+#include "IpAddress.h"
 #include "PcapLiveDevice.h"
 #include "PcapLiveDeviceList.h"
 #include "dns_poisoning/all_out.h"
 #include "dns_poisoning/dns_poisoning_strategy.h"
 #include <memory>
 #include <stdexcept>
+#include <utility>
 
 /**
  * In the current implementation this method will not terminate and keep
