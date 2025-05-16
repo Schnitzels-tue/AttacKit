@@ -32,13 +32,21 @@ CLIParser::flagsToFunctions(int &iteration, std::vector<Flag> &setFlags) {
         const int beginIteration = iteration;
         for (int i = 0; i < *setFlag.amountOfArguments.rbegin(); ++i) {
             ++iteration;
-            if (args.size() <= iteration) {
-                LOG_ERROR("Did not supply enough arguments for flag " +
+            if (args.size() <= iteration &&
+                setFlag.amountOfArguments.find(iteration - beginIteration -
+                                               1) ==
+                    setFlag.amountOfArguments.end()) {
+                LOG_ERROR("Found an invalid amount of arguments for flag " +
                           setFlag.flagName);
                 return std::nullopt;
             }
+            if (args.size() <= iteration) {
+                --iteration;
+                break;
+            }
             if (args[iteration].rfind('-', 0) == 0 &&
-                setFlag.amountOfArguments.find(iteration - beginIteration) ==
+                setFlag.amountOfArguments.find(iteration - beginIteration -
+                                               1) ==
                     setFlag.amountOfArguments.end()) {
                 LOG_ERROR("Found an invalid amount of arguments for flag " +
                           setFlag.flagName);
@@ -48,11 +56,12 @@ CLIParser::flagsToFunctions(int &iteration, std::vector<Flag> &setFlags) {
                 --iteration;
                 break;
             }
+
             flagArgs.push_back(args[iteration]);
         }
 
-        parsedFunctions.push_back(InvocableFunction{
-            setFlag.flagFunction, flagArgs, setFlag.options});
+        parsedFunctions.push_back(
+            InvocableFunction{setFlag.flagFunction, flagArgs, setFlag.options});
     }
 
     return parsedFunctions;
