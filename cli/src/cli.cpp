@@ -8,7 +8,8 @@
 #include <vector>
 
 /**
-
+ * Main function for the CLI. Everything called here will be executed when
+ * AttacKit.exe is called in the command line.
  */
 int main(int argc, char *argv[]) noexcept(false) {
     try {
@@ -18,6 +19,7 @@ int main(int argc, char *argv[]) noexcept(false) {
         CLIParser parser(args);
         CLIExecutor executor;
 
+        // Add each individual flag to the parser before parsing the arguments
         parser.add_flag(
             UnparsedFlag{"help",
                          [&executor](const std::vector<std::string> &) {
