@@ -2,6 +2,9 @@ set(SOURCES
     src/arp_poisoning/all_out.cpp
     src/arp_poisoning/public.cpp
     src/arp_poisoning/silent.cpp
+    src/dns_poisoning/all_out.cpp
+    src/dns_poisoning/public.cpp
+    src/dns_poisoning/silent.cpp
     src/network_scout/network_scout.cpp
     src/network_scout/sniffing.cpp
     src/common/pcap_to_common.cpp
