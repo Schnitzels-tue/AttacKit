@@ -18,14 +18,9 @@ class AllOutDnsPoisoningStrategy : public ATK::DNS::DnsPoisoningStrategy {
   public:
     class Builder {
       public:
-        explicit Builder(pcpp::PcapLiveDevice *device)
-            : device_(device), attackerIp_() {}
-        Builder &attackerMac(pcpp::MacAddress attackerMac) {
-            this->attackerMac_ = std::optional<pcpp::MacAddress>(attackerMac);
-            return *this;
-        }
-        Builder &attackerIp(const std::string& ip) {
-            this->attackerIp_ = ip;
+        explicit Builder(pcpp::PcapLiveDevice *device) : device_(device) {}
+        Builder &attackerIp(pcpp::IPv4Address attackerIp) {
+            this->attackerIp_ = attackerIp;
             return *this;
         }
         /**
@@ -35,14 +30,12 @@ class AllOutDnsPoisoningStrategy : public ATK::DNS::DnsPoisoningStrategy {
         std::unique_ptr<AllOutDnsPoisoningStrategy> build() {
             return std::unique_ptr<AllOutDnsPoisoningStrategy>(
                 new AllOutDnsPoisoningStrategy(this->device_,
-                                               this->attackerMac_,
                                                this->attackerIp_));
         }
 
       private:
         pcpp::PcapLiveDevice *device_;
-        std::optional<pcpp::MacAddress> attackerMac_;
-        std::string &attackerIp_;
+        pcpp::IPv4Address attackerIp_;
     };
 
     /**
@@ -55,14 +48,12 @@ class AllOutDnsPoisoningStrategy : public ATK::DNS::DnsPoisoningStrategy {
 
   private:
     AllOutDnsPoisoningStrategy(pcpp::PcapLiveDevice *device,
-                               const std::optional<pcpp::MacAddress> attackerMac,
-                               std::string& attackerIp)
+                               pcpp::IPv4Address attackerIp)
         : device_(device) {
         if (device == nullptr) {
             throw std::invalid_argument("Not a valid interface");
         }
 
-        attackerMac_ = attackerMac.value_or(device->getMacAddress());
         attackerIp_ = pcpp::IPv4Address(attackerIp);
     }
 
@@ -70,7 +61,6 @@ class AllOutDnsPoisoningStrategy : public ATK::DNS::DnsPoisoningStrategy {
                          void *cookie) override;
 
     pcpp::PcapLiveDevice *device_;
-    pcpp::MacAddress attackerMac_;
-    pcpp::IDnsResourceData *attackerIp_;
+    pcpp::IPv4Address attackerIp_;
 };
 } // namespace ATK::DNS

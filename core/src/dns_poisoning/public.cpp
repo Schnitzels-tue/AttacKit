@@ -20,9 +20,9 @@ void ATK::DNS::allOutPoison(const AllOutPoisonOptions &options) {
     }
 
     std::unique_ptr<ATK::DNS::AllOutDnsPoisoningStrategy> strategy;
+    pcpp::IPv4Address attackerIp(options.attackerIp);
     strategy = AllOutDnsPoisoningStrategy::Builder(device)
-               .attackerMac(device->getMacAddress())
-               .attackerIp(options.attackerIp)
+               .attackerIp(attackerIp)
                .build();
     
 
