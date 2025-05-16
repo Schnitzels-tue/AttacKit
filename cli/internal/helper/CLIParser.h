@@ -6,6 +6,12 @@
 
 #include "helper/CLITypes.h"
 
+/**
+ * General class for everything that has to do with directly parsing the strings
+ * given by the user in the cli. Its main life cycle consists of getting
+ * constructed with the command line arguments, adding flags, and lastly calling
+ * parse() on the instance.
+ */
 class CLIParser {
 
     std::string helpText;
