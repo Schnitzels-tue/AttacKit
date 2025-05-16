@@ -1,14 +1,23 @@
+#include "arp_poisoning/public.h"
 #include "helper/CLIExecutor.h"
 #include "helper/CLITypes.h"
 #include "log.h"
 
 #include <exception>
 #include <helper/CLIParser.h>
+#include <optional>
 #include <string>
 #include <vector>
 
 int main(int argc, char *argv[]) noexcept(false) {
     try {
+        const ATK::ARP::SilentPoisoningOptions options{
+            .ifaceIpOrName = "en0",
+            .attackerMac = std::nullopt,
+            .victimIp = {"192.168.178.1"},
+            .ipsToSpoof = {"192.172.199.1"}};
+
+        ATK::ARP::silentPoison(options);
 
         // Parse command line arguments
         const std::vector<std::string> args(argv + 1, argv + argc);
