@@ -41,7 +41,9 @@ void ATK::ARP::SilentArpPoisoningStrategy::onPacketArrives(
 
     // determine whether or not to handle packet
     if (isMessageToAttacker || !isIpToSpoof || !isFromVictim) {
-        LOG_INFO("skipped packet");
+        LOG_INFO("skipped packet: src " << requestArpLayer->getSenderIpAddr()
+                                        << " to "
+                                        << requestArpLayer->getTargetIpAddr());
         return;
     }
 
