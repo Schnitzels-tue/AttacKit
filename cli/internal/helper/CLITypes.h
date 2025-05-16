@@ -52,7 +52,12 @@ struct UnparsedFlag {
  *
  * Example:
  * InvocableFunction test;
- * test.function(test.arguments)
+ * test.function(test.arguments);
+ * 
+ * OR
+ * 
+ * InvocableFunction test;
+ * CLIParser::invokeFunction(test);
  *
  * Be sure to keep track of the options since this might impact when or how the
  * function within has to behave.
