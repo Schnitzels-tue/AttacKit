@@ -15,7 +15,7 @@ void allOutPoison(const AllOutPoisoningOptions &options);
 struct SilentPoisoningOptions {
     std::string ifaceIpOrName;
     std::optional<std::string> attackerMac;
-    std::optional<std::string> victimIp;
+    std::unordered_set<std::string> victimIp;
     std::unordered_set<std::string> ipsToSpoof;
 };
 

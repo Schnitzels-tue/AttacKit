@@ -4,7 +4,6 @@
 #include "PcapLiveDevice.h"
 #include "arp_poisoning/arp_poisoning_strategy.h"
 #include <optional>
-#include <unordered_set>
 #include <utility>
 
 namespace ATK::ARP {
@@ -19,16 +18,14 @@ class SilentArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
       public:
         explicit Builder(pcpp::PcapLiveDevice *device) : device_(device) {}
         /**
-         * Adds a victim to the list
-         *
-         * If no victimIp is supplied, it will respond to all sources.
+         * Adds a victim
          */
         Builder &addVictimIp(pcpp::IPv4Address victimIp) {
-            victimIps_.insert(victimIp);
+            victimIps_.emplace_back(victimIp);
             return *this;
         }
         Builder &addIpToSpoof(pcpp::IPv4Address ipToSpoof) {
-            ipsToSpoof_.insert(ipToSpoof);
+            ipsToSpoof_.emplace_back(ipToSpoof);
             return *this;
         }
         Builder &attackerMac(pcpp::MacAddress attackerMac) {
@@ -49,9 +46,9 @@ class SilentArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
 
       private:
         pcpp::PcapLiveDevice *device_;
-        std::unordered_set<pcpp::IPv4Address> victimIps_;
+        std::vector<pcpp::IPv4Address> victimIps_;
         std::optional<pcpp::MacAddress> attackerMac_;
-        std::unordered_set<pcpp::IPv4Address> ipsToSpoof_;
+        std::vector<pcpp::IPv4Address> ipsToSpoof_;
     };
 
     /**
@@ -66,9 +63,9 @@ class SilentArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
 
   private:
     SilentArpPoisoningStrategy(pcpp::PcapLiveDevice *device,
-                               std::unordered_set<pcpp::IPv4Address> victimIps,
+                               std::vector<pcpp::IPv4Address> victimIps,
                                std::optional<pcpp::MacAddress> attackerMac,
-                               std::unordered_set<pcpp::IPv4Address> ipsToSpoof)
+                               std::vector<pcpp::IPv4Address> ipsToSpoof)
         : device_(device), victimIps_(std::move(victimIps)),
           ipsToSpoof_(std::move(ipsToSpoof)) {
         if (device == nullptr) {
@@ -82,8 +79,8 @@ class SilentArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
                          void *cookie);
 
     pcpp::PcapLiveDevice *device_;
-    std::unordered_set<pcpp::IPv4Address> victimIps_;
+    std::vector<pcpp::IPv4Address> victimIps_;
     pcpp::MacAddress attackerMac_;
-    std::unordered_set<pcpp::IPv4Address> ipsToSpoof_;
+    std::vector<pcpp::IPv4Address> ipsToSpoof_;
 };
 } // namespace ATK::ARP

