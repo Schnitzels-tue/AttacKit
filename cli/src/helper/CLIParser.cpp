@@ -188,9 +188,15 @@ void CLIParser::add_flag(const UnparsedFlag &unparsedFlag) {
 
     char flagChar = unparsedFlag.flagName.at(0);
     const int SIZE_OF_ALPHABET = 26;
+    int preventLivelock = 0;
     while (takenChars.find(flagChar) != takenChars.end()) {
         flagChar =
             static_cast<char>('a' + ((flagChar - 'a' + 1) % SIZE_OF_ALPHABET));
+        if (++preventLivelock > SIZE_OF_ALPHABET) {
+            LOG_ERROR(
+                "The entire alphabet has been taken by other flags, are you "
+                "sure you are not adding the same flag in a for-loop?")
+        }
     }
 
     allFlags.emplace_back(
