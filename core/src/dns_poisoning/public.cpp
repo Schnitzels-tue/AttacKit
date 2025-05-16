@@ -20,7 +20,10 @@ void ATK::DNS::allOutPoison(const AllOutPoisonOptions &options) {
     }
 
     std::unique_ptr<ATK::DNS::AllOutDnsPoisoningStrategy> strategy;
-    strategy = AllOutDnsPoisoningStrategy::Builder(device).attackerMac.build();
+    strategy = AllOutDnsPoisoningStrategy::Builder(device)
+               .attackerMac(device->getMacAddress())
+               .attackerIp(options.attackerIp)
+               .build();
     
 
     DnsPoisoningContext dnsPoisoningContext(std::move(strategy));
