@@ -1,12 +1,8 @@
 #pragma once
 
-#include "IpAddress.h"
-#include "MacAddress.h"
 #include "PcapLiveDevice.h"
 #include "arp_poisoning/arp_poisoning_strategy.h"
-#include <memory>
 #include <optional>
-#include <stdexcept>
 
 namespace ATK::ARP {
 /**
@@ -17,6 +13,7 @@ namespace ATK::ARP {
 class SilentArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
   public:
     class Builder {
+      public:
         Builder(pcpp::PcapLiveDevice *device, pcpp::IPv4Address ipToSpoof)
             : device_(device), ipToSpoof_(ipToSpoof) {}
         /**
@@ -73,7 +70,7 @@ class SilentArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
     }
 
     void onPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device,
-                         void *cookie) override;
+                         void *cookie);
 
     pcpp::PcapLiveDevice *device_;
     std::optional<pcpp::IPv4Address> victimIp_;

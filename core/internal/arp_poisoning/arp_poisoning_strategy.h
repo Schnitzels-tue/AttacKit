@@ -1,8 +1,7 @@
 #pragma once
 
-#include "PcapLiveDevice.h"
-#include "RawPacket.h"
 #include <memory>
+
 namespace ATK::ARP {
 /**
  * Arp poisoning execution strategy.
@@ -23,14 +22,6 @@ class ArpPoisoningStrategy {
      * copmatible with arp, failed to send packet).
      */
     virtual void execute() = 0;
-
-  private:
-    /**
-     * Packet handler method used in conjunction with PcapPlusplus' startCapture
-     */
-    virtual void onPacketArrives(pcpp::RawPacket *packet,
-                                 pcpp::PcapLiveDevice *device,
-                                 void *cookie) = 0;
 
   protected:
     static constexpr int ARP_PACKET_SIZE = 42;

@@ -1,7 +1,13 @@
 #include "network_scout/sniffing.h"
+#include "Packet.h"
+#include "PcapLiveDevice.h"
 #include "PcapLiveDeviceList.h"
 #include "RawPacket.h"
+#include "common/common.h"
 #include "common/pcap_to_common.h"
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 namespace {
 constexpr int MAX_CAPTURE_TIMEOUT = 10;
@@ -22,7 +28,7 @@ bool onPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice * /*dev*/,
                      void *cookie) {
 
     auto *packetTracker = static_cast<PacketTracker *>(cookie);
-    pcpp::Packet parsedPacket(packet);
+    const pcpp::Packet parsedPacket(packet);
 
     packetTracker->packetInfoList->emplace_back(
         ATK::Common::toPacketInfo(parsedPacket));

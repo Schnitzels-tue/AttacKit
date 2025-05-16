@@ -1,28 +1,28 @@
 #include "arp_poisoning/all_out.h"
 #include "ArpLayer.h"
 #include "EthLayer.h"
-#include "MacAddress.h"
+#include "Packet.h"
 #include "PcapFilter.h"
 #include "PcapLiveDevice.h"
 #include "RawPacket.h"
 #include "log.h"
+#include <exception>
 #include <future>
 #include <stdexcept>
 
 void ATK::ARP::AllOutArpPoisoningStrategy::onPacketArrives(
-    pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device, void * /*cookie*/) {
-    // currently unused, no termination condition
-    // auto *completionFuture = static_cast<std::promise<void> *>(cookie);
+    pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device, void *cookie) {
+    auto *completionFuture = static_cast<std::promise<void> *>(cookie);
 
-    pcpp::Packet parsedPacket(packet);
+    const pcpp::Packet parsedPacket(packet);
     auto *requestEthLayer = parsedPacket.getLayerOfType<pcpp::EthLayer>();
     auto *requestArpLayer = parsedPacket.getLayerOfType<pcpp::ArpLayer>();
 
     if (requestEthLayer == nullptr || requestArpLayer == nullptr) {
-        LOG_ERROR(
-            "Invalid filter configuration, found packet with missing layers");
-        throw std::runtime_error(
-            "Invalid filter configuration, found packet with missing layers");
+        completionFuture->set_exception_at_thread_exit(std::make_exception_ptr(
+            std::runtime_error("Invalid filter configuration, found packet "
+                               "with missing layers")));
+        device->stopCapture();
     }
 
     // determine whether or not to handle packet
@@ -49,8 +49,9 @@ void ATK::ARP::AllOutArpPoisoningStrategy::onPacketArrives(
 
     if (!device->sendPacket(&responsePacket)) {
         device->stopCapture();
-        LOG_ERROR("Failed to send packet");
-        throw std::runtime_error("Failed to send packet");
+        completionFuture->set_exception_at_thread_exit(std::make_exception_ptr(
+            std::runtime_error("Failed to send packet")));
+        device->stopCapture();
     };
 }
 
@@ -58,6 +59,7 @@ void ATK::ARP::AllOutArpPoisoningStrategy::execute() {
     if (!device_->open()) {
         throw std::runtime_error("Unable to open device");
     }
+
     std::promise<void> completionPromise;
     std::future completionFuture = completionPromise.get_future();
 
@@ -73,17 +75,21 @@ void ATK::ARP::AllOutArpPoisoningStrategy::execute() {
         throw std::runtime_error(
             "Unable to set arp and ethertype filters on interface");
     };
+
     if (!device_->startCapture(
             [this](pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device,
                    void *cookie) { onPacketArrives(packet, device, cookie); },
             &completionFuture)) {
         device_->close();
-
         LOG_ERROR("Unable to start capturing arp packets");
         throw std::runtime_error("Unable to start capturing arp packets");
     };
 
-    completionFuture.wait();
+    try {
+        completionFuture.get();
+    } catch (const std::exception &e) {
+        device_->close();
+    }
 
     device_->close();
 }

@@ -1,12 +1,8 @@
 #pragma once
 
-#include "MacAddress.h"
 #include "PcapLiveDevice.h"
-#include "RawPacket.h"
 #include "arp_poisoning/arp_poisoning_strategy.h"
-#include <memory>
 #include <optional>
-#include <stdexcept>
 
 namespace ATK::ARP {
 /**
@@ -57,7 +53,7 @@ class AllOutArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
     }
 
     void onPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device,
-                         void *cookie) override;
+                         void *cookie);
 
     pcpp::PcapLiveDevice *device_;
     pcpp::MacAddress attackerMac_;
