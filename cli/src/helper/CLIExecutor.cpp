@@ -5,14 +5,19 @@
 #include "log.h"
 
 #include <iostream>
+#include <optional>
 #include <string>
 #include <vector>
 
-// Inline functions used to ease use of string/boolean conversions
+// Helper functions used inside executors
 namespace {
 inline std::string boolToString(bool value) { return value ? "true" : "false"; }
 
 inline bool stringToBool(std::string &value) { return value == "true"; }
+
+auto toOptional(const std::string &arg) -> std::optional<std::string> {
+    return arg.empty() ? std::nullopt : std::optional<std::string>{arg};
+};
 } // namespace
 
 void CLIExecutor::setHelp(bool value) { this->help = value; }
@@ -29,16 +34,22 @@ void CLIExecutor::doMeaningfulThing(std::vector<std::string> args) {
 }
 
 void CLIExecutor::invokeArpPoison(std::vector<std::string> args) {
-    if (args.size() != 3) {
+    const int ALL_OUT_NUM_ARGS = 3;
+    const int SILENT_NUM_ARGS = 5;
+    if ((!stringToBool(args[0]) && args.size() != ALL_OUT_NUM_ARGS) ||
+        (stringToBool(args[0]) && args.size() != SILENT_NUM_ARGS)) {
         LOG_ERROR(
             "Found wrong number of arguments for executing poisoning attack");
     }
-    if (!stringToBool(args[2])) {
+    if (!stringToBool(args[0])) { // all out
         ATK::ARP::allOutPoison(
-            {.ifaceIpOrName = args[0], .attackerMac = args[1]});
-    } else {
-        LOG_INFO("Poisoning silently...");
-        // TODO(QuinnCaris)
+            {.ifaceIpOrName = args[1], .attackerMac = toOptional(args[2])});
+    } else { // silent
+        ATK::ARP::silentPoison(
+            ATK::ARP::SilentPoisoningOptions{.ifaceIpOrName = args[1],
+                                             .attackerMac = toOptional(args[2]),
+                                             .victimIp = toOptional(args[3]),
+                                             .ipToSpoof = args[4]});
     }
 }
 
@@ -73,7 +84,8 @@ void CLIExecutor::execute(CLIParser &parser) const {
 
         auto parsedArguments = parsedFunction.arguments;
         if (parsedFunction.options.sensitiveToQuiet) {
-            parsedArguments.push_back(boolToString(this->quiet));
+            parsedArguments.insert(parsedArguments.begin(),
+                                   boolToString(this->quiet));
         }
 
         parsedFunction.function(parsedArguments);
