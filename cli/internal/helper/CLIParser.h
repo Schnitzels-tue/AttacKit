@@ -1,12 +1,17 @@
 #pragma once
 
 #include <optional>
-#include <set>
 #include <string>
 #include <vector>
 
 #include "helper/CLITypes.h"
 
+/**
+ * General class for everything that has to do with directly parsing the strings
+ * given by the user in the cli. Its main life cycle consists of getting
+ * constructed with the command line arguments, adding flags, and lastly calling
+ * parse() on the instance.
+ */
 class CLIParser {
 
     std::string helpText;
@@ -14,12 +19,18 @@ class CLIParser {
 
     std::vector<Flag> allFlags;
 
-    std::optional<std::vector<InvokeableFunction>>
+    std::optional<std::vector<InvocableFunction>>
     flagsToFunctions(int &, std::vector<Flag> &setFlags);
     int findCharFlag(char);
     int findFlagName(const std::string &);
+    std::string generate_flags_text();
 
   public:
+    /**
+     * Can easily be initialized with a vector of strings. Will set the local
+     * private field args and set the general help text. This constructor does
+     * not start the parsing process yet!
+     */
     template <typename... Args>
     explicit CLIParser(Args... args)
         : args({args...}),
@@ -29,17 +40,35 @@ class CLIParser {
                    "Usage: AttacKit [options] \n"
                    "  options: \n") {}
 
+    /**
+     * For debugging purposes, the arguments passed to the cli can be printed
+     * with this function.
+     */
     void printArguments();
-    std::optional<std::vector<InvokeableFunction>> parse();
-    static void invokeFunction(const AnyFunction &,
-                               const std::vector<std::string> &);
 
+    /**
+     * Parses the arguments passed to the program.
+     *
+     * In case something goes wrong during this process, this function will
+     * return std::nullopt.
+     *
+     * In case everything goes right, it will return a
+     * vector of InvocableFunctions representing all flags and their arguments
+     * passed in the cli.
+     */
+    std::optional<std::vector<InvocableFunction>> parse();
+
+    /**
+     * Will print the full help menu. Needs an instance of CLIParser with all
+     * needed flags.
+     */
     void printHelp();
 
-    std::string generate_flags_text();
-    void add_flag(const std::string &flagName,
-                  const AnyFunction &associatedFunction,
-                  const std::string &helpText,
-                  const std::set<int> &amountOfArguments,
-                  FlagOptions options = {});
+    /**
+     * Adds a flag to parser instance. This does NOT mean this flag is used and
+     * returned after parsing, but rather it's a notice that the flag exists.
+     * The parser will check for flags added with this function when parsing the
+     * cli arguments.
+     */
+    void add_flag(const UnparsedFlag &unparsedFlag);
 };
