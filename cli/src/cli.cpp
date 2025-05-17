@@ -53,6 +53,15 @@ int main(int argc, char *argv[]) noexcept(false) {
                          "x  y    Does some kind of meaningful thing",
                          {2},
                          FlagOptions{.sensitiveToQuiet = true}});
+        parser.add_flag(UnparsedFlag{
+            "arp",
+            CLIExecutor::invokeArpPoison,
+            "ifaceIpOrName  [attackerMac]  [victimIp]  [ipToSpoof]    Performs "
+            "an ARP spoofing attack with the given arguments. Although "
+            "attackerMac and victimIp are always optional, ipToSpoof is "
+            "required when the quiet flag is passed.",
+            {2, 4},
+            FlagOptions{.sensitiveToQuiet = true}});
 
         executor.execute(parser);
     } catch (const std::exception &e) {
