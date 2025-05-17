@@ -53,9 +53,9 @@ struct UnparsedFlag {
  * Example:
  * InvocableFunction test;
  * test.function(test.arguments);
- * 
+ *
  * OR
- * 
+ *
  * InvocableFunction test;
  * CLIExecutor::invokeFunction(test);
  *
