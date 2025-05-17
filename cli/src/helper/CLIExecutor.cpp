@@ -75,7 +75,7 @@ void CLIExecutor::execute(CLIParser &parser) const {
         if (parsedFunction.options.sensitiveToQuiet) {
             parsedArguments.push_back(boolToString(this->quiet));
         }
-        
+
         parsedFunction.function(parsedArguments);
     }
 }
