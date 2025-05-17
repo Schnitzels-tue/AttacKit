@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+// Inline functions used to ease use of string/boolean conversions
 namespace {
 inline std::string boolToString(bool value) { return value ? "true" : "false"; }
 
@@ -42,31 +43,39 @@ void CLIExecutor::invokeArpPoison(std::vector<std::string> args) {
 }
 
 void CLIExecutor::execute(CLIParser &parser) const {
+    // First parse the commands and check if parsing went right
     auto parsedCli = parser.parse();
     if (!parsedCli) {
         LOG_ERROR("Error while parsing command");
         return;
     }
 
+    // We first process the functions that are associated with a priority flag
     for (const auto &parsedFunction : *parsedCli) {
         if (parsedFunction.options.priorityFlag) {
             invokeFunction(parsedFunction);
         }
     }
 
+    // If the help flag is set, we ignore everything else and immediately print
+    // the help menu
     if (this->help) {
         parser.printHelp();
         return;
     }
 
+    // For all remaining functions that weren't priority, execute them while
+    // paying attention to their FlagOptions
     for (const auto &parsedFunction : *parsedCli) {
         if (parsedFunction.options.priorityFlag) {
             continue;
         }
+
         auto parsedArguments = parsedFunction.arguments;
         if (parsedFunction.options.sensitiveToQuiet) {
             parsedArguments.push_back(boolToString(this->quiet));
         }
+        
         parsedFunction.function(parsedArguments);
     }
 }
