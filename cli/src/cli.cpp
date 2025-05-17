@@ -49,9 +49,7 @@ int main(int argc, char *argv[]) noexcept(false) {
             FlagOptions{.priorityFlag = true}});
         parser.add_flag(
             UnparsedFlag{"meaning",
-                         [](const std::vector<std::string> &args) {
-                             CLIExecutor::doMeaningfulThing(args);
-                         },
+                         CLIExecutor::doMeaningfulThing,
                          "x  y    Does some kind of meaningful thing",
                          {2},
                          FlagOptions{.sensitiveToQuiet = true}});
