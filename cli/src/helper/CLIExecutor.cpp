@@ -1,6 +1,7 @@
 #include "helper/CLIExecutor.h"
 #include "arp_poisoning/public.h"
 #include "helper/CLIParser.h"
+#include "helper/CLITypes.h"
 #include "log.h"
 
 #include <iostream>
@@ -46,9 +47,10 @@ void CLIExecutor::execute(CLIParser &parser) const {
         LOG_ERROR("Error while parsing command");
         return;
     }
+
     for (const auto &parsedFunction : *parsedCli) {
         if (parsedFunction.options.priorityFlag) {
-            parsedFunction.function(parsedFunction.arguments);
+            invokeFunction(parsedFunction);
         }
     }
 
@@ -69,7 +71,6 @@ void CLIExecutor::execute(CLIParser &parser) const {
     }
 }
 
-void CLIExecutor::invokeFunction(const AnyFunction &flagFunction,
-                               const std::vector<std::string> &arguments) {
-    flagFunction(arguments);
+void CLIExecutor::invokeFunction(const InvocableFunction &invocableFunction) {
+    invocableFunction.function(invocableFunction.arguments);
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "helper/CLIParser.h"
+#include "helper/CLITypes.h"
 #include <string>
 #include <vector>
 
@@ -25,8 +26,7 @@ class CLIExecutor {
     /**
      * Will simply call the passed function with the given arguments.
      */
-    static void invokeFunction(const AnyFunction &,
-                               const std::vector<std::string> &);
+    static void invokeFunction(const InvocableFunction &);
 
     /**
      * Sets the help field boolean to the specified value.
