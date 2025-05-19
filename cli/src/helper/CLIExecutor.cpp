@@ -5,6 +5,7 @@
 #include "log.h"
 
 #include <iostream>
+#include <iterator>
 #include <optional>
 #include <sstream>
 #include <string>
@@ -64,9 +65,9 @@ void CLIExecutor::invokeArpPoison(std::vector<std::string> args) {
     } else { // silent
         std::vector<std::string> victimIps = split(args[3], ',');
         std::vector<std::string> ipsToSpoof = split(args[4], ',');
-        std::unordered_set<std::string> victimIpsSet(victimIps.begin(),
+        const std::unordered_set<std::string> victimIpsSet(victimIps.begin(),
                                                      victimIps.end());
-        std::unordered_set<std::string> ipsToSpoofSet(ipsToSpoof.begin(),
+        const std::unordered_set<std::string> ipsToSpoofSet(ipsToSpoof.begin(),
                                                       ipsToSpoof.end());
         ATK::ARP::silentPoison(
             ATK::ARP::SilentPoisoningOptions{.ifaceIpOrName = args[1],
