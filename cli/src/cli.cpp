@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) noexcept(false) {
         const ATK::ARP::SilentPoisoningOptions options{
             .ifaceIpOrName = "en0",
             .attackerMac = std::nullopt,
-            .victimIp = {"192.168.178.1"},
+            .victimIps = {"192.168.178.1"},
             .ipsToSpoof = {"192.172.199.1"}};
 
         ATK::ARP::silentPoison(options);
@@ -67,10 +67,8 @@ int main(int argc, char *argv[]) noexcept(false) {
             CLIExecutor::invokeArpPoison,
             "ifaceIpOrName  [attackerMac]  [victimIp]  [ipToSpoof]    Performs "
             "an ARP spoofing attack with the given arguments. Although "
-            "attackerMac is always optional, victimIp and ipToSpoof are "
-            "required when the quiet flag is passed. To pass multiple victim "
-            "IPs and/or IPs to spoof, separate the IPs with commas, e.g. "
-            "192.0.0.1,127.0.0.1. By default runs in all-out mode.",
+            "attackerMac and victimIp are always optional, ipToSpoof is "
+            "required when the quiet flag is passed.",
             {2, 4},
             FlagOptions{.sensitiveToQuiet = true}});
 

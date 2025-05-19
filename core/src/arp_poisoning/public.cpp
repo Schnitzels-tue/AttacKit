@@ -62,7 +62,7 @@ void ATK::ARP::silentPoison(const SilentPoisoningOptions &options) {
         builder = builder.attackerMac(macAddress);
     }
 
-    for (const std::string &victimIpStr : options.victimIp) {
+    for (const std::string &victimIpStr : options.victimIps) {
         const pcpp::IPv4Address victimIp(victimIpStr);
         builder.addVictimIp(victimIp);
     }

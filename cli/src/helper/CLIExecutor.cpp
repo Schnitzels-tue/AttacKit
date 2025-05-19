@@ -72,7 +72,7 @@ void CLIExecutor::invokeArpPoison(std::vector<std::string> args) {
         ATK::ARP::silentPoison(
             ATK::ARP::SilentPoisoningOptions{.ifaceIpOrName = args[1],
                                              .attackerMac = toOptional(args[2]),
-                                             .victimIp = victimIpsSet,
+                                             .victimIps = victimIpsSet,
                                              .ipsToSpoof = ipsToSpoofSet});
     }
 }
