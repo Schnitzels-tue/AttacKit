@@ -5,8 +5,17 @@
 #include <utility>
 #include <vector>
 
+/**
+ * Simple alias for a function that is meant to be passed to a flag.
+ * Although it says "any" function, it only accepts functions that return void
+ * and accept a pointer to a vector of strings as a parameter.
+ */
 using AnyFunction = std::function<void(const std::vector<std::string> &)>;
 
+/**
+ * Specific options set to a flag. Specifies a certain behaviour a flag should
+ * meet, which will be taken into consideration when the flags are executed.
+ */
 struct FlagOptions {
     bool sensitiveToQuiet = false;
     bool priorityFlag =
@@ -14,6 +23,10 @@ struct FlagOptions {
     // can be extended
 };
 
+/**
+ * General Flag type. It stores everything associated with a certain specific
+ * flag.
+ */
 struct Flag {
     std::string flagName;
     char flagChar;
@@ -23,15 +36,40 @@ struct Flag {
     FlagOptions options;
 };
 
-struct InvokeableFunction {
-  public:
-    InvokeableFunction(AnyFunction function, std::vector<std::string> arguments,
-                       FlagOptions options)
-        : function(std::move(function)), arguments(std::move(arguments)),
-          options(options) {}
+/**
+ * Similar to the Flag struct, but does not have flagChar since the parser has
+ * to calculate this by itself.
+ */
+struct UnparsedFlag {
+    std::string flagName;
+    AnyFunction flagFunction;
+    std::string flagHelpText;
+    std::set<int> amountOfArguments;
+    FlagOptions options = {};
+};
 
+/**
+ * A function that can simply be called with its function and arguments.
+ *
+ * Example:
+ * InvocableFunction test;
+ * test.function(test.arguments);
+ *
+ * OR
+ *
+ * InvocableFunction test;
+ * CLIExecutor::invokeFunction(test);
+ *
+ * Be sure to keep track of the options since this might impact when or how the
+ * function within has to behave.
+ */
+struct InvocableFunction {
     // constructor must exist for performant vector emplacing, fixed in c++20,
     // will also remove the linting issue
+    InvocableFunction(AnyFunction function, std::vector<std::string> arguments,
+                      FlagOptions options)
+        : function(std::move(function)), arguments(std::move(arguments)),
+          options(options) {}
     // NOLINTBEGIN(misc-non-private-member-variables-in-classes) constructor
     AnyFunction function;
     std::vector<std::string> arguments;

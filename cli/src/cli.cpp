@@ -9,6 +9,10 @@
 #include <string>
 #include <vector>
 
+/**
+ * Main function for the CLI. Everything called here will be executed when
+ * AttacKit.exe is called in the command line.
+ */
 int main(int argc, char *argv[]) noexcept(false) {
     try {
         const ATK::ARP::SilentPoisoningOptions options{
@@ -24,21 +28,25 @@ int main(int argc, char *argv[]) noexcept(false) {
         CLIParser parser(args);
         CLIExecutor executor;
 
+        // Add each individual flag to the parser before parsing the arguments
         parser.add_flag(
-            "help",
-            [&executor](const std::vector<std::string> &) {
-                executor.setHelp(true);
-            },
-            "Opens this help menu", {0}, FlagOptions{.priorityFlag = true});
-        parser.add_flag(
+            UnparsedFlag{"help",
+                         [&executor](const std::vector<std::string> &) {
+                             executor.setHelp(true);
+                         },
+                         "Opens this help menu",
+                         {0},
+                         FlagOptions{.priorityFlag = true}});
+        parser.add_flag(UnparsedFlag{
             "quiet",
             [&executor](const std::vector<std::string> &) {
                 executor.setQuiet(true);
             },
             "Sets quiet to true. Has an effect on some functions. Calling this "
             "together with the all out flag causes undefined behaviour",
-            {0}, FlagOptions{.priorityFlag = true});
-        parser.add_flag(
+            {0},
+            FlagOptions{.priorityFlag = true}});
+        parser.add_flag(UnparsedFlag{
             "all-out",
             [&executor](const std::vector<std::string> &) {
                 executor.setQuiet(false);
@@ -46,14 +54,23 @@ int main(int argc, char *argv[]) noexcept(false) {
             "Sets quiet to false. Has an effect on some functions. Calling "
             "this "
             "together with the quiet flag causes undefined behaviour",
-            {0}, FlagOptions{.priorityFlag = true});
+            {0},
+            FlagOptions{.priorityFlag = true}});
         parser.add_flag(
-            "meaning",
-            [](const std::vector<std::string> &args) {
-                CLIExecutor::doMeaningfulThing(args);
-            },
-            "x  y    Does some kind of meaningful thing", {2},
-            FlagOptions{.sensitiveToQuiet = true});
+            UnparsedFlag{"meaning",
+                         CLIExecutor::doMeaningfulThing,
+                         "x  y    Does some kind of meaningful thing",
+                         {2},
+                         FlagOptions{.sensitiveToQuiet = true}});
+        parser.add_flag(UnparsedFlag{
+            "arp",
+            CLIExecutor::invokeArpPoison,
+            "ifaceIpOrName  [attackerMac]  [victimIp]  [ipToSpoof]    Performs "
+            "an ARP spoofing attack with the given arguments. Although "
+            "attackerMac and victimIp are always optional, ipToSpoof is "
+            "required when the quiet flag is passed.",
+            {2, 4},
+            FlagOptions{.sensitiveToQuiet = true}});
 
         executor.execute(parser);
     } catch (const std::exception &e) {
