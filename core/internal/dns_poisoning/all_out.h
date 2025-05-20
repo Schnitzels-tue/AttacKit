@@ -49,12 +49,10 @@ class AllOutDnsPoisoningStrategy : public ATK::DNS::DnsPoisoningStrategy {
   private:
     AllOutDnsPoisoningStrategy(pcpp::PcapLiveDevice *device,
                                pcpp::IPv4Address attackerIp)
-        : device_(device) {
+        : device_(device), attackerIp_(std::move(attackerIp)) {
         if (device == nullptr) {
             throw std::invalid_argument("Not a valid interface");
         }
-
-        attackerIp_ = pcpp::IPv4Address(attackerIp);
     }
 
     void onPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device,
