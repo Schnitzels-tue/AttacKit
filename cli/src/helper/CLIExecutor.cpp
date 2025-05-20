@@ -5,8 +5,11 @@
 #include "log.h"
 
 #include <iostream>
+#include <iterator>
 #include <optional>
+#include <sstream>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 // Helper functions used inside executors
@@ -17,8 +20,23 @@ inline bool stringToBool(std::string &value) { return value == "true"; }
 
 auto toOptional(const std::string &arg) -> std::optional<std::string> {
     return arg.empty() ? std::nullopt : std::optional<std::string>{arg};
-};
-} // namespace
+}
+
+template <typename Out>
+void split(const std::string &str, char delim, Out result) {
+    std::istringstream iss(str);
+    std::string item;
+    while (std::getline(iss, item, delim)) {
+        *result++ = item;
+    }
+}
+
+std::vector<std::string> split(const std::string &str, char delim) {
+    std::vector<std::string> elems;
+    split(str, delim, std::back_inserter(elems));
+    return elems;
+}
+}; // namespace
 
 void CLIExecutor::setHelp(bool value) { this->help = value; }
 
@@ -45,11 +63,17 @@ void CLIExecutor::invokeArpPoison(std::vector<std::string> args) {
         ATK::ARP::allOutPoison(
             {.ifaceIpOrName = args[1], .attackerMac = toOptional(args[2])});
     } else { // silent
+        std::vector<std::string> victimIps = split(args[3], ',');
+        std::vector<std::string> ipsToSpoof = split(args[4], ',');
+        const std::unordered_set<std::string> victimIpsSet(victimIps.begin(),
+                                                           victimIps.end());
+        const std::unordered_set<std::string> ipsToSpoofSet(ipsToSpoof.begin(),
+                                                            ipsToSpoof.end());
         ATK::ARP::silentPoison(
             ATK::ARP::SilentPoisoningOptions{.ifaceIpOrName = args[1],
                                              .attackerMac = toOptional(args[2]),
-                                             .victimIp = toOptional(args[3]),
-                                             .ipToSpoof = args[4]});
+                                             .victimIps = victimIpsSet,
+                                             .ipsToSpoof = ipsToSpoofSet});
     }
 }
 

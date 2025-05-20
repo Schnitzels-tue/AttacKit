@@ -2,6 +2,7 @@
 #include <functional>
 #include <set>
 #include <string>
+#include <utility>
 #include <vector>
 
 /**
@@ -63,7 +64,15 @@ struct UnparsedFlag {
  * function within has to behave.
  */
 struct InvocableFunction {
+    // constructor must exist for performant vector emplacing, fixed in c++20,
+    // will also remove the linting issue
+    InvocableFunction(AnyFunction function, std::vector<std::string> arguments,
+                      FlagOptions options)
+        : function(std::move(function)), arguments(std::move(arguments)),
+          options(options) {}
+    // NOLINTBEGIN(misc-non-private-member-variables-in-classes) constructor
     AnyFunction function;
     std::vector<std::string> arguments;
     FlagOptions options;
+    // NOLINTEND(misc-non-private-member-variables-in-classes)
 };

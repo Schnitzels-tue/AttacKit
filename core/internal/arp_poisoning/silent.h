@@ -1,8 +1,10 @@
 #pragma once
 
+#include "IpAddress.h"
 #include "PcapLiveDevice.h"
 #include "arp_poisoning/arp_poisoning_strategy.h"
 #include <optional>
+#include <utility>
 
 namespace ATK::ARP {
 /**
@@ -14,13 +16,16 @@ class SilentArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
   public:
     class Builder {
       public:
-        Builder(pcpp::PcapLiveDevice *device, pcpp::IPv4Address ipToSpoof)
-            : device_(device), ipToSpoof_(ipToSpoof) {}
+        explicit Builder(pcpp::PcapLiveDevice *device) : device_(device) {}
         /**
-         * If no victimIp is supplied, it will respond to all sources.
+         * Adds a victim
          */
-        Builder &victimIp(pcpp::IPv4Address victimIp) {
-            victimIp_ = victimIp;
+        Builder &addVictimIp(pcpp::IPv4Address victimIp) {
+            victimIps_.emplace_back(victimIp);
+            return *this;
+        }
+        Builder &addIpToSpoof(pcpp::IPv4Address ipToSpoof) {
+            ipsToSpoof_.emplace_back(ipToSpoof);
             return *this;
         }
         Builder &attackerMac(pcpp::MacAddress attackerMac) {
@@ -34,16 +39,16 @@ class SilentArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
          */
         std::unique_ptr<SilentArpPoisoningStrategy> build() {
             return std::unique_ptr<SilentArpPoisoningStrategy>(
-                new SilentArpPoisoningStrategy(this->device_, this->victimIp_,
+                new SilentArpPoisoningStrategy(this->device_, this->victimIps_,
                                                this->attackerMac_,
-                                               this->ipToSpoof_));
+                                               this->ipsToSpoof_));
         }
 
       private:
         pcpp::PcapLiveDevice *device_;
-        std::optional<pcpp::IPv4Address> victimIp_;
+        std::vector<pcpp::IPv4Address> victimIps_;
         std::optional<pcpp::MacAddress> attackerMac_;
-        pcpp::IPv4Address ipToSpoof_;
+        std::vector<pcpp::IPv4Address> ipsToSpoof_;
     };
 
     /**
@@ -58,10 +63,11 @@ class SilentArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
 
   private:
     SilentArpPoisoningStrategy(pcpp::PcapLiveDevice *device,
-                               std::optional<pcpp::IPv4Address> victimIp,
+                               std::vector<pcpp::IPv4Address> victimIps,
                                std::optional<pcpp::MacAddress> attackerMac,
-                               pcpp::IPv4Address ipToSpoof)
-        : device_(device), victimIp_(victimIp), ipToSpoof_(ipToSpoof) {
+                               std::vector<pcpp::IPv4Address> ipsToSpoof)
+        : device_(device), victimIps_(std::move(victimIps)),
+          ipsToSpoof_(std::move(ipsToSpoof)) {
         if (device == nullptr) {
             throw std::invalid_argument("Not a valid interface");
         }
@@ -73,8 +79,8 @@ class SilentArpPoisoningStrategy : public ATK::ARP::ArpPoisoningStrategy {
                          void *cookie);
 
     pcpp::PcapLiveDevice *device_;
-    std::optional<pcpp::IPv4Address> victimIp_;
+    std::vector<pcpp::IPv4Address> victimIps_;
     pcpp::MacAddress attackerMac_;
-    pcpp::IPv4Address ipToSpoof_;
+    std::vector<pcpp::IPv4Address> ipsToSpoof_;
 };
 } // namespace ATK::ARP

