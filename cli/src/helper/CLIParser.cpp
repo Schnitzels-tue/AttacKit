@@ -225,5 +225,6 @@ void CLIParser::add_flag(const UnparsedFlag &unparsedFlag) {
 
     allFlags.emplace_back(
         Flag{unparsedFlag.flagName, flagChar, unparsedFlag.flagFunction,
-             helpText, unparsedFlag.amountOfArguments, unparsedFlag.options});
+             unparsedFlag.flagHelpText, unparsedFlag.amountOfArguments,
+             unparsedFlag.options});
 }
