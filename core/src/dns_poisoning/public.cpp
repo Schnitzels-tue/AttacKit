@@ -12,7 +12,7 @@
  * In the current implementation this method will not terminate and keep
  * peforming the attack.
  */
-void ATK::DNS::allOutPoison(const AllOutPoisonOptions &options) {
+void ATK::DNS::allOutPoison(const AllOutPoisoningOptions &options) {
     pcpp::PcapLiveDevice *device =
         pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(
             options.ifaceIpOrName);
