@@ -1,6 +1,5 @@
 #pragma once
 
-#include <optional>
 #include <string>
 #include <unordered_set>
 
@@ -16,9 +15,7 @@ struct SilentPoisoningOptions {
     std::string ifaceIpOrName; // network interface e.g. en0
     std::string victimIp;      // the IP of the DNS server to poison
     std::string attackerIp;    // the IP to reroute domains to
-
-    // optionally provide only specific domains to be poisoned
-    std::optional<std::unordered_set<std::string>> domainsToSpoof;
+    std::unordered_set<std::string> domainsToSpoof; // domains to spoof (empty equates to any)
 };
 
 void silentPoison(const SilentPoisoningOptions &options);
