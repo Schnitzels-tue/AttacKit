@@ -22,6 +22,11 @@ class CLIExecutor {
      */
     static void invokeArpPoison(std::vector<std::string> args);
 
+    /**
+     * Function to invoke a DNS spoofing attack with the right parameters
+     */
+    static void invokeDnsSpoofing(std::vector<std::string> args);
+
     static void doMeaningfulThing(std::vector<std::string> args);
     /**
      * Will simply call the passed function with the given arguments.
