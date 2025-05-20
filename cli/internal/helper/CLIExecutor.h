@@ -22,7 +22,6 @@ class CLIExecutor {
      */
     static void invokeArpPoison(std::vector<std::string> args);
 
-    static void doMeaningfulThing(std::vector<std::string> args);
     /**
      * Will simply call the passed function with the given arguments.
      */

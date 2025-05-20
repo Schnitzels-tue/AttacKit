@@ -56,12 +56,6 @@ int main(int argc, char *argv[]) noexcept(false) {
             "together with the quiet flag causes undefined behaviour",
             {0},
             FlagOptions{.priorityFlag = true}});
-        parser.add_flag(
-            UnparsedFlag{"meaning",
-                         CLIExecutor::doMeaningfulThing,
-                         "x  y    Does some kind of meaningful thing",
-                         {2},
-                         FlagOptions{.sensitiveToQuiet = true}});
         parser.add_flag(UnparsedFlag{
             "arp",
             CLIExecutor::invokeArpPoison,
