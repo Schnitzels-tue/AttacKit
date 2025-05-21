@@ -15,13 +15,6 @@
  */
 int main(int argc, char *argv[]) noexcept(false) {
     try {
-        const ATK::ARP::SilentPoisoningOptions options{
-            .ifaceIpOrName = "en0",
-            .attackerMac = std::nullopt,
-            .victimIps = {"192.168.178.1"},
-            .ipsToSpoof = {"192.172.199.1"}};
-
-        ATK::ARP::silentPoison(options);
 
         // Parse command line arguments
         const std::vector<std::string> args(argv + 1, argv + argc);
