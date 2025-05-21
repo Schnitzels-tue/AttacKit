@@ -28,6 +28,12 @@ int main(int argc, char *argv[]) noexcept(false) {
         CLIParser parser(args);
         CLIExecutor executor;
 
+        FlagOptions priorityFlagOpts;
+        priorityFlagOpts.priorityFlag = true;
+
+        FlagOptions sensitiveOpts;
+        sensitiveOpts.sensitiveToQuiet = true;
+
         // Add each individual flag to the parser before parsing the arguments
         parser.add_flag(
             UnparsedFlag{"help",
@@ -36,7 +42,7 @@ int main(int argc, char *argv[]) noexcept(false) {
                          },
                          "Opens this help menu",
                          {0},
-                         FlagOptions{.priorityFlag = true}});
+                         priorityFlagOpts});
         parser.add_flag(UnparsedFlag{
             "quiet",
             [&executor](const std::vector<std::string> &) {
@@ -45,7 +51,7 @@ int main(int argc, char *argv[]) noexcept(false) {
             "Sets quiet to true. Has an effect on some functions. Calling this "
             "together with the all out flag causes undefined behaviour",
             {0},
-            FlagOptions{.priorityFlag = true}});
+            priorityFlagOpts});
         parser.add_flag(UnparsedFlag{
             "all-out",
             [&executor](const std::vector<std::string> &) {
@@ -55,7 +61,7 @@ int main(int argc, char *argv[]) noexcept(false) {
             "this "
             "together with the quiet flag causes undefined behaviour",
             {0},
-            FlagOptions{.priorityFlag = true}});
+            priorityFlagOpts});
         parser.add_flag(UnparsedFlag{
             "arp",
             CLIExecutor::invokeArpPoison,
@@ -66,7 +72,7 @@ int main(int argc, char *argv[]) noexcept(false) {
             "IPs and/or IPs to spoof, separate the IPs with commas, e.g. "
             "192.0.0.1,127.0.0.1. By default runs in all-out mode.",
             {2, 4},
-            FlagOptions{.sensitiveToQuiet = true}});
+            sensitiveOpts});
 
         executor.execute(parser);
     } catch (const std::exception &e) {
