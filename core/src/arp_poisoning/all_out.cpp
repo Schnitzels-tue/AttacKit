@@ -54,6 +54,7 @@ void ATK::ARP::AllOutArpPoisoningStrategy::onPacketArrives(
             std::runtime_error("Failed to send packet")));
         device->stopCapture();
     };
+    LOG_INFO("Sent packet: \n" + responsePacket.toString());
 }
 
 void ATK::ARP::AllOutArpPoisoningStrategy::execute() {
