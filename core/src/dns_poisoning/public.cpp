@@ -7,6 +7,8 @@
 #include <dns_poisoning/silent.h>
 #include <memory>
 #include <stdexcept>
+#include <string>
+#include <unordered_set>
 #include <utility>
 
 // TODO (kala and nick) document this
@@ -44,12 +46,12 @@ void ATK::DNS::silentPoison(const SilentPoisoningOptions &options) {
     const pcpp::IPv4Address victimIp(options.victimIp);
     const pcpp::IPv4Address attackerIp(options.attackerIp);
     const std::unordered_set<std::string> domainsToSpoof(
-		options.domainsToSpoof.begin(), options.domainsToSpoof.end());
+        options.domainsToSpoof.begin(), options.domainsToSpoof.end());
     strategy = SilentDnsPoisoningStrategy::Builder(device)
-				   .victimIp(victimIp)
-				   .attackerIp(attackerIp)
-				   .domainsToSpoof(domainsToSpoof)
-				   .build();
+                   .victimIp(victimIp)
+                   .attackerIp(attackerIp)
+                   .domainsToSpoof(domainsToSpoof)
+                   .build();
 
     DnsPoisoningContext dnsPoisoningContext(std::move(strategy));
 

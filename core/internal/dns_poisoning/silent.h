@@ -40,8 +40,7 @@ class SilentDnsPoisoningStrategy : public ATK::DNS::DnsPoisoningStrategy {
 
         std::unique_ptr<SilentDnsPoisoningStrategy> build() {
             return std::unique_ptr<SilentDnsPoisoningStrategy>(
-                new SilentDnsPoisoningStrategy(this->device_, 
-                                               this->victimIp_,
+                new SilentDnsPoisoningStrategy(this->device_, this->victimIp_,
                                                this->attackerIp_,
                                                this->domainsToSpoof_));
         }
