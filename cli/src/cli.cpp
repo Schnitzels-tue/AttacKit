@@ -64,12 +64,11 @@ int main(int argc, char *argv[]) noexcept(false) {
             "192.0.0.1,127.0.0.1. By default runs in all-out mode.",
             {2, 4},
             sensitiveOpts});
-        parser.add_flag(UnparsedFlag{
-            "dns",
-            CLIExecutor::invokeDnsSpoofing,
-            "blah blah blah",
-            {4},
-            sensitiveOpts});
+        parser.add_flag(UnparsedFlag{"dns",
+                                     CLIExecutor::invokeDnsSpoofing,
+                                     "blah blah blah",
+                                     {4},
+                                     sensitiveOpts});
 
         executor.execute(parser);
     } catch (const std::exception &e) {
