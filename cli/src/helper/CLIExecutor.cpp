@@ -5,7 +5,6 @@
 #include "helper/CLITypes.h"
 #include "log.h"
 
-#include <iostream>
 #include <iterator>
 #include <optional>
 #include <sstream>
@@ -42,15 +41,6 @@ std::vector<std::string> split(const std::string &str, char delim) {
 void CLIExecutor::setHelp(bool value) { this->help = value; }
 
 void CLIExecutor::setQuiet(bool value) { this->quiet = value; }
-
-void CLIExecutor::doMeaningfulThing(std::vector<std::string> args) {
-    const bool quiet = stringToBool(args[2]);
-    if (quiet) {
-        std::cout << args[0] << '\n';
-    } else {
-        std::cout << args[1] << '\n';
-    }
-}
 
 void CLIExecutor::invokeArpPoison(std::vector<std::string> args) {
     const int ALL_OUT_NUM_ARGS = 3;

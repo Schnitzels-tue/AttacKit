@@ -27,7 +27,6 @@ class CLIExecutor {
      */
     static void invokeDnsSpoofing(std::vector<std::string> args);
 
-    static void doMeaningfulThing(std::vector<std::string> args);
     /**
      * Will simply call the passed function with the given arguments.
      */
