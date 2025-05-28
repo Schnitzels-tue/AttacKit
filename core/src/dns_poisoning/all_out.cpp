@@ -14,6 +14,8 @@
 #include <future>
 #include <stdexcept>
 
+// TODO (extract constant)
+
 const int DNS_PORT = 53;
 
 void ATK::DNS::AllOutDnsPoisoningStrategy::onPacketArrives(
