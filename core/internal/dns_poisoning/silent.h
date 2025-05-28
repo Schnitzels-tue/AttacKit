@@ -24,17 +24,17 @@ class SilentDnsPoisoningStrategy : public ATK::DNS::DnsPoisoningStrategy {
         explicit Builder(pcpp::PcapLiveDevice *device) : device_(device) {}
 
         Builder &victimIp(pcpp::IPv4Address victimIp) {
-            victimIp_ = victimIp;
+            this->victimIp_ = victimIp;
             return *this;
         }
 
         Builder &attackerIp(pcpp::IPv4Address attackerIp) {
-            attackerIp_ = attackerIp;
+            this->attackerIp_ = attackerIp;
             return *this;
         }
 
         Builder &domainsToSpoof(std::unordered_set<std::string> domains) {
-            domainsToSpoof_ = std::move(domains);
+            this->domainsToSpoof_ = std::move(domains);
             return *this;
         }
 
