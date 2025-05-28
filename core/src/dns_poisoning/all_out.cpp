@@ -54,6 +54,10 @@ void ATK::DNS::AllOutDnsPoisoningStrategy::onPacketArrives(
                                requestEthLayer->getSourceMac());
     pcpp::IPv4Layer ipResponse(requestIpLayer->getDstIPv4Address(),
                                requestIpLayer->getSrcIPv4Address());
+
+    const int ipTTL = 64;
+    ipResponse.getIPv4Header()->timeToLive = ipTTL;
+
     pcpp::UdpLayer udpResponse(DNS_PORT, requestUdpLayer->getSrcPort());
 
     pcpp::DnsLayer dnsResponse;
