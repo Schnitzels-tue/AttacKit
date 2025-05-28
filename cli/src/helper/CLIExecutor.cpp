@@ -1,10 +1,10 @@
 #include "helper/CLIExecutor.h"
 #include "arp_poisoning/public.h"
+#include "dns_poisoning/public.h"
 #include "helper/CLIParser.h"
 #include "helper/CLITypes.h"
 #include "log.h"
 
-#include <iostream>
 #include <iterator>
 #include <optional>
 #include <sstream>
@@ -42,15 +42,6 @@ void CLIExecutor::setHelp(bool value) { this->help = value; }
 
 void CLIExecutor::setQuiet(bool value) { this->quiet = value; }
 
-void CLIExecutor::doMeaningfulThing(std::vector<std::string> args) {
-    const bool quiet = stringToBool(args[2]);
-    if (quiet) {
-        std::cout << args[0] << '\n';
-    } else {
-        std::cout << args[1] << '\n';
-    }
-}
-
 void CLIExecutor::invokeArpPoison(std::vector<std::string> args) {
     const int ALL_OUT_NUM_ARGS = 3;
     const int SILENT_NUM_ARGS = 5;
@@ -74,6 +65,21 @@ void CLIExecutor::invokeArpPoison(std::vector<std::string> args) {
                                              .attackerMac = toOptional(args[2]),
                                              .victimIps = victimIpsSet,
                                              .ipsToSpoof = ipsToSpoofSet});
+    }
+}
+
+void CLIExecutor::invokeDnsSpoofing(std::vector<std::string> args) {
+    if (!stringToBool(args[0])) { // all-out
+        std::vector<std::string> domainsToSpoof = split(args[4], ',');
+        const std::unordered_set<std::string> domainsToSpoofSet(
+            domainsToSpoof.begin(), domainsToSpoof.end());
+        ATK::DNS::allOutPoison(
+            ATK::DNS::AllOutPoisonOptions{.ifaceIpOrName = args[1],
+                                          .victimIp = args[2],
+                                          .attackerIp = args[3],
+                                          .domainsToSpoof = domainsToSpoofSet});
+    } else { // silent
+        LOG_ERROR("Silent DNS not implemented yet");
     }
 }
 

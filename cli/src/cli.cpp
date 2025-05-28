@@ -1,11 +1,9 @@
-#include "arp_poisoning/public.h"
 #include "helper/CLIExecutor.h"
 #include "helper/CLITypes.h"
 #include "log.h"
 
 #include <exception>
 #include <helper/CLIParser.h>
-#include <optional>
 #include <string>
 #include <vector>
 
@@ -15,18 +13,17 @@
  */
 int main(int argc, char *argv[]) noexcept(false) {
     try {
-        const ATK::ARP::SilentPoisoningOptions options{
-            .ifaceIpOrName = "en0",
-            .attackerMac = std::nullopt,
-            .victimIps = {"192.168.178.1"},
-            .ipsToSpoof = {"192.172.199.1"}};
-
-        ATK::ARP::silentPoison(options);
 
         // Parse command line arguments
         const std::vector<std::string> args(argv + 1, argv + argc);
         CLIParser parser(args);
         CLIExecutor executor;
+
+        FlagOptions priorityFlagOpts;
+        priorityFlagOpts.priorityFlag = true;
+
+        FlagOptions sensitiveOpts;
+        sensitiveOpts.sensitiveToQuiet = true;
 
         // Add each individual flag to the parser before parsing the arguments
         parser.add_flag(
@@ -36,7 +33,7 @@ int main(int argc, char *argv[]) noexcept(false) {
                          },
                          "Opens this help menu",
                          {0},
-                         FlagOptions{.priorityFlag = true}});
+                         priorityFlagOpts});
         parser.add_flag(UnparsedFlag{
             "quiet",
             [&executor](const std::vector<std::string> &) {
@@ -45,7 +42,7 @@ int main(int argc, char *argv[]) noexcept(false) {
             "Sets quiet to true. Has an effect on some functions. Calling this "
             "together with the all out flag causes undefined behaviour",
             {0},
-            FlagOptions{.priorityFlag = true}});
+            priorityFlagOpts});
         parser.add_flag(UnparsedFlag{
             "all-out",
             [&executor](const std::vector<std::string> &) {
@@ -55,13 +52,7 @@ int main(int argc, char *argv[]) noexcept(false) {
             "this "
             "together with the quiet flag causes undefined behaviour",
             {0},
-            FlagOptions{.priorityFlag = true}});
-        parser.add_flag(
-            UnparsedFlag{"meaning",
-                         CLIExecutor::doMeaningfulThing,
-                         "x  y    Does some kind of meaningful thing",
-                         {2},
-                         FlagOptions{.sensitiveToQuiet = true}});
+            priorityFlagOpts});
         parser.add_flag(UnparsedFlag{
             "arp",
             CLIExecutor::invokeArpPoison,
@@ -72,7 +63,12 @@ int main(int argc, char *argv[]) noexcept(false) {
             "IPs and/or IPs to spoof, separate the IPs with commas, e.g. "
             "192.0.0.1,127.0.0.1. By default runs in all-out mode.",
             {2, 4},
-            FlagOptions{.sensitiveToQuiet = true}});
+            sensitiveOpts});
+        parser.add_flag(UnparsedFlag{"dns",
+                                     CLIExecutor::invokeDnsSpoofing,
+                                     "blah blah blah",
+                                     {4},
+                                     sensitiveOpts});
 
         executor.execute(parser);
     } catch (const std::exception &e) {
