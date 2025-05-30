@@ -5,6 +5,9 @@ set(SOURCES
     src/dns_poisoning/all_out.cpp
     src/dns_poisoning/public.cpp
     src/dns_poisoning/silent.cpp
+    # src/ssl_stripping/silent.cpp
+    src/ssl_stripping/public.cpp
+    # src/ssl_stripping/all_out.cpp
     src/network_scout/network_scout.cpp
     src/network_scout/sniffing.cpp
     src/common/pcap_to_common.cpp
