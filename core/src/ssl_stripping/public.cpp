@@ -1,6 +1,5 @@
 #include "ssl_stripping/public.h"
 #include "IpAddress.h"
-#include "MacAddress.h"
 #include "PcapLiveDevice.h"
 #include "PcapLiveDeviceList.h"
 #include "ssl_stripping/all_out.h"
@@ -26,17 +25,12 @@ void ATK::SSL::allOutStrip(const AllOutStrippingOptions &options) {
 
     ATK::SSL::AllOutSslStrippingStrategy::Builder builder(device);
 
-    if (options.attackerMac.has_value()) {
-        const pcpp::MacAddress macAddress(options.attackerMac.value());
-        builder = builder.attackerMac(macAddress);
-    }
-
     std::unique_ptr<ATK::SSL::AllOutSslStrippingStrategy> strategy =
         builder.build();
 
-    SslStrippingContext arpPoisoningContext(std::move(strategy));
+    SslStrippingContext sslStrippingContext(std::move(strategy));
 
-    arpPoisoningContext.execute();
+    sslStrippingContext.execute();
 }
 
 void ATK::SSL::silentStrip(const SilentStrippingOptions &options) {
@@ -63,7 +57,7 @@ void ATK::SSL::silentStrip(const SilentStrippingOptions &options) {
     std::unique_ptr<ATK::SSL::SilentSslStrippingStrategy> strategy =
         builder.build();
 
-    SslStrippingContext arpPoisoningContext(std::move(strategy));
+    SslStrippingContext sslStrippingContext(std::move(strategy));
 
-    arpPoisoningContext.execute();
+    sslStrippingContext.execute();
 }

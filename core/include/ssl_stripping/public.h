@@ -7,7 +7,6 @@
 namespace ATK::SSL {
 struct AllOutStrippingOptions {
     std::string ifaceIpOrName;
-    std::optional<std::string> attackerMac;
 };
 
 void allOutStrip(const AllOutStrippingOptions &options);
