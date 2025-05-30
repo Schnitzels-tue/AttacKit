@@ -1,6 +1,5 @@
 #pragma once
 
-#include <optional>
 #include <string>
 #include <unordered_set>
 
@@ -13,9 +12,8 @@ void allOutStrip(const AllOutStrippingOptions &options);
 
 struct SilentStrippingOptions {
     std::string ifaceIpOrName;
-    std::optional<std::string> attackerMac;
     std::unordered_set<std::string> victimIps;
-    std::unordered_set<std::string> domainsToSpoof;
+    std::unordered_set<std::string> domainsToStrip;
 };
 
 void silentStrip(const SilentStrippingOptions &options);

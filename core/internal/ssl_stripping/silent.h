@@ -24,8 +24,11 @@ class SilentSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
             victimIps_.emplace_back(victimIp);
             return *this;
         }
-        Builder &addDomainToSpoof(std::string domainToSpoof) {
-            domainsToSpoof_.emplace_back(domainToSpoof);
+        /**
+         * Adds a domain to strip
+         */
+        Builder &addDomainToStrip(std::string domainToStrip) {
+            domainsToStrip_.emplace_back(domainToStrip);
             return *this;
         }
 
@@ -36,14 +39,14 @@ class SilentSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
         std::unique_ptr<SilentSslStrippingStrategy> build() {
             return std::unique_ptr<SilentSslStrippingStrategy>(
                 new SilentSslStrippingStrategy(this->device_, this->victimIps_,
-                                               this->domainsToSpoof_));
+                                               this->domainsToStrip_));
         }
 
       private:
         pcpp::PcapLiveDevice *device_;
         std::vector<pcpp::IPv4Address> victimIps_;
         std::optional<pcpp::MacAddress> attackerMac_;
-        std::vector<std::string> domainsToSpoof_;
+        std::vector<std::string> domainsToStrip_;
     };
 
     /**
@@ -59,9 +62,9 @@ class SilentSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
   private:
     SilentSslStrippingStrategy(pcpp::PcapLiveDevice *device,
                                std::vector<pcpp::IPv4Address> victimIps,
-                               std::vector<std::string> domainsToSpoof)
+                               std::vector<std::string> domainsToStrip)
         : device_(device), victimIps_(std::move(victimIps)),
-          domainsToSpoof_(std::move(domainsToSpoof)) {
+          domainsToStrip_(std::move(domainsToStrip)) {
         if (device == nullptr) {
             throw std::invalid_argument("Not a valid interface");
         }
@@ -72,6 +75,6 @@ class SilentSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
 
     pcpp::PcapLiveDevice *device_;
     std::vector<pcpp::IPv4Address> victimIps_;
-    std::vector<std::string> domainsToSpoof_;
+    std::vector<std::string> domainsToStrip_;
 };
 } // namespace ATK::SSL

@@ -50,8 +50,8 @@ void ATK::SSL::silentStrip(const SilentStrippingOptions &options) {
         builder.addVictimIp(victimIp);
     }
 
-    for (const std::string &domainToSpoofStr : options.domainsToSpoof) {
-        builder = builder.addDomainToSpoof(domainToSpoofStr);
+    for (const std::string &domainToStripStr : options.domainsToStrip) {
+        builder = builder.addDomainToStrip(domainToStripStr);
     }
 
     std::unique_ptr<ATK::SSL::SilentSslStrippingStrategy> strategy =
