@@ -2,7 +2,6 @@
 
 #include "PcapLiveDevice.h"
 #include "ssl_stripping/ssl_stripping_strategy.h"
-#include <optional>
 
 namespace ATK::SSL {
 /**
@@ -22,7 +21,6 @@ class AllOutSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
 
       private:
         pcpp::PcapLiveDevice *device_;
-        std::optional<pcpp::MacAddress> attackerMac_;
     };
 
     /**
