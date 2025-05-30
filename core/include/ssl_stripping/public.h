@@ -16,7 +16,7 @@ struct SilentStrippingOptions {
     std::string ifaceIpOrName;
     std::optional<std::string> attackerMac;
     std::unordered_set<std::string> victimIps;
-    std::unordered_set<std::string> ipsToSpoof;
+    std::unordered_set<std::string> domainsToSpoof;
 };
 
 void silentStrip(const SilentStrippingOptions &options);

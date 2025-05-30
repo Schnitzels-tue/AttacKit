@@ -24,12 +24,8 @@ class SilentSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
             victimIps_.emplace_back(victimIp);
             return *this;
         }
-        Builder &addIpToSpoof(pcpp::IPv4Address ipToSpoof) {
-            ipsToSpoof_.emplace_back(ipToSpoof);
-            return *this;
-        }
-        Builder &attackerMac(pcpp::MacAddress attackerMac) {
-            attackerMac_ = attackerMac;
+        Builder &addDomainToSpoof(std::string domainToSpoof) {
+            domainsToSpoof_.emplace_back(domainToSpoof);
             return *this;
         }
 
@@ -40,15 +36,14 @@ class SilentSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
         std::unique_ptr<SilentSslStrippingStrategy> build() {
             return std::unique_ptr<SilentSslStrippingStrategy>(
                 new SilentSslStrippingStrategy(this->device_, this->victimIps_,
-                                               this->attackerMac_,
-                                               this->ipsToSpoof_));
+                                               this->domainsToSpoof_));
         }
 
       private:
         pcpp::PcapLiveDevice *device_;
         std::vector<pcpp::IPv4Address> victimIps_;
         std::optional<pcpp::MacAddress> attackerMac_;
-        std::vector<pcpp::IPv4Address> ipsToSpoof_;
+        std::vector<std::string> domainsToSpoof_;
     };
 
     /**
@@ -64,15 +59,12 @@ class SilentSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
   private:
     SilentSslStrippingStrategy(pcpp::PcapLiveDevice *device,
                                std::vector<pcpp::IPv4Address> victimIps,
-                               std::optional<pcpp::MacAddress> attackerMac,
-                               std::vector<pcpp::IPv4Address> ipsToSpoof)
+                               std::vector<std::string> domainsToSpoof)
         : device_(device), victimIps_(std::move(victimIps)),
-          ipsToSpoof_(std::move(ipsToSpoof)) {
+          domainsToSpoof_(std::move(domainsToSpoof)) {
         if (device == nullptr) {
             throw std::invalid_argument("Not a valid interface");
         }
-
-        attackerMac_ = attackerMac.value_or(device->getMacAddress());
     }
 
     void onPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device,
@@ -80,7 +72,6 @@ class SilentSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
 
     pcpp::PcapLiveDevice *device_;
     std::vector<pcpp::IPv4Address> victimIps_;
-    pcpp::MacAddress attackerMac_;
-    std::vector<pcpp::IPv4Address> ipsToSpoof_;
+    std::vector<std::string> domainsToSpoof_;
 };
 } // namespace ATK::SSL

