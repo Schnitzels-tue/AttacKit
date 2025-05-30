@@ -6,9 +6,9 @@
 
 namespace ATK::SSL {
 /**
- * All out ssl stripping strategy, will capture every http get request packet except
- * the attacker's and send back an unencrypted connection imitating a connection 
- * to the server the victim was trying to connect to.
+ * All out ssl stripping strategy, will capture every http get request packet
+ * except the attacker's and send back an unencrypted connection imitating a
+ * connection to the server the victim was trying to connect to.
  */
 class AllOutSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
   public:
