@@ -3,7 +3,6 @@
 #include "IpAddress.h"
 #include "PcapLiveDevice.h"
 #include "ssl_stripping/ssl_stripping_strategy.h"
-#include <optional>
 #include <utility>
 
 namespace ATK::SSL {
@@ -32,10 +31,6 @@ class SilentSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
             return *this;
         }
 
-        /**
-         * If no attackerMac is supplied it will default to the mac adress of
-         * the interface.
-         */
         std::unique_ptr<SilentSslStrippingStrategy> build() {
             return std::unique_ptr<SilentSslStrippingStrategy>(
                 new SilentSslStrippingStrategy(this->device_, this->victimIps_,
@@ -45,7 +40,6 @@ class SilentSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
       private:
         pcpp::PcapLiveDevice *device_;
         std::vector<pcpp::IPv4Address> victimIps_;
-        std::optional<pcpp::MacAddress> attackerMac_;
         std::vector<std::string> domainsToStrip_;
     };
 
@@ -54,7 +48,6 @@ class SilentSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
      *
      * Replies to incoming arp requests for the ip address ipToSpoof.
      * If victimIp is set, it will only reply to arp requests to the victim.
-     * When no attackerMac
      *
      */
     void execute() override;
