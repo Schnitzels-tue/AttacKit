@@ -47,11 +47,15 @@ void ATK::SSL::silentStrip(const SilentStrippingOptions &options) {
 
     for (const std::string &victimIpStr : options.victimIps) {
         const pcpp::IPv4Address victimIp(victimIpStr);
-        builder.addVictimIp(victimIp);
+        builder = builder.addVictimIp(victimIp);
     }
 
     for (const std::string &domainToStripStr : options.domainsToStrip) {
         builder = builder.addDomainToStrip(domainToStripStr);
+    }
+
+    if (options.mitmStrategy.has_value()) {
+        builder = builder.setMitmStrategy(options.mitmStrategy.value());
     }
 
     std::unique_ptr<ATK::SSL::SilentSslStrippingStrategy> strategy =

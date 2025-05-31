@@ -2,6 +2,7 @@
 
 #include "IpAddress.h"
 #include "PcapLiveDevice.h"
+#include "ssl_stripping/public.h"
 #include "ssl_stripping/ssl_stripping_strategy.h"
 #include <utility>
 
@@ -30,17 +31,23 @@ class SilentSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
             domainsToStrip_.emplace_back(domainToStrip);
             return *this;
         }
+        Builder &setMitmStrategy(ATK::SSL::MitmStrategy mitmStrategy) {
+            mitmStrategy_ = mitmStrategy;
+            return *this;
+        }
 
         std::unique_ptr<SilentSslStrippingStrategy> build() {
             return std::unique_ptr<SilentSslStrippingStrategy>(
                 new SilentSslStrippingStrategy(this->device_, this->victimIps_,
-                                               this->domainsToStrip_));
+                                               this->domainsToStrip_,
+                                               this->mitmStrategy_));
         }
 
       private:
         pcpp::PcapLiveDevice *device_;
         std::vector<pcpp::IPv4Address> victimIps_;
         std::vector<std::string> domainsToStrip_;
+        ATK::SSL::MitmStrategy mitmStrategy_{};
     };
 
     /**
@@ -55,9 +62,11 @@ class SilentSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
   private:
     SilentSslStrippingStrategy(pcpp::PcapLiveDevice *device,
                                std::vector<pcpp::IPv4Address> victimIps,
-                               std::vector<std::string> domainsToStrip)
+                               std::vector<std::string> domainsToStrip,
+                               ATK::SSL::MitmStrategy mitmStrategy)
         : device_(device), victimIps_(std::move(victimIps)),
-          domainsToStrip_(std::move(domainsToStrip)) {
+          domainsToStrip_(std::move(domainsToStrip)),
+          mitmStrategy_(mitmStrategy) {
         if (device == nullptr) {
             throw std::invalid_argument("Not a valid interface");
         }
@@ -69,5 +78,6 @@ class SilentSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
     pcpp::PcapLiveDevice *device_;
     std::vector<pcpp::IPv4Address> victimIps_;
     std::vector<std::string> domainsToStrip_;
+    ATK::SSL::MitmStrategy mitmStrategy_;
 };
 } // namespace ATK::SSL
