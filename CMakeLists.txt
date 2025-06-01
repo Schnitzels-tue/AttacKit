@@ -6,6 +6,11 @@ project(AttacKit VERSION 1.0)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(PCAP_ROOT ${CMAKE_SOURCE_DIR}/thirdparty/npcap-sdk)
+if(WIN32)
+    include_directories(${CMAKE_SOURCE_DIR}/thirdparty/boost-sdk)
+else()
+    find_package(Boost REQUIRED COMPONENTS system)
+endif()
 
 # Check if we are in Debug mode and define the DEBUG macro
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")

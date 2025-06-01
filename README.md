@@ -4,9 +4,15 @@ Windows users must install npcap and get the sdk to put into the thirdparty fold
 
 https://npcap.com/#download
 
+They should also install boost under the thirdparty folder and rename the root folder of the zip folder to `boost-sdk`
+
+https://www.boost.org/releases/latest/
+
 # linux
 
-`apt install libpcap-dev`
+`sudo apt install libpcap-dev`
+and
+`sudo apt install libboost-all-dev`
 
 # Linting
 ```find . \( -path './build' -o -path './thirdparty' \) -prune -o -name '*.cpp' -print0 | xargs -0 -I{} clang-tidy --warnings-as-errors='*' -p build {}```
