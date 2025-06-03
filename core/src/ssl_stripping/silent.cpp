@@ -21,6 +21,15 @@
 #include <unordered_set>
 #include <vector>
 
+#ifdef __linux__
+#include <signal.h>
+#include <sys/prctl.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+#endif
+
 std::optional<std::unordered_set<std::string>>
 resolveDomainToIP(const std::string &domain, const std::string &service) {
     std::unordered_set<std::string> outputIps;
@@ -224,7 +233,13 @@ void ATK::SSL::SilentSslStrippingStrategy::execute() {
         CloseHandle(pInfo.hProcess);
         CloseHandle(pInfo.hThread);
 #else
-        std::system(cmd.c_str());
+        pid_t pid = fork();
+        if (pid == 0) {
+            // To make sure child kills itself when this process dies
+            prctl(PR_SET_PDEATHSIG, SIGTERM);
+            execl("/bin/sh", "sh", "-c", cmd.c_str(), nullptr);
+            _exit(1);
+        }
 #endif
     } else {
         // TODO(Quinn) implement with DNS once it's available
