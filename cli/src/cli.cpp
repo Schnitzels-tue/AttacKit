@@ -1,3 +1,4 @@
+#include "common/common.h"
 #include "helper/CLIExecutor.h"
 #include "helper/CLITypes.h"
 #include "log.h"
@@ -6,12 +7,28 @@
 #include <helper/CLIParser.h>
 #include <string>
 #include <vector>
+#ifdef __linux__
+#include <signal.h>
+#include <sys/prctl.h>
+#endif
 
 /**
  * Main function for the CLI. Everything called here will be executed when
  * AttacKit.exe is called in the command line.
  */
 int main(int argc, char *argv[]) noexcept(false) {
+    // To make sure this process kills itself if the parent process dies (such
+    // as when SSL stripping calls an instance of ARP or DNS and that instance
+    // should die when the SSL instance dies)
+#ifdef __linux__
+    prctl(PR_SET_PDEATHSIG, SIGTERM);
+#endif
+
+    if (argc > 0) {
+        // False-positive warning
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        ATK::Common::setProcessName(std::string(argv[0]));
+    }
     try {
 
         // Parse command line arguments

