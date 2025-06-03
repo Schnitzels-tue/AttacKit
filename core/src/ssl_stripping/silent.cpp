@@ -1,3 +1,4 @@
+#include "ssl_stripping/silent.h"
 #include "HttpLayer.h"
 #include "IPv4Layer.h"
 #include "IpAddress.h"
@@ -9,7 +10,6 @@
 #include "common/common.h"
 #include "log.h"
 #include "ssl_stripping/public.h"
-#include "ssl_stripping/silent.h"
 #include <algorithm>
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
@@ -20,6 +20,7 @@
 #include <stdexcept>
 #include <unordered_set>
 #include <vector>
+
 
 std::optional<std::unordered_set<std::string>>
 resolveDomainToIP(const std::string &domain, const std::string &service) {
@@ -193,7 +194,7 @@ void ATK::SSL::SilentSslStrippingStrategy::execute() {
         ipsToSpoofCommaSeparated.pop_back();
 
         std::ostringstream command;
-        command << "\"" << ATK::Common::getProcessName() << "\" --arp --quiet"
+        command << "\"" << ATK::Common::getProcessName() << "\" --quiet --arp"
                 << " \"" << device_->getName() << "\""
                 << " \"" << victimIpsCommaSeparated << "\""
                 << " \"" << ipsToSpoofCommaSeparated << "\"";
