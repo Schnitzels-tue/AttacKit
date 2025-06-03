@@ -21,7 +21,6 @@
 #include <unordered_set>
 #include <vector>
 
-
 std::optional<std::unordered_set<std::string>>
 resolveDomainToIP(const std::string &domain, const std::string &service) {
     std::unordered_set<std::string> outputIps;
@@ -194,10 +193,12 @@ void ATK::SSL::SilentSslStrippingStrategy::execute() {
         ipsToSpoofCommaSeparated.pop_back();
 
         std::ostringstream command;
-        command << "\"" << ATK::Common::getProcessName() << "\" --quiet --arp"
-                << " \"" << device_->getName() << "\""
-                << " \"" << victimIpsCommaSeparated << "\""
-                << " \"" << ipsToSpoofCommaSeparated << "\"";
+        command
+            << "\"" << ATK::Common::getProcessName() << "\" --quiet --arp"
+            << " \"" << device_->getName() << "\""
+            << " \"\"" // Supply empty attackerMac to automatically derive it
+            << " \"" << victimIpsCommaSeparated << "\""
+            << " \"" << ipsToSpoofCommaSeparated << "\"";
         std::string cmd = command.str();
 
         LOG_INFO("got here!");
