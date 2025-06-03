@@ -163,6 +163,7 @@ void ATK::SSL::SilentSslStrippingStrategy::onPacketArrives(
     for (const std::string &domain : domainsToStrip_) {
         if (hostValue.find(domain) != std::string::npos) {
             // TODO(Quinn)
+            LOG_INFO("FOUND PACKET!");
         }
     }
 }
