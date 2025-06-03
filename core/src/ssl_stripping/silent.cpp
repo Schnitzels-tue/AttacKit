@@ -191,6 +191,7 @@ void ATK::SSL::SilentSslStrippingStrategy::execute() {
         }
         options.ipsToSpoof = ipsToSpoofSet;
 
+        LOG_INFO("got here!");
         // Start ARP poison on different thread
         std::thread(ATK::ARP::silentPoison, options).detach();
     } else {
