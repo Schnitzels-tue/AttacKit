@@ -199,7 +199,7 @@ void ATK::SSL::SilentSslStrippingStrategy::execute() {
     }
 
     if (!device_->open()) {
-        throw std::runtime_error("Unable to open interface");
+        throw std::runtime_error("Unable to open interface, no way right??");
     }
 
     std::promise<void> completionPromise;
