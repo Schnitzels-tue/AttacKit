@@ -28,6 +28,18 @@ class CLIExecutor {
     static void invokeDnsSpoofing(std::vector<std::string> args);
 
     /**
+     * Function to invoke an SSL stripping attack with the right parameters,
+     * using ARP under the hood
+     */
+    static void invokeSslStrippingArp(std::vector<std::string> args);
+
+    /**
+     * Function to invoke an SSL stripping attack with the right parameters,
+     * using DNS under the hood
+     */
+    static void invokeSslStrippingDns(std::vector<std::string> args);
+
+    /**
      * Will simply call the passed function with the given arguments.
      */
     static void invokeFunction(const InvocableFunction &);

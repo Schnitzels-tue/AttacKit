@@ -69,7 +69,16 @@ int main(int argc, char *argv[]) noexcept(false) {
                                      "blah blah blah",
                                      {4},
                                      sensitiveOpts});
-
+        parser.add_flag(UnparsedFlag{"sslarp",
+                                     CLIExecutor::invokeSslStrippingArp,
+                                     "ifaceIpOrName  victimIps  domainsToStrip",
+                                     {3},
+                                     sensitiveOpts});
+        parser.add_flag(UnparsedFlag{"ssldns",
+                                     CLIExecutor::invokeSslStrippingDns,
+                                     "ifaceIpOrName  victimIps  domainsToStrip",
+                                     {3},
+                                     sensitiveOpts});
         executor.execute(parser);
     } catch (const std::exception &e) {
         LOG_ERROR(std::string("Unhandled exception: ") + e.what());
