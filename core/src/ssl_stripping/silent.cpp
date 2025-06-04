@@ -246,7 +246,7 @@ void ATK::SSL::SilentSslStrippingStrategy::onPacketArrives(
             // Add packet size to queue for HTTP response
             {
                 std::lock_guard<std::mutex> lock(httpMessageData.httpMessagesMutex);
-                httpMessageData.httpMessages.emplace("Hello from the other side!, also packet size = " + std::to_string(packetSize));
+                httpMessageData.httpMessages.emplace("Hello from the other side!, also packet size = " + std::to_string(packetSize) + "\n");
             }
             httpMessageData.httpMessagesCV.notify_one();
             
