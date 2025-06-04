@@ -18,6 +18,7 @@
 #include <future>
 #include <sstream>
 #include <stdexcept>
+#include <thread>
 #include <unordered_set>
 #include <vector>
 
@@ -29,6 +30,28 @@
 #include <unistd.h>
 
 #endif
+
+void startAcceptingHttp() {
+    const uint16_t HTTP_PORT = 80;
+    std::thread([]() {
+        try {
+            boost::asio::io_context ioc;
+            boost::asio::ip::tcp::acceptor acceptor(
+                ioc, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), HTTP_PORT));
+
+            while (true) {
+                boost::asio::ip::tcp::socket socket(ioc);
+                acceptor.accept(socket);
+
+                boost::system::error_code exc;
+
+                socket.close();
+            }
+        } catch (const std::exception &e) {
+            LOG_ERROR("Dummy HTTP server exception: " + std::string(e.what()));
+        }
+    }).detach();  // detach the thread to let it run in background
+}
 
 std::optional<std::unordered_set<std::string>>
 resolveDomainToIP(const std::string &domain, const std::string &service) {
@@ -252,6 +275,8 @@ void ATK::SSL::SilentSslStrippingStrategy::execute() {
     } else {
         // TODO(Quinn) implement with DNS once it's available
     }
+
+    startAcceptingHttp();
 
     if (!device_->open()) {
         throw std::runtime_error("Unable to open interface, no way right??");
