@@ -1,4 +1,3 @@
-#include "ssl_stripping/silent.h"
 #include "HttpLayer.h"
 #include "IPv4Layer.h"
 #include "IpAddress.h"
@@ -10,12 +9,16 @@
 #include "common/common.h"
 #include "log.h"
 #include "ssl_stripping/public.h"
+#include "ssl_stripping/silent.h"
 #include <algorithm>
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
 #include <boost/system/error_code.hpp>
+#include <condition_variable>
 #include <exception>
 #include <future>
+#include <mutex>
+#include <queue>
 #include <sstream>
 #include <stdexcept>
 #include <thread>
@@ -31,6 +34,18 @@
 
 #endif
 
+// Function to get global variables safely
+struct HttpMessageData {
+    std::queue<std::string> httpMessages;
+    std::mutex httpMessagesMutex;
+    std::condition_variable httpMessagesCV;
+};
+
+HttpMessageData& getHttpMessageData() {
+    static HttpMessageData data;
+    return data;
+}
+
 void startAcceptingHttp() {
     const uint16_t HTTP_PORT = 80;
     std::thread([]() {
@@ -44,10 +59,26 @@ void startAcceptingHttp() {
                 boost::asio::ip::tcp::socket socket(ioc);
                 acceptor.accept(socket);
 
+                auto& httpMessageData = getHttpMessageData();
+
+                // Wait for a packet size to be available
+                std::unique_lock<std::mutex> lock(httpMessageData.httpMessagesMutex);
+                httpMessageData.httpMessagesCV.wait(lock, [&]{ return !httpMessageData.httpMessages.empty(); });
+                
+                std::string httpMessage = httpMessageData.httpMessages.front();
+                httpMessageData.httpMessages.pop();
+                lock.unlock();
+                
+                std::ostringstream response;
+                response << "HTTP/1.1 200 OK\r\n"
+                        << "Content-Type: text/plain\r\n"
+                        << "Content-Length: " << httpMessage.length() << "\r\n"
+                        << "Connection: close\r\n"
+                        << "\r\n"
+                        << httpMessage;
+
                 boost::system::error_code exc;
-                std::string response = "HTTP/1.1 200 OK\r\nContent-Length: "
-                                       "0\r\nConnection: close\r\n\r\n";
-                boost::asio::write(socket, boost::asio::buffer(response), exc);
+                boost::asio::write(socket, boost::asio::buffer(response.str()), exc);
 
                 socket.close();
             }
@@ -207,6 +238,19 @@ void ATK::SSL::SilentSslStrippingStrategy::onPacketArrives(
         if (hostValue.find(domain) != std::string::npos) {
             // TODO(Quinn)
             LOG_INFO("FOUND PACKET7!");
+
+            // Get the total packet size
+            size_t packetSize = packet->getRawDataLen();
+            auto& httpMessageData = getHttpMessageData();
+            
+            // Add packet size to queue for HTTP response
+            {
+                std::lock_guard<std::mutex> lock(httpMessageData.httpMessagesMutex);
+                httpMessageData.httpMessages.emplace("Hello from the other side!, also packet size = " + std::to_string(packetSize));
+            }
+            httpMessageData.httpMessagesCV.notify_one();
+            
+            LOG_INFO("Packet size added to queue: " + std::to_string(packetSize));
         }
     }
 }
