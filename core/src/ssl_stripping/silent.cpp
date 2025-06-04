@@ -134,6 +134,7 @@ void ATK::SSL::SilentSslStrippingStrategy::onPacketArrives(
     if (ipLayer == nullptr) {
         return;
     }
+    LOG_INFO("interesting")
 
     // Check if destination IP matches some victim IP
     if (std::find(victimIps_.begin(), victimIps_.end(),
