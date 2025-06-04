@@ -127,6 +127,7 @@ void ATK::SSL::SilentSslStrippingStrategy::onPacketArrives(
     pcpp::RawPacket *packet, pcpp::PcapLiveDevice * /*device*/,
     void * /*cookie*/) {
     pcpp::Packet parsedPacket(packet);
+    LOG_INFO("FOUNDDD");
 
     // Check IPv4 layer
     auto *ipLayer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
