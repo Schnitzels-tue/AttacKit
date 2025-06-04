@@ -139,6 +139,7 @@ void ATK::SSL::SilentSslStrippingStrategy::onPacketArrives(
                   ipLayer->getDstIPAddress().toString()) == victimIps_.end()) {
         return;
     }
+    LOG_INFO("FOUND PACKET1!");
 
     // Check TCP layer
     auto *tcpLayer = parsedPacket.getLayerOfType<pcpp::TcpLayer>();
@@ -146,6 +147,7 @@ void ATK::SSL::SilentSslStrippingStrategy::onPacketArrives(
     if ((tcpLayer == nullptr) || tcpLayer->getDstPort() != HTTP_PORT) {
         return;
     }
+    LOG_INFO("FOUND PACKET2!");
 
     // Access HTTP Layer
     auto *httpRequestLayer =
@@ -153,25 +155,29 @@ void ATK::SSL::SilentSslStrippingStrategy::onPacketArrives(
     if (httpRequestLayer == nullptr) {
         return;
     }
+    LOG_INFO("FOUND PACKET3!");
 
     // Check if method is GET
     if (httpRequestLayer->getFirstLine()->getMethod() !=
         pcpp::HttpRequestLayer::HttpGET) {
         return;
     }
+    LOG_INFO("FOUND PACKET4!");
 
     // Check Host header
     pcpp::HeaderField *hostField = httpRequestLayer->getFieldByName("Host");
     if (hostField == nullptr) {
         return;
     }
+    LOG_INFO("FOUND PACKET5!");
 
     // Check whether domain is in Host header and start SSL attack if so
     std::string hostValue = hostField->getFieldValue();
     for (const std::string &domain : domainsToStrip_) {
+        LOG_INFO("FOUND PACKET6!");
         if (hostValue.find(domain) != std::string::npos) {
             // TODO(Quinn)
-            LOG_INFO("FOUND PACKET!");
+            LOG_INFO("FOUND PACKET7!");
         }
     }
 }
