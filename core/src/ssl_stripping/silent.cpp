@@ -265,6 +265,7 @@ void ATK::SSL::SilentSslStrippingStrategy::execute() {
             "Unable to set http request filters on interface");
     };
 
+    LOG_INFO("Got here too!");
     if (!device_->startCapture(
             [this](pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device,
                    void *cookie) { onPacketArrives(packet, device, cookie); },
