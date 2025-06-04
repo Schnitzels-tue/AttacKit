@@ -37,20 +37,24 @@ void startAcceptingHttp() {
         try {
             boost::asio::io_context ioc;
             boost::asio::ip::tcp::acceptor acceptor(
-                ioc, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), HTTP_PORT));
+                ioc, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(),
+                                                    HTTP_PORT));
 
             while (true) {
                 boost::asio::ip::tcp::socket socket(ioc);
                 acceptor.accept(socket);
 
                 boost::system::error_code exc;
+                std::string response = "HTTP/1.1 200 OK\r\nContent-Length: "
+                                       "0\r\nConnection: close\r\n\r\n";
+                boost::asio::write(socket, boost::asio::buffer(response), exc);
 
                 socket.close();
             }
         } catch (const std::exception &e) {
             LOG_ERROR("Dummy HTTP server exception: " + std::string(e.what()));
         }
-    }).detach();  // detach the thread to let it run in background
+    }).detach(); // detach the thread to let it run in background
 }
 
 std::optional<std::unordered_set<std::string>>
