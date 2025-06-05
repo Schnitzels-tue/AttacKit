@@ -60,26 +60,33 @@ void CLIExecutor::invokeArpPoison(std::vector<std::string> args) {
                                                            victimIps.end());
         const std::unordered_set<std::string> ipsToSpoofSet(ipsToSpoof.begin(),
                                                             ipsToSpoof.end());
-        ATK::ARP::silentPoison(
-            ATK::ARP::SilentPoisoningOptions{.ifaceIpOrName = args[1],
-                                             .attackerMac = toOptional(args[2]),
-                                             .victimIps = victimIpsSet,
-                                             .ipsToSpoof = ipsToSpoofSet});
+        ATK::ARP::silentPoison({.ifaceIpOrName = args[1],
+                                .attackerMac = toOptional(args[2]),
+                                .victimIps = victimIpsSet,
+                                .ipsToSpoof = ipsToSpoofSet});
     }
 }
 
 void CLIExecutor::invokeDnsSpoofing(std::vector<std::string> args) {
+    const int ALL_OUT_NUM_ARGS = 3;
+    const int SILENT_NUM_ARGS = 5;
+    if ((!stringToBool(args[0]) && args.size() != ALL_OUT_NUM_ARGS) ||
+        (stringToBool(args[0]) && args.size() != SILENT_NUM_ARGS)) {
+        LOG_ERROR(
+            "Found wrong number of arguments for executing poisoning attack");
+    }
     if (!stringToBool(args[0])) { // all-out
+        ATK::DNS::allOutPoison(
+            {.ifaceIpOrName = args[1], .attackerIp = args[2]});
+    } else { // silent
         std::vector<std::string> domainsToSpoof = split(args[4], ',');
         const std::unordered_set<std::string> domainsToSpoofSet(
             domainsToSpoof.begin(), domainsToSpoof.end());
-        ATK::DNS::allOutPoison(
-            ATK::DNS::AllOutPoisonOptions{.ifaceIpOrName = args[1],
-                                          .victimIp = args[2],
-                                          .attackerIp = args[3],
-                                          .domainsToSpoof = domainsToSpoofSet});
-    } else { // silent
-        LOG_ERROR("Silent DNS not implemented yet");
+
+        ATK::DNS::silentPoison({.ifaceIpOrName = args[1],
+                                .attackerIp = args[2],
+                                .victimIp = args[3],
+                                .domainsToSpoof = domainsToSpoofSet});
     }
 }
 
