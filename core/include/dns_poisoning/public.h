@@ -13,8 +13,8 @@ void allOutPoison(const AllOutPoisoningOptions &options);
 
 struct SilentPoisoningOptions {
     std::string ifaceIpOrName; // network interface e.g. en0
-    std::string victimIp;      // the IP of the DNS server to poison
     std::string attackerIp;    // the IP to reroute domains to
+    std::string victimIp;      // the IP of the DNS server to poison
     std::unordered_set<std::string>
         domainsToSpoof; // domains to spoof (empty equates to any)
 };
