@@ -6,7 +6,6 @@
 #include "RawPacket.h"
 #include "dns_poisoning/dns_poisoning_strategy.h"
 #include <memory>
-#include <optional>
 #include <stdexcept>
 
 namespace ATK::DNS {

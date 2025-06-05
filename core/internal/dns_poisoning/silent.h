@@ -1,5 +1,6 @@
 #pragma once
 
+#include "DnsResourceData.h"
 #include "IpAddress.h"
 #include "MacAddress.h"
 #include "PcapLiveDevice.h"
