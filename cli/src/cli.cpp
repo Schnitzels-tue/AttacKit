@@ -71,18 +71,34 @@ int main(int argc, char *argv[]) noexcept(false) {
             "192.0.0.1,127.0.0.1. By default runs in all-out mode.",
             {2, 4},
             sensitiveOpts});
-        parser.add_flag(UnparsedFlag{"dns",
-                                     CLIExecutor::invokeDnsSpoofing,
-                                     "blah blah blah",
-                                     {4},
-                                     sensitiveOpts});
-        parser.add_flag(UnparsedFlag{"sslarp",
-                                     CLIExecutor::invokeSslStrippingArp,
+        parser.add_flag(
+            UnparsedFlag{"dns",
+                         CLIExecutor::invokeDnsSpoofing,
+                         "ifaceIpOrName  attackerIp  [victimIp]  "
+                         "[domainsToSpoof]    Performs "
+                         "a DNS spoofing attack. By default, it runs in "
+                         "all-out mode, sending "
+                         "spoofed responses to all DNS queries on the "
+                         "interface. If the --quiet "
+                         "flag is passed, the attack becomes silent and "
+                         "targets only queries from "
+                         "the specified victim IP. You can restrict spoofing "
+                         "to specific domain names "
+                         "by providing a comma-separated list of domains in "
+                         "domainsToSpoof (e.g., "
+                         "example.com,www.google.com). Both victimIp and "
+                         "domainsToSpoof are required "
+                         "when using the quiet mode. In all-out mode, these "
+                         "parameters are not accepted.",
+                         {2, 4},
+                         sensitiveOpts});
+        parser.add_flag(UnparsedFlag{"ssldns",
+                                     CLIExecutor::invokeSslStrippingDns,
                                      "ifaceIpOrName  victimIps  domainsToStrip",
                                      {3},
                                      sensitiveOpts});
-        parser.add_flag(UnparsedFlag{"ssldns",
-                                     CLIExecutor::invokeSslStrippingDns,
+        parser.add_flag(UnparsedFlag{"sslarp",
+                                     CLIExecutor::invokeSslStrippingArp,
                                      "ifaceIpOrName  victimIps  domainsToStrip",
                                      {3},
                                      sensitiveOpts});
