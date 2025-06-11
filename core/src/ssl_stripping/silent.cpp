@@ -82,6 +82,7 @@ void runHttpDummyServer() {
                          << httpMessage;
 
                 boost::system::error_code exc;
+                LOG_INFO("Sending back stripped HTTP response")
                 boost::asio::write(socket, boost::asio::buffer(response.str()),
                                    exc);
 
@@ -177,8 +178,7 @@ std::optional<std::string> connectWithServer(const std::string &domain) {
 
         // Check for a clean close
         if (exc == boost::asio::error::eof) {
-            LOG_INFO("Cleanly received response:");
-            // Print the response headers and body
+            LOG_INFO("Cleanly received real server response");
             std::istream response_stream(&response);
             std::string line;
             bool in_body = false;
@@ -255,8 +255,6 @@ void ATK::SSL::SilentSslStrippingStrategy::onPacketArrives(
     std::string hostValue = hostField->getFieldValue();
     for (const std::string &domain : domainsToStrip_) {
         if (hostValue.find(domain) != std::string::npos) {
-            // TODO(Quinn)
-
             // Get the total packet size
             size_t packetSize = packet->getRawDataLen();
             auto &httpMessageData = getHttpMessageData();
