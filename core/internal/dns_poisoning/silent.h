@@ -2,13 +2,20 @@
 
 #include "DnsResourceData.h"
 #include "IpAddress.h"
-#include "MacAddress.h"
 #include "PcapLiveDevice.h"
 #include "dns_poisoning/dns_poisoning_strategy.h"
 #include <memory>
 #include <string>
 #include <unordered_set>
 #include <utility>
+
+namespace std {
+template <> struct hash<pcpp::IPv4Address> {
+    size_t operator()(const pcpp::IPv4Address &addr) const noexcept {
+        return std::hash<uint32_t>{}(addr.toInt());
+    }
+};
+} // namespace std
 
 namespace ATK::DNS {
 
