@@ -122,7 +122,8 @@ std::optional<std::string> ATK::SSL::AllOutSslStrippingStrategy::connectWithServ
         boost::asio::read(stream, response, exc);
 
         // Check for a clean close
-        if (exc == boost::asio::error::eof) {
+        if (exc == boost::asio::error::eof ||
+            exc == boost::asio::ssl::error::stream_truncated) {
             LOG_INFO("Cleanly received real server response");
             std::istream response_stream(&response);
             std::string line;
