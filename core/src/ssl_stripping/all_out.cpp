@@ -192,7 +192,6 @@ void ATK::SSL::AllOutSslStrippingStrategy::onPacketArrives(
 
     // Check whether domain is in Host header and start SSL attack if so
     std::string hostValue = hostField->getFieldValue();
-    // TODO(Quinn) check whether hostValue is actually pure domain
     auto &httpMessageData = getHttpMessageData();
     std::optional<std::string> realHtmlFromServer =
         ATK::SSL::AllOutSslStrippingStrategy::connectWithServer(hostValue);
