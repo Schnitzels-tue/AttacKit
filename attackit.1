@@ -1,0 +1,70 @@
+.TH ATTACKIT 1 "June 2025" "AttacKit 1.0" "User Commands"
+
+.SH NAME
+attackit \- Command line tool for performing network spoofing and interception attacks
+
+.SH SYNOPSIS
+.B attackit
+[\fIOPTIONS\fR] \fICOMMAND\fR [\fICOMMAND OPTIONS\fR]
+
+.SH DESCRIPTION
+AttacKit is a command-line interface (CLI) tool for performing various network attacks including ARP spoofing, DNS spoofing, and SSL stripping via ARP or DNS. It offers multiple modes, such as "quiet" (targeted and stealthy) and "all-out" (broadcast and aggressive).
+
+.SH OPTIONS
+
+.TP
+.B --help
+Prints the help menu.
+
+.TP
+.B --quiet
+Runs certain attacks in silent mode, targeting specific IPs/domains. Cannot be used with \fB--all-out\fR.
+
+.TP
+.B --all-out
+Runs attacks in broadcast/aggressive mode, affecting all targets. Cannot be used with \fB--quiet\fR.
+
+.SH COMMANDS
+
+.TP
+.B --arp
+\fIifaceIpOrName\fR [\fIattackerMac\fR] [\fIvictimIp\fR] [\fIipToSpoof\fR]
+Performs an ARP spoofing attack. The attacker MAC is optional. Victim IP and IP to spoof are required in quiet mode. Multiple IPs can be comma-separated.
+
+.TP
+.B --dns
+\fIifaceIpOrName\fR \fIattackerIp\fR [\fIvictimIps\fR] [\fIdomainsToSpoof\fR]
+Performs a DNS spoofing attack. In all-out mode, targets all DNS queries. In quiet mode, \fIvictimIps\fR and \fIdomainsToSpoof\fR must be provided. Use comma-separated lists.
+
+.TP
+.B --ssldns
+\fIifaceIpOrName\fR \fIattackerIp\fR \fIvictimIps\fR \fIdomainsToStrip\fR
+Performs DNS-based SSL stripping. All arguments are required.
+
+.TP
+.B --sslarp
+\fIifaceIpOrName\fR \fIvictimIps\fR \fIdomainsToStrip\fR
+Performs ARP-based SSL stripping. All arguments are required.
+
+.SH EXAMPLES
+
+.TP
+Perform all-out ARP spoof:
+.B attackit --arp eth0
+
+.TP
+Quiet DNS spoof:
+.B attackit --quiet --dns eth0 192.168.1.10 192.168.1.15 example.com,google.com
+
+.SH EXIT STATUS
+Returns 0 on success, 1 if an exception occurs.
+
+.SH AUTHOR
+Written by the AttacKit development team.
+
+.SH REPORTING BUGS
+Report bugs at https://github.com/Schnitzels-tue/AttacKit/issues
+
+.SH COPYRIGHT
+Copyright (C) 2025 AttacKit. License MIT
+
