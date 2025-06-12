@@ -14,7 +14,7 @@ https://slproweb.com/products/Win32OpenSSL.html
 `sudo apt install libpcap-dev`
 and
 `sudo apt install libboost-all-dev`
-you might also have to do 
+you might also have to do the following command, but normally this should be unnecessary since it automatically gets installed with boost
 `sudo apt install libssl-dev`
 
 # Linting
