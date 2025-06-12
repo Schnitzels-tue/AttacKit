@@ -46,7 +46,7 @@ HttpMessageData &getHttpMessageData() {
     return data;
 }
 
-void runHttpDummyServer() {
+void ATK::SSL::SilentSslStrippingStrategy::runHttpDummyServer() {
     const uint16_t HTTP_PORT = 80;
     std::thread([]() {
         try {
@@ -94,7 +94,7 @@ void runHttpDummyServer() {
 }
 
 std::optional<std::unordered_set<std::string>>
-resolveDomainToIP(const std::string &domain, const std::string &service) {
+ATK::SSL::SilentSslStrippingStrategy::resolveDomainToIP(const std::string &domain, const std::string &service) {
     std::unordered_set<std::string> outputIps;
     try {
         boost::asio::io_context ioc;
@@ -134,7 +134,7 @@ resolveDomainToIP(const std::string &domain, const std::string &service) {
     return outputIps;
 }
 
-std::optional<std::string> connectWithServer(const std::string &domain) {
+std::optional<std::string> ATK::SSL::SilentSslStrippingStrategy::connectWithServer(const std::string &domain) {
     try {
         const std::string HTTPS_PORT = "443";
 

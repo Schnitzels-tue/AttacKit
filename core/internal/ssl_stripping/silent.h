@@ -84,6 +84,13 @@ class SilentSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
 
     void onPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device,
                          void *cookie);
+    static std::optional<std::string>
+    connectWithServer(const std::string &domain);
+
+    static std::optional<std::unordered_set<std::string>>
+    resolveDomainToIP(const std::string &domain, const std::string &service);
+
+    static void runHttpDummyServer();
 
     pcpp::PcapLiveDevice *device_;
     pcpp::IPv4Address attackerIp_;

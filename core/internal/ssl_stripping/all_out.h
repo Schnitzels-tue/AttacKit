@@ -60,6 +60,9 @@ class AllOutSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
     static void onPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device,
                          void *cookie);
 
+    static std::optional<std::string> connectWithServer(const std::string &domain);
+    static void runHttpDummyServer();
+
     pcpp::PcapLiveDevice *device_;
     pcpp::IPv4Address attackerIp_;
     ATK::SSL::MitmStrategy mitmStrategy_;

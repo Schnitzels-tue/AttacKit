@@ -44,7 +44,7 @@ HttpMessageData &getHttpMessageData() {
     return data;
 }
 
-void runHttpDummyServer() {
+void ATK::SSL::AllOutSslStrippingStrategy::runHttpDummyServer() {
     const uint16_t HTTP_PORT = 80;
     std::thread([]() {
         try {
@@ -91,7 +91,7 @@ void runHttpDummyServer() {
     }).detach(); // detach the thread to let it run in background
 }
 
-std::optional<std::string> connectWithServer(const std::string &domain) {
+std::optional<std::string> ATK::SSL::AllOutSslStrippingStrategy::connectWithServer(const std::string &domain) {
     try {
         const std::string HTTPS_PORT = "443";
 
@@ -206,7 +206,7 @@ void ATK::SSL::AllOutSslStrippingStrategy::onPacketArrives(
     // TODO(Quinn) check whether hostValue is actually pure domain
     auto &httpMessageData = getHttpMessageData();
     std::optional<std::string> realHtmlFromServer =
-        connectWithServer(hostValue);
+        ATK::SSL::AllOutSslStrippingStrategy::connectWithServer(hostValue);
     if (!realHtmlFromServer.has_value()) {
         LOG_ERROR("Could not connect to server!");
         return;
@@ -268,7 +268,7 @@ void ATK::SSL::AllOutSslStrippingStrategy::execute() {
     }
 #endif
 
-    runHttpDummyServer();
+    ATK::SSL::AllOutSslStrippingStrategy::runHttpDummyServer();
 
     if (!device_->open()) {
         throw std::runtime_error("Unable to open interface");
