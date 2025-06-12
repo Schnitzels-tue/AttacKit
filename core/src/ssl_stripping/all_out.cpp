@@ -222,7 +222,7 @@ void ATK::SSL::AllOutSslStrippingStrategy::execute() {
         cmd = command.str();
     } else { // Perform DNS spoofing in the background
         std::ostringstream command;
-        command << "\"" << ATK::Common::getProcessName() << "\" --quiet --dns"
+        command << "\"" << ATK::Common::getProcessName() << "\" --dns"
                 << " \"" << device_->getName() << "\""
                 << " \"" << attackerIp_.toString() << "\"";
         cmd = command.str();
