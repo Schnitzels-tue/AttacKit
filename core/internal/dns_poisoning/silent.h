@@ -24,13 +24,13 @@ class SilentDnsPoisoningStrategy : public ATK::DNS::DnsPoisoningStrategy {
       public:
         explicit Builder(pcpp::PcapLiveDevice *device) : device_(device) {}
 
-        Builder &victimIp(pcpp::IPv4Address victimIp) {
-            this->victimIp_ = victimIp;
+        Builder &attackerIp(pcpp::IPv4Address attackerIp) {
+            this->attackerIp_ = attackerIp;
             return *this;
         }
 
-        Builder &attackerIp(pcpp::IPv4Address attackerIp) {
-            this->attackerIp_ = attackerIp;
+        Builder &victimIps(std::unordered_set<pcpp::IPv4Address> victimIps) {
+            this->victimIps_ = std::move(victimIps);
             return *this;
         }
 
@@ -41,15 +41,16 @@ class SilentDnsPoisoningStrategy : public ATK::DNS::DnsPoisoningStrategy {
 
         std::unique_ptr<SilentDnsPoisoningStrategy> build() {
             return std::unique_ptr<SilentDnsPoisoningStrategy>(
-                new SilentDnsPoisoningStrategy(this->device_, this->victimIp_,
+                new SilentDnsPoisoningStrategy(this->device_,
                                                this->attackerIp_,
+                                               this->victimIps_,
                                                this->domainsToSpoof_));
         }
 
       private:
         pcpp::PcapLiveDevice *device_;
-        pcpp::IPv4Address victimIp_;
         pcpp::IPv4Address attackerIp_;
+        std::unordered_set<pcpp::IPv4Address> victimIps_;
         std::unordered_set<std::string> domainsToSpoof_; // empty = spoof all
     };
 
@@ -57,11 +58,12 @@ class SilentDnsPoisoningStrategy : public ATK::DNS::DnsPoisoningStrategy {
 
   private:
     SilentDnsPoisoningStrategy(pcpp::PcapLiveDevice *device,
-                               pcpp::IPv4Address victimIp,
                                pcpp::IPv4Address attackerIp,
+                               std::unordered_set<pcpp::IPv4Address> victimIps,
                                std::unordered_set<std::string> domainsToSpoof)
-        : device_(device), victimIp_(std::move(victimIp)),
+        : device_(device), 
           attackerIp_(std::move(attackerIp)),
+          victimIps_(std::move(victimIps)),
           domainsToSpoof_(std::move(domainsToSpoof)) {
         if (device == nullptr) {
             throw std::invalid_argument("Not a valid interface");
@@ -72,8 +74,8 @@ class SilentDnsPoisoningStrategy : public ATK::DNS::DnsPoisoningStrategy {
                          void *cookie) override;
 
     pcpp::PcapLiveDevice *device_;
-    pcpp::IPv4Address victimIp_;
     pcpp::IPv4Address attackerIp_;
+    std::unordered_set<pcpp::IPv4Address> victimIps_;
     std::unordered_set<std::string> domainsToSpoof_;
 };
 

