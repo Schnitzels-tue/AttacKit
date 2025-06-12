@@ -8,7 +8,17 @@ attackit \- Command line tool for performing network spoofing and interception a
 [\fIOPTIONS\fR] \fICOMMAND\fR [\fICOMMAND OPTIONS\fR]
 
 .SH DESCRIPTION
-AttacKit is a command-line interface (CLI) tool for performing various network attacks including ARP spoofing, DNS spoofing, and SSL stripping via ARP or DNS. It offers multiple modes, such as "quiet" (targeted and stealthy) and "all-out" (broadcast and aggressive).
+AttacKit is a command-line interface (CLI) tool for performing various network attacks including ARP spoofing, DNS spoofing, and SSL stripping via ARP or DNS. It is designed for penetration testers and researchers to simulate and understand the risks of insecure network environments.
+
+AttacKit offers two primary modes of operation:
+
+.TP
+.B Quiet Mode (\fB--quiet\fR)
+This mode enables fine-grained, targeted attacks. It allows the attacker to specify particular victims and domains or IPs to spoof. This is ideal for stealth operations where minimizing network noise is critical. Quiet mode requires specific arguments (e.g., victim IPs, domains to spoof) depending on the attack type. It is incompatible with \fB--all-out\fR.
+
+.TP
+.B All-Out Mode (\fB--all-out\fR)
+This mode is aggressive and noisy. It attempts to spoof or intercept all incoming ARP or DNS requests on the network, making it highly visible but potentially more effective in environments with broad attack surfaces. All-out mode is designed for quick, large-scale disruption or testing and cannot be used in conjunction with \fB--quiet\fR.
 
 .SH OPTIONS
 
@@ -50,7 +60,7 @@ Performs ARP-based SSL stripping. All arguments are required.
 
 .TP
 Perform all-out ARP spoof:
-.B attackit --arp eth0
+.B attackit --arp eth0 --all-out
 
 .TP
 Quiet DNS spoof:
@@ -67,4 +77,3 @@ Report bugs at https://github.com/Schnitzels-tue/AttacKit/issues
 
 .SH COPYRIGHT
 Copyright (C) 2025 AttacKit. License MIT
-
