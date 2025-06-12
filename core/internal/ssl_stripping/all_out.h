@@ -40,10 +40,9 @@ class AllOutSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
     };
 
     /**
-     * Executes Arp all out poisoning attack.
+     * Executes SSL all out stripping attack.
      *
-     * Will reply to every incoming ARP packet, except those to the attacker's
-     * interface with the attackerMac.
+     * Will reply to every incoming HTTP request, of any domain.
      */
     void execute() override;
 
