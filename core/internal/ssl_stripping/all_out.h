@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PcapLiveDevice.h"
+#include "ssl_stripping/public.h"
 #include "ssl_stripping/ssl_stripping_strategy.h"
 
 namespace ATK::SSL {
@@ -18,9 +19,22 @@ class AllOutSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
             return std::unique_ptr<AllOutSslStrippingStrategy>(
                 new AllOutSslStrippingStrategy(this->device_));
         }
+        /**
+         * Adds an attacker IP
+         */
+        Builder &addAttackerIp(pcpp::IPv4Address attackerIp) {
+            attackerIp_ = attackerIp;
+            return *this;
+        }
+        Builder &setMitmStrategy(ATK::SSL::MitmStrategy mitmStrategy) {
+            mitmStrategy_ = mitmStrategy;
+            return *this;
+        }
 
       private:
         pcpp::PcapLiveDevice *device_;
+        pcpp::IPv4Address attackerIp_;
+        ATK::SSL::MitmStrategy mitmStrategy_{};
     };
 
     /**

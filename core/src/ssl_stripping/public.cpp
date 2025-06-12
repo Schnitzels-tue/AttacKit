@@ -25,6 +25,18 @@ void ATK::SSL::allOutStrip(const AllOutStrippingOptions &options) {
 
     ATK::SSL::AllOutSslStrippingStrategy::Builder builder(device);
 
+    if (options.mitmStrategy == ATK::SSL::MitmStrategy::DNS &&
+        !options.attackerIp.has_value()) {
+        throw std::runtime_error("Could not run SSL attack since no attacker "
+                                 "IP was supplied while using DNS strategy!");
+    }
+    if (options.mitmStrategy == ATK::SSL::MitmStrategy::DNS) {
+        const pcpp::IPv4Address attackerIpAddress(options.attackerIp.value());
+        builder.addAttackerIp(attackerIpAddress);
+    }
+
+    builder = builder.setMitmStrategy(options.mitmStrategy);
+
     std::unique_ptr<ATK::SSL::AllOutSslStrippingStrategy> strategy =
         builder.build();
 
