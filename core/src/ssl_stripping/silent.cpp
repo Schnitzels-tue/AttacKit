@@ -34,17 +34,6 @@
 
 #endif
 
-// Function to get global variables safely
-struct HttpMessageData {
-    std::queue<std::string> httpMessages;
-    std::mutex httpMessagesMutex;
-    std::condition_variable httpMessagesCV;
-};
-
-HttpMessageData &getHttpMessageData() {
-    static HttpMessageData data;
-    return data;
-}
 
 void ATK::SSL::SilentSslStrippingStrategy::runHttpDummyServer() {
     const uint16_t HTTP_PORT = 80;

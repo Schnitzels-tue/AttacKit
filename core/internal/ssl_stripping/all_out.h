@@ -4,6 +4,8 @@
 #include "PcapLiveDevice.h"
 #include "ssl_stripping/public.h"
 #include "ssl_stripping/ssl_stripping_strategy.h"
+#include <mutex>
+#include <queue>
 
 namespace ATK::SSL {
 /**
@@ -47,6 +49,19 @@ class AllOutSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
     void execute() override;
 
   private:
+    
+    // Function to get global variables safely
+    struct HttpMessageData {
+        std::queue<std::string> httpMessages;
+        std::mutex httpMessagesMutex;
+        std::condition_variable httpMessagesCV;
+    };
+
+    static HttpMessageData &getHttpMessageData() {
+        static HttpMessageData data;
+        return data;
+    }
+    
     explicit AllOutSslStrippingStrategy(pcpp::PcapLiveDevice *device,
                                         pcpp::IPv4Address attackerIp,
                                         ATK::SSL::MitmStrategy mitmStrategy)
