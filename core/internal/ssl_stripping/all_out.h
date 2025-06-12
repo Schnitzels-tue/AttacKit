@@ -1,5 +1,6 @@
 #pragma once
 
+#include "IpAddress.h"
 #include "PcapLiveDevice.h"
 #include "ssl_stripping/public.h"
 #include "ssl_stripping/ssl_stripping_strategy.h"
@@ -17,7 +18,8 @@ class AllOutSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
         explicit Builder(pcpp::PcapLiveDevice *device) : device_(device) {}
         std::unique_ptr<AllOutSslStrippingStrategy> build() {
             return std::unique_ptr<AllOutSslStrippingStrategy>(
-                new AllOutSslStrippingStrategy(this->device_));
+                new AllOutSslStrippingStrategy(this->device_, this->attackerIp_,
+                                               this->mitmStrategy_));
         }
         /**
          * Adds an attacker IP
@@ -46,8 +48,11 @@ class AllOutSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
     void execute() override;
 
   private:
-    explicit AllOutSslStrippingStrategy(pcpp::PcapLiveDevice *device)
-        : device_(device) {
+    explicit AllOutSslStrippingStrategy(pcpp::PcapLiveDevice *device,
+                                        pcpp::IPv4Address attackerIp,
+                                        ATK::SSL::MitmStrategy mitmStrategy)
+        : device_(device), attackerIp_(attackerIp),
+          mitmStrategy_(mitmStrategy) {
         if (device == nullptr) {
             throw std::invalid_argument("Not a valid interface");
         }
@@ -57,5 +62,7 @@ class AllOutSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
                          void *cookie);
 
     pcpp::PcapLiveDevice *device_;
+    pcpp::IPv4Address attackerIp_;
+    ATK::SSL::MitmStrategy mitmStrategy_;
 };
 } // namespace ATK::SSL
