@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) noexcept(false) {
         parser.add_flag(
             UnparsedFlag{"dns",
                          CLIExecutor::invokeDnsSpoofing,
-                         "ifaceIpOrName  attackerIp  [victimIp]  "
+                         "ifaceIpOrName  attackerIp  [victimIps]  "
                          "[domainsToSpoof]    Performs "
                          "a DNS spoofing attack. By default, it runs in "
                          "all-out mode, sending "
@@ -75,11 +75,11 @@ int main(int argc, char *argv[]) noexcept(false) {
                          "interface. If the --quiet "
                          "flag is passed, the attack becomes silent and "
                          "targets only queries from "
-                         "the specified victim IP. You can restrict spoofing "
+                         "the specified victim IPs. You can restrict spoofing "
                          "to specific domain names "
                          "by providing a comma-separated list of domains in "
                          "domainsToSpoof (e.g., "
-                         "example.com,www.google.com). Both victimIp and "
+                         "example.com,www.google.com). Both victimIps and "
                          "domainsToSpoof are required "
                          "when using the quiet mode. In all-out mode, these "
                          "parameters are not accepted.",

@@ -39,9 +39,10 @@ void ATK::DNS::SilentDnsPoisoningStrategy::onPacketArrives(
         return;
     }
 
-    // Only poison packets from victim
-    if (requestIpLayer->getSrcIPv4Address() != victimIp_) {
-        return;
+    // Only poison packets from victims
+    if (!victimIps_.empty() &&
+        victimIps_.count(requestIpLayer->getSrcIPv4Address()) == 0) {
+        return; // not a victim's packet
     }
 
     if (!(requestDnsLayer->getDnsHeader()->queryOrResponse == 0)) {
