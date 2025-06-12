@@ -107,6 +107,7 @@ void CLIExecutor::invokeSslStrippingArp(std::vector<std::string> args) {
             domainsToStrip.begin(), domainsToStrip.end());
         ATK::SSL::silentStrip(ATK::SSL::SilentStrippingOptions{
             .ifaceIpOrName = args[1],
+            .attackerIp = std::nullopt,
             .victimIps = victimIpsSet,
             .domainsToStrip = domainsToStripSet,
             .mitmStrategy = ATK::SSL::MitmStrategy::ARP});
