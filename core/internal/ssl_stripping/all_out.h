@@ -4,9 +4,10 @@
 #include "PcapLiveDevice.h"
 #include "ssl_stripping/public.h"
 #include "ssl_stripping/ssl_stripping_strategy.h"
+#include <condition_variable>
 #include <mutex>
 #include <queue>
-#include <condition_variable>
+
 
 namespace ATK::SSL {
 /**
