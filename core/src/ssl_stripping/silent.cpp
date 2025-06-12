@@ -141,7 +141,7 @@ std::optional<std::string> connectWithServer(const std::string &domain) {
         // Setup the asio and SSL context
         boost::asio::io_context ioc;
         boost::asio::ssl::context ssl_ctx(
-            boost::asio::ssl::context::tlsv13_client);
+            boost::asio::ssl::context::tls_client);
 
         // Tell asio to use the default system certificate store
         ssl_ctx.set_default_verify_paths();
