@@ -45,9 +45,9 @@ class SilentSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
 
         std::unique_ptr<SilentSslStrippingStrategy> build() {
             return std::unique_ptr<SilentSslStrippingStrategy>(
-                new SilentSslStrippingStrategy(this->device_, this->attackerIp_, this->victimIps_,
-                                               this->domainsToStrip_,
-                                               this->mitmStrategy_));
+                new SilentSslStrippingStrategy(
+                    this->device_, this->attackerIp_, this->victimIps_,
+                    this->domainsToStrip_, this->mitmStrategy_));
         }
 
       private:
@@ -59,10 +59,10 @@ class SilentSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
     };
 
     /**
-     * Executes silent arp poisoning attack.
+     * Executes silent ssl stripping attack.
      *
-     * Replies to incoming arp requests for the ip address ipToSpoof.
-     * If victimIp is set, it will only reply to arp requests to the victim.
+     * Replies to incoming http requests from any victim IP in victimIps, for
+     * any domain in domainsToStrip.
      *
      */
     void execute() override;
@@ -73,8 +73,7 @@ class SilentSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
                                std::vector<pcpp::IPv4Address> victimIps,
                                std::vector<std::string> domainsToStrip,
                                ATK::SSL::MitmStrategy mitmStrategy)
-        : device_(device), 
-          attackerIp_(attackerIp),
+        : device_(device), attackerIp_(attackerIp),
           victimIps_(std::move(victimIps)),
           domainsToStrip_(std::move(domainsToStrip)),
           mitmStrategy_(mitmStrategy) {
