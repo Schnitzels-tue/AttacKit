@@ -254,8 +254,6 @@ void ATK::SSL::SilentSslStrippingStrategy::onPacketArrives(
     std::string hostValue = hostField->getFieldValue();
     for (const std::string &domain : domainsToStrip_) {
         if (hostValue.find(domain) != std::string::npos) {
-            // Get the total packet size
-            size_t packetSize = packet->getRawDataLen();
             auto &httpMessageData = getHttpMessageData();
             std::optional<std::string> realHtmlFromServer =
                 connectWithServer(domain);
@@ -264,7 +262,7 @@ void ATK::SSL::SilentSslStrippingStrategy::onPacketArrives(
                 continue;
             }
 
-            // Add packet size to queue for HTTP response
+            // Add HTML code to queue for HTTP response
             {
                 std::lock_guard<std::mutex> lock(
                     httpMessageData.httpMessagesMutex);
