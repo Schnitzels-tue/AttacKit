@@ -92,17 +92,47 @@ int main(int argc, char *argv[]) noexcept(false) {
                          "parameters are not accepted.",
                          {2, 4},
                          sensitiveOpts});
-        // TODO(Quinn) change flag help texts
-        parser.add_flag(UnparsedFlag{"ssldns",
-                                     CLIExecutor::invokeSslStrippingDns,
-                                     "ifaceIpOrName  attackerIp  victimIps  domainsToStrip",
-                                     {2, 4},
-                                     sensitiveOpts});
-        parser.add_flag(UnparsedFlag{"sslarp",
-                                     CLIExecutor::invokeSslStrippingArp,
-                                     "ifaceIpOrName  victimIps  domainsToStrip",
-                                     {1, 3},
-                                     sensitiveOpts});
+        parser.add_flag(UnparsedFlag{
+            "ssldns",
+            CLIExecutor::invokeSslStrippingDns,
+            "ifaceIpOrName  attackerIp  [victimIps]  [domainsToStrip]    "
+            "Performs an SSL stripping attack. Since SSL stripping needs to be "
+            "man-in-the-middle before execution, some technology has to be "
+            "used for that, which is DNS spoofing in the case of this command. "
+            "By default, this command runs in all-out mode, which in turn also "
+            "runs DNS spoofing in all-out mode. This will try to SSL strip any "
+            "HTTP GET request that has as recipient this IP. When --quiet is "
+            "passed, the attack becomes silent and the arguments for victimIps "
+            "and domainsToStrip will be required. The variable victimIps "
+            "dictates which HTTP GET requests (from whom) to strip, and "
+            "domainsToStrip dictates whether the HTTP GET request should be "
+            "stripped based on the requested domain. If any of them don't "
+            "match a given request, the stripping attack will not be performed "
+            "on that request. If you wish to pass multiple IPs or domains, be "
+            "sure to separate them with commas so they are parsed correctly.",
+            {2, 4},
+            sensitiveOpts});
+        parser.add_flag(UnparsedFlag{
+            "sslarp",
+            CLIExecutor::invokeSslStrippingArp,
+            "ifaceIpOrName  [victimIps]  [domainsToStrip]    "
+            "Performs an SSL stripping attack. Since SSL stripping needs to be "
+            "man-in-the-middle before execution, some technology has to be "
+            "used for that, which is ARP spoofing in the case of this command. "
+            "By default, this command runs in all-out mode, which in turn also "
+            "runs ARP spoofing in all-out mode. This will try to SSL strip any "
+            "HTTP GET request that has as recipient this MAC address. When "
+            "--quiet is "
+            "passed, the attack becomes silent and the arguments for victimIps "
+            "and domainsToStrip will be required. The variable victimIps "
+            "dictates which HTTP GET requests (from whom) to strip, and "
+            "domainsToStrip dictates whether the HTTP GET request should be "
+            "stripped based on the requested domain. If any of them don't "
+            "match a given request, the stripping attack will not be performed "
+            "on that request. If you wish to pass multiple IPs or domains, be "
+            "sure to separate them with commas so they are parsed correctly.",
+            {1, 3},
+            sensitiveOpts});
         executor.execute(parser);
     } catch (const std::exception &e) {
         LOG_ERROR(std::string("Unhandled exception: ") + e.what());
