@@ -7,6 +7,7 @@
 #include <mutex>
 #include <queue>
 #include <utility>
+#include <condition_variable>
 
 namespace ATK::SSL {
 /**

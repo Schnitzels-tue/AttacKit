@@ -6,6 +6,7 @@
 #include "ssl_stripping/ssl_stripping_strategy.h"
 #include <mutex>
 #include <queue>
+#include <condition_variable>
 
 namespace ATK::SSL {
 /**
@@ -61,7 +62,7 @@ class AllOutSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
         static HttpMessageData data;
         return data;
     }
-    
+
     explicit AllOutSslStrippingStrategy(pcpp::PcapLiveDevice *device,
                                         pcpp::IPv4Address attackerIp,
                                         ATK::SSL::MitmStrategy mitmStrategy)
