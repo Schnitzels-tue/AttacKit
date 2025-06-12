@@ -52,7 +52,7 @@ void ATK::DNS::silentPoison(const SilentPoisoningOptions &options) {
 
     if (victimIps.empty()) {
         throw std::runtime_error("No victims provided");
-	}
+    }
     const std::unordered_set<std::string> domainsToSpoof(
         options.domainsToSpoof.begin(), options.domainsToSpoof.end());
     strategy = SilentDnsPoisoningStrategy::Builder(device)
