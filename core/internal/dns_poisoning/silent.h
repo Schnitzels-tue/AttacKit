@@ -48,8 +48,7 @@ class SilentDnsPoisoningStrategy : public ATK::DNS::DnsPoisoningStrategy {
 
         std::unique_ptr<SilentDnsPoisoningStrategy> build() {
             return std::unique_ptr<SilentDnsPoisoningStrategy>(
-                new SilentDnsPoisoningStrategy(this->device_,
-                                               this->attackerIp_,
+                new SilentDnsPoisoningStrategy(this->device_, this->attackerIp_,
                                                this->victimIps_,
                                                this->domainsToSpoof_));
         }
@@ -68,8 +67,7 @@ class SilentDnsPoisoningStrategy : public ATK::DNS::DnsPoisoningStrategy {
                                pcpp::IPv4Address attackerIp,
                                std::unordered_set<pcpp::IPv4Address> victimIps,
                                std::unordered_set<std::string> domainsToSpoof)
-        : device_(device), 
-          attackerIp_(std::move(attackerIp)),
+        : device_(device), attackerIp_(std::move(attackerIp)),
           victimIps_(std::move(victimIps)),
           domainsToSpoof_(std::move(domainsToSpoof)) {
         if (device == nullptr) {
