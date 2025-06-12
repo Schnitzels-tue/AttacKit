@@ -80,13 +80,17 @@ void CLIExecutor::invokeDnsSpoofing(std::vector<std::string> args) {
         ATK::DNS::allOutPoison(
             {.ifaceIpOrName = args[1], .attackerIp = args[2]});
     } else { // silent
+        std::vector<std::string> victimIps = split(args[3], ',');
+        const std::unordered_set<std::string> victimpIpsSet(victimIps.begin(),
+                                                            victimIps.end());
+
         std::vector<std::string> domainsToSpoof = split(args[4], ',');
         const std::unordered_set<std::string> domainsToSpoofSet(
             domainsToSpoof.begin(), domainsToSpoof.end());
 
         ATK::DNS::silentPoison({.ifaceIpOrName = args[1],
                                 .attackerIp = args[2],
-                                .victimIp = args[3],
+                                .victimIps = victimpIpsSet,
                                 .domainsToSpoof = domainsToSpoofSet});
     }
 }
