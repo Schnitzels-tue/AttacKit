@@ -65,9 +65,7 @@ void ATK::SSL::silentStrip(const SilentStrippingOptions &options) {
         builder = builder.addDomainToStrip(domainToStripStr);
     }
 
-    if (options.mitmStrategy.has_value()) {
-        builder = builder.setMitmStrategy(options.mitmStrategy.value());
-    }
+    builder = builder.setMitmStrategy(options.mitmStrategy);
 
     std::unique_ptr<ATK::SSL::SilentSslStrippingStrategy> strategy =
         builder.build();

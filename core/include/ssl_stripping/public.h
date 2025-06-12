@@ -23,7 +23,7 @@ struct SilentStrippingOptions {
     std::optional<std::string> attackerIp; // Only when using DNS
     std::unordered_set<std::string> victimIps;
     std::unordered_set<std::string> domainsToStrip;
-    std::optional<MitmStrategy> mitmStrategy;
+    MitmStrategy mitmStrategy;
 };
 
 void silentStrip(const SilentStrippingOptions &options);
