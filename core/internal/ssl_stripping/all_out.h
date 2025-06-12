@@ -57,7 +57,7 @@ class AllOutSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
         }
     }
 
-    void onPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device,
+    static void onPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device,
                          void *cookie);
 
     pcpp::PcapLiveDevice *device_;
