@@ -12,6 +12,7 @@ enum MitmStrategy {
 
 struct AllOutStrippingOptions {
     std::string ifaceIpOrName;
+    std::optional<std::string> attackerIp; // Only when using DNS
     MitmStrategy mitmStrategy;
 };
 
@@ -19,7 +20,7 @@ void allOutStrip(const AllOutStrippingOptions &options);
 
 struct SilentStrippingOptions {
     std::string ifaceIpOrName;
-    std::string attackerIp;
+    std::optional<std::string> attackerIp; // Only when using DNS
     std::unordered_set<std::string> victimIps;
     std::unordered_set<std::string> domainsToStrip;
     std::optional<MitmStrategy> mitmStrategy;
