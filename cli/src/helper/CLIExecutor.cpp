@@ -9,6 +9,7 @@
 #include <iterator>
 #include <optional>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <unordered_set>
 #include <vector>
@@ -50,6 +51,7 @@ void CLIExecutor::invokeArpPoison(std::vector<std::string> args) {
         (stringToBool(args[0]) && args.size() != SILENT_NUM_ARGS)) {
         LOG_ERROR(
             "Found wrong number of arguments for executing poisoning attack");
+        throw std::runtime_error("Wrong number of arguments");
     }
     if (!stringToBool(args[0])) { // all out
         ATK::ARP::allOutPoison(
@@ -75,6 +77,7 @@ void CLIExecutor::invokeDnsSpoofing(std::vector<std::string> args) {
         (stringToBool(args[0]) && args.size() != SILENT_NUM_ARGS)) {
         LOG_ERROR(
             "Found wrong number of arguments for executing poisoning attack");
+        throw std::runtime_error("Wrong number of arguments");
     }
     if (!stringToBool(args[0])) { // all-out
         ATK::DNS::allOutPoison(
@@ -96,9 +99,19 @@ void CLIExecutor::invokeDnsSpoofing(std::vector<std::string> args) {
 }
 
 void CLIExecutor::invokeSslStrippingArp(std::vector<std::string> args) {
-    // TODO(Quinn) link to implementation
+    const int ALL_OUT_NUM_ARGS = 2;
+    const int SILENT_NUM_ARGS = 4;
+    if ((!stringToBool(args[0]) && args.size() != ALL_OUT_NUM_ARGS) ||
+        (stringToBool(args[0]) && args.size() != SILENT_NUM_ARGS)) {
+        LOG_ERROR(
+            "Found wrong number of arguments for executing ssl attack under arp");
+        throw std::runtime_error("Wrong number of arguments");
+    }
     if (!stringToBool(args[0])) { // all-out
-        LOG_ERROR("Not implemented yet!");
+        ATK::SSL::allOutStrip(ATK::SSL::AllOutStrippingOptions{
+            .ifaceIpOrName = args[1],
+            .attackerIp = std::nullopt,
+            .mitmStrategy = ATK::SSL::MitmStrategy::ARP});
     } else { // silent
         std::vector<std::string> victimIps = split(args[2], ',');
         const std::unordered_set<std::string> victimIpsSet(victimIps.begin(),
@@ -116,9 +129,19 @@ void CLIExecutor::invokeSslStrippingArp(std::vector<std::string> args) {
 }
 
 void CLIExecutor::invokeSslStrippingDns(std::vector<std::string> args) {
-    // TODO(Quinn) link to implementation
+    const int ALL_OUT_NUM_ARGS = 3;
+    const int SILENT_NUM_ARGS = 5;
+    if ((!stringToBool(args[0]) && args.size() != ALL_OUT_NUM_ARGS) ||
+        (stringToBool(args[0]) && args.size() != SILENT_NUM_ARGS)) {
+        LOG_ERROR(
+            "Found wrong number of arguments for executing ssl attack under dns");
+        throw std::runtime_error("Wrong number of arguments");
+    }
     if (!stringToBool(args[0])) { // all-out
-        LOG_ERROR("Not implemented yet!");
+        ATK::SSL::allOutStrip(ATK::SSL::AllOutStrippingOptions{
+            .ifaceIpOrName = args[1],
+            .attackerIp = args[2],
+            .mitmStrategy = ATK::SSL::MitmStrategy::DNS});
     } else { // silent
         std::vector<std::string> victimIps = split(args[3], ',');
         const std::unordered_set<std::string> victimIpsSet(victimIps.begin(),

@@ -96,12 +96,12 @@ int main(int argc, char *argv[]) noexcept(false) {
         parser.add_flag(UnparsedFlag{"ssldns",
                                      CLIExecutor::invokeSslStrippingDns,
                                      "ifaceIpOrName  attackerIp  victimIps  domainsToStrip",
-                                     {4},
+                                     {2, 4},
                                      sensitiveOpts});
         parser.add_flag(UnparsedFlag{"sslarp",
                                      CLIExecutor::invokeSslStrippingArp,
                                      "ifaceIpOrName  victimIps  domainsToStrip",
-                                     {3},
+                                     {1, 3},
                                      sensitiveOpts});
         executor.execute(parser);
     } catch (const std::exception &e) {
