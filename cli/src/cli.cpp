@@ -94,8 +94,8 @@ int main(int argc, char *argv[]) noexcept(false) {
                          sensitiveOpts});
         parser.add_flag(UnparsedFlag{"ssldns",
                                      CLIExecutor::invokeSslStrippingDns,
-                                     "ifaceIpOrName  victimIps  domainsToStrip",
-                                     {3},
+                                     "ifaceIpOrName  attackerIp  victimIps  domainsToStrip",
+                                     {4},
                                      sensitiveOpts});
         parser.add_flag(UnparsedFlag{"sslarp",
                                      CLIExecutor::invokeSslStrippingArp,

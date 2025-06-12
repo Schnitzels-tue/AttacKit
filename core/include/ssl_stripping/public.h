@@ -19,6 +19,7 @@ void allOutStrip(const AllOutStrippingOptions &options);
 
 struct SilentStrippingOptions {
     std::string ifaceIpOrName;
+    std::string attackerIp;
     std::unordered_set<std::string> victimIps;
     std::unordered_set<std::string> domainsToStrip;
     std::optional<MitmStrategy> mitmStrategy;

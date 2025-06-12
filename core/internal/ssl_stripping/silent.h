@@ -25,6 +25,13 @@ class SilentSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
             return *this;
         }
         /**
+         * Adds an attacker IP
+         */
+        Builder &addAttackerIp(pcpp::IPv4Address attackerIp) {
+            attackerIp_ = attackerIp;
+            return *this;
+        }
+        /**
          * Adds a domain to strip
          */
         Builder &addDomainToStrip(std::string domainToStrip) {
@@ -38,13 +45,14 @@ class SilentSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
 
         std::unique_ptr<SilentSslStrippingStrategy> build() {
             return std::unique_ptr<SilentSslStrippingStrategy>(
-                new SilentSslStrippingStrategy(this->device_, this->victimIps_,
+                new SilentSslStrippingStrategy(this->device_, this->attackerIp_, this->victimIps_,
                                                this->domainsToStrip_,
                                                this->mitmStrategy_));
         }
 
       private:
         pcpp::PcapLiveDevice *device_;
+        pcpp::IPv4Address attackerIp_;
         std::vector<pcpp::IPv4Address> victimIps_;
         std::vector<std::string> domainsToStrip_;
         ATK::SSL::MitmStrategy mitmStrategy_{};
@@ -61,10 +69,13 @@ class SilentSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
 
   private:
     SilentSslStrippingStrategy(pcpp::PcapLiveDevice *device,
+                               pcpp::IPv4Address attackerIp,
                                std::vector<pcpp::IPv4Address> victimIps,
                                std::vector<std::string> domainsToStrip,
                                ATK::SSL::MitmStrategy mitmStrategy)
-        : device_(device), victimIps_(std::move(victimIps)),
+        : device_(device), 
+          attackerIp_(attackerIp),
+          victimIps_(std::move(victimIps)),
           domainsToStrip_(std::move(domainsToStrip)),
           mitmStrategy_(mitmStrategy) {
         if (device == nullptr) {
@@ -76,6 +87,7 @@ class SilentSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
                          void *cookie);
 
     pcpp::PcapLiveDevice *device_;
+    pcpp::IPv4Address attackerIp_;
     std::vector<pcpp::IPv4Address> victimIps_;
     std::vector<std::string> domainsToStrip_;
     ATK::SSL::MitmStrategy mitmStrategy_;

@@ -45,6 +45,9 @@ void ATK::SSL::silentStrip(const SilentStrippingOptions &options) {
 
     ATK::SSL::SilentSslStrippingStrategy::Builder builder(device);
 
+    const pcpp::IPv4Address attackerIpAddress(options.attackerIp);
+    builder.addAttackerIp(attackerIpAddress);
+
     for (const std::string &victimIpStr : options.victimIps) {
         const pcpp::IPv4Address victimIp(victimIpStr);
         builder = builder.addVictimIp(victimIp);

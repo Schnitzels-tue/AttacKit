@@ -113,14 +113,15 @@ void CLIExecutor::invokeSslStrippingDns(std::vector<std::string> args) {
     if (!stringToBool(args[0])) { // all-out
         LOG_ERROR("Not implemented yet!");
     } else { // silent
-        std::vector<std::string> victimIps = split(args[2], ',');
+        std::vector<std::string> victimIps = split(args[3], ',');
         const std::unordered_set<std::string> victimIpsSet(victimIps.begin(),
                                                            victimIps.end());
-        std::vector<std::string> domainsToStrip = split(args[3], ',');
+        std::vector<std::string> domainsToStrip = split(args[4], ',');
         const std::unordered_set<std::string> domainsToStripSet(
             domainsToStrip.begin(), domainsToStrip.end());
         ATK::SSL::silentStrip(ATK::SSL::SilentStrippingOptions{
             .ifaceIpOrName = args[1],
+            .attackerIp = args[2],
             .victimIps = victimIpsSet,
             .domainsToStrip = domainsToStripSet,
             .mitmStrategy = ATK::SSL::MitmStrategy::DNS});
