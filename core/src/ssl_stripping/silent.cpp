@@ -244,6 +244,7 @@ void ATK::SSL::SilentSslStrippingStrategy::onPacketArrives(
     for (const std::string &domain : domainsToStrip_) {
         if (hostValue.find(domain) != std::string::npos) {
             auto &httpMessageData = getHttpMessageData();
+            LOG_INFO("Connecting to " + domain + "...");
             std::optional<std::string> realHtmlFromServer =
                 connectWithServer(domain);
             if (!realHtmlFromServer.has_value()) {
