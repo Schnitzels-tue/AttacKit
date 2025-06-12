@@ -11,7 +11,7 @@
 
 /**
  * In the current implementation this method will not terminate and keep
- * peforming the attack.
+ * performing the attack.
  */
 void ATK::SSL::allOutStrip(const AllOutStrippingOptions &options) {
     pcpp::PcapLiveDevice *device =
