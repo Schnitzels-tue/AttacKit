@@ -13,7 +13,7 @@
 
 /**
  * In the current implementation this method will not terminate and keep
- * peforming the attack.
+ * performing the attack.
  */
 void ATK::ARP::allOutPoison(const AllOutPoisoningOptions &options) {
     pcpp::PcapLiveDevice *device =

@@ -9,8 +9,9 @@ Checks: "*,
         -modernize-use-trailing-return-type,
         -objc-*,
         -openmp-*,
-        -bugprone-easily-swappable-parameters
+        -bugprone-easily-swappable-parameters,
+        -misc-include-cleaner
 "
 WarningsAsErrors: ''
-HeaderFilterRegex: ''
+HeaderFilterRegex: '^(?!.*thirdparty).*'
 
