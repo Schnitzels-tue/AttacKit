@@ -1,3 +1,4 @@
+#include "ssl_stripping/all_out.h"
 #include "HttpLayer.h"
 #include "IPv4Layer.h"
 #include "IpAddress.h"
@@ -8,7 +9,6 @@
 #include "TcpLayer.h"
 #include "common/common.h"
 #include "log.h"
-#include "ssl_stripping/all_out.h"
 #include "ssl_stripping/public.h"
 #include <boost/asio/connect.hpp>
 #include <boost/asio/io_context.hpp>
@@ -29,7 +29,6 @@
 #include <stdexcept>
 #include <thread>
 
-
 #ifdef __linux__
 #include <csignal>
 #include <sys/prctl.h>
@@ -37,22 +36,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-inline void setParentDeathSignal(int sig = SIGTERM) {
-    prctl(PR_SET_PDEATHSIG, sig);
-}
-// Wrap execl using execv (safe, non-vararg alternative)
-inline void execShellCommand(const std::string& cmd) {
-    std::vector<char*> args;
-    args.push_back(const_cast<char*>("/bin/sh"));
-    args.push_back(const_cast<char*>("-c"));
-    args.push_back(const_cast<char*>(cmd.c_str()));
-    args.push_back(nullptr); // null-terminate
-
-    execv("/bin/sh", args.data());
-}
-
 #endif
-
 
 void ATK::SSL::AllOutSslStrippingStrategy::runHttpDummyServer() {
     const uint16_t HTTP_PORT = 80;
@@ -76,7 +60,8 @@ void ATK::SSL::AllOutSslStrippingStrategy::runHttpDummyServer() {
                     return !httpMessageData.httpMessages.empty();
                 });
 
-                const std::string httpMessage = httpMessageData.httpMessages.front();
+                const std::string httpMessage =
+                    httpMessageData.httpMessages.front();
                 httpMessageData.httpMessages.pop();
                 lock.unlock();
 
@@ -101,7 +86,9 @@ void ATK::SSL::AllOutSslStrippingStrategy::runHttpDummyServer() {
     }).detach(); // detach the thread to let it run in background
 }
 
-std::optional<std::string> ATK::SSL::AllOutSslStrippingStrategy::connectWithServer(const std::string &domain) {
+std::optional<std::string>
+ATK::SSL::AllOutSslStrippingStrategy::connectWithServer(
+    const std::string &domain) {
     try {
         const std::string HTTPS_PORT = "443";
 
@@ -227,8 +214,7 @@ void ATK::SSL::AllOutSslStrippingStrategy::onPacketArrives(
     {
         const std::lock_guard<std::mutex> lock(
             httpMessageData.httpMessagesMutex);
-        httpMessageData.httpMessages.emplace(
-            realHtmlFromServer.value() + "\n");
+        httpMessageData.httpMessages.emplace(realHtmlFromServer.value() + "\n");
     }
     httpMessageData.httpMessagesCV.notify_one();
 }
@@ -273,8 +259,12 @@ void ATK::SSL::AllOutSslStrippingStrategy::execute() {
     const pid_t pid = fork();
     if (pid == 0) {
         // To make sure child kills itself when this process dies
-        setParentDeathSignal();
-        execShellCommand(cmd);
+        prctl(
+            PR_SET_PDEATHSIG,
+            SIGTERM); // NOLINT(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
+        execl(
+            "/bin/sh", "sh", "-c", cmd.c_str(),
+            nullptr); // NOLINT(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
         _exit(1);
     }
 #endif

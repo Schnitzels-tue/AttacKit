@@ -39,20 +39,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-inline void setParentDeathSignal(int sig = SIGTERM) {
-    prctl(PR_SET_PDEATHSIG, sig);
-}
-// Wrap execl using execv (safe, non-vararg alternative)
-inline void execShellCommand(const std::string& cmd) {
-    std::vector<char*> args;
-    args.push_back(const_cast<char*>("/bin/sh"));
-    args.push_back(const_cast<char*>("-c"));
-    args.push_back(const_cast<char*>(cmd.c_str()));
-    args.push_back(nullptr); // null-terminate
-
-    execv("/bin/sh", args.data());
-}
-
 #endif
 
 void ATK::SSL::SilentSslStrippingStrategy::runHttpDummyServer() {
@@ -77,7 +63,8 @@ void ATK::SSL::SilentSslStrippingStrategy::runHttpDummyServer() {
                     return !httpMessageData.httpMessages.empty();
                 });
 
-                const std::string httpMessage = httpMessageData.httpMessages.front();
+                const std::string httpMessage =
+                    httpMessageData.httpMessages.front();
                 httpMessageData.httpMessages.pop();
                 lock.unlock();
 
@@ -103,7 +90,8 @@ void ATK::SSL::SilentSslStrippingStrategy::runHttpDummyServer() {
 }
 
 std::optional<std::unordered_set<std::string>>
-ATK::SSL::SilentSslStrippingStrategy::resolveDomainToIP(const std::string &domain, const std::string &service) {
+ATK::SSL::SilentSslStrippingStrategy::resolveDomainToIP(
+    const std::string &domain, const std::string &service) {
     std::unordered_set<std::string> outputIps;
     try {
         boost::asio::io_context ioc;
@@ -143,7 +131,9 @@ ATK::SSL::SilentSslStrippingStrategy::resolveDomainToIP(const std::string &domai
     return outputIps;
 }
 
-std::optional<std::string> ATK::SSL::SilentSslStrippingStrategy::connectWithServer(const std::string &domain) {
+std::optional<std::string>
+ATK::SSL::SilentSslStrippingStrategy::connectWithServer(
+    const std::string &domain) {
     try {
         const std::string HTTPS_PORT = "443";
 
@@ -372,8 +362,12 @@ void ATK::SSL::SilentSslStrippingStrategy::execute() {
     const pid_t pid = fork();
     if (pid == 0) {
         // To make sure child kills itself when this process dies
-        setParentDeathSignal();
-        execShellCommand(cmd);
+        prctl(
+            PR_SET_PDEATHSIG,
+            SIGTERM); // NOLINT(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
+        execl(
+            "/bin/sh", "sh", "-c", cmd.c_str(),
+            nullptr); // NOLINT(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
         _exit(1);
     }
 #endif
