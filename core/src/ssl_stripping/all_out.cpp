@@ -31,11 +31,25 @@
 
 
 #ifdef __linux__
-#include <signal.h>
+#include <csignal>
 #include <sys/prctl.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+
+inline void setParentDeathSignal(int sig = SIGTERM) {
+    prctl(PR_SET_PDEATHSIG, sig);
+}
+// Wrap execl using execv (safe, non-vararg alternative)
+inline void execShellCommand(const std::string& cmd) {
+    std::vector<char*> args;
+    args.push_back(const_cast<char*>("/bin/sh"));
+    args.push_back(const_cast<char*>("-c"));
+    args.push_back(const_cast<char*>(cmd.c_str()));
+    args.push_back(nullptr); // null-terminate
+
+    execv("/bin/sh", args.data());
+}
 
 #endif
 
@@ -256,11 +270,11 @@ void ATK::SSL::AllOutSslStrippingStrategy::execute() {
     CloseHandle(pInfo.hProcess);
     CloseHandle(pInfo.hThread);
 #else
-    pid_t pid = fork();
+    const pid_t pid = fork();
     if (pid == 0) {
         // To make sure child kills itself when this process dies
-        prctl(PR_SET_PDEATHSIG, SIGTERM);
-        execl("/bin/sh", "sh", "-c", cmd.c_str(), nullptr);
+        setParentDeathSignal();
+        execShellCommand(cmd);
         _exit(1);
     }
 #endif
