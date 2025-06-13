@@ -64,7 +64,7 @@ void ATK::SSL::SilentSslStrippingStrategy::runHttpDummyServer() {
                     return !httpMessageData.httpMessages.empty();
                 });
 
-                std::string httpMessage = httpMessageData.httpMessages.front();
+                const std::string httpMessage = httpMessageData.httpMessages.front();
                 httpMessageData.httpMessages.pop();
                 lock.unlock();
 
@@ -100,7 +100,7 @@ ATK::SSL::SilentSslStrippingStrategy::resolveDomainToIP(const std::string &domai
         // Resolve the endpoints against the domain name
         boost::system::error_code
             exc; // To capture errors without throwing exceptions immediately
-        boost::asio::ip::tcp::resolver::results_type endpoints =
+        const boost::asio::ip::tcp::resolver::results_type endpoints =
             resolver.resolve(domain, service, exc);
 
         if (exc) {
@@ -183,7 +183,7 @@ std::optional<std::string> ATK::SSL::SilentSslStrippingStrategy::connectWithServ
             while (std::getline(response_stream, line)) {
                 if (!in_body) {
                     // Look for the blank line between headers and body
-                    if (line == "\r" || line == "") {
+                    if (line == "\r" || line.empty()) {
                         in_body = true;
                     }
                 } else {
@@ -206,7 +206,7 @@ std::optional<std::string> ATK::SSL::SilentSslStrippingStrategy::connectWithServ
 void ATK::SSL::SilentSslStrippingStrategy::onPacketArrives(
     pcpp::RawPacket *packet, pcpp::PcapLiveDevice * /*device*/,
     void * /*cookie*/) {
-    pcpp::Packet parsedPacket(packet);
+    const pcpp::Packet parsedPacket(packet);
 
     // Check IPv4 layer
     auto *ipLayer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
@@ -247,7 +247,7 @@ void ATK::SSL::SilentSslStrippingStrategy::onPacketArrives(
     }
 
     // Check whether domain is in Host header and start SSL attack if so
-    std::string hostValue = hostField->getFieldValue();
+    const std::string hostValue = hostField->getFieldValue();
     for (const std::string &domain : domainsToStrip_) {
         if (hostValue.find(domain) != std::string::npos) {
             auto &httpMessageData = getHttpMessageData();
@@ -261,7 +261,7 @@ void ATK::SSL::SilentSslStrippingStrategy::onPacketArrives(
 
             // Add HTML code to queue for HTTP response
             {
-                std::lock_guard<std::mutex> lock(
+                const std::lock_guard<std::mutex> lock(
                     httpMessageData.httpMessagesMutex);
                 httpMessageData.httpMessages.emplace(
                     realHtmlFromServer.value() + "\n");

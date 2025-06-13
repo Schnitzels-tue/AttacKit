@@ -62,7 +62,7 @@ void ATK::SSL::AllOutSslStrippingStrategy::runHttpDummyServer() {
                     return !httpMessageData.httpMessages.empty();
                 });
 
-                std::string httpMessage = httpMessageData.httpMessages.front();
+                const std::string httpMessage = httpMessageData.httpMessages.front();
                 httpMessageData.httpMessages.pop();
                 lock.unlock();
 
@@ -141,7 +141,7 @@ std::optional<std::string> ATK::SSL::AllOutSslStrippingStrategy::connectWithServ
             while (std::getline(response_stream, line)) {
                 if (!in_body) {
                     // Look for the blank line between headers and body
-                    if (line == "\r" || line == "") {
+                    if (line == "\r" || line.empty()) {
                         in_body = true;
                     }
                 } else {
@@ -164,7 +164,7 @@ std::optional<std::string> ATK::SSL::AllOutSslStrippingStrategy::connectWithServ
 void ATK::SSL::AllOutSslStrippingStrategy::onPacketArrives(
     pcpp::RawPacket *packet, pcpp::PcapLiveDevice * /*device*/,
     void * /*cookie*/) {
-    pcpp::Packet parsedPacket(packet);
+    const pcpp::Packet parsedPacket(packet);
 
     // Check IPv4 layer
     auto *ipLayer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
@@ -199,7 +199,7 @@ void ATK::SSL::AllOutSslStrippingStrategy::onPacketArrives(
     }
 
     // Check whether domain is in Host header and start SSL attack if so
-    std::string hostValue = hostField->getFieldValue();
+    const std::string hostValue = hostField->getFieldValue();
     auto &httpMessageData = getHttpMessageData();
     LOG_INFO("Connecting to " + hostValue + "...");
     std::optional<std::string> realHtmlFromServer =
@@ -211,7 +211,7 @@ void ATK::SSL::AllOutSslStrippingStrategy::onPacketArrives(
 
     // Add HTML code to queue for HTTP response
     {
-        std::lock_guard<std::mutex> lock(
+        const std::lock_guard<std::mutex> lock(
             httpMessageData.httpMessagesMutex);
         httpMessageData.httpMessages.emplace(
             realHtmlFromServer.value() + "\n");

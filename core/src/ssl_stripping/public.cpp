@@ -25,14 +25,14 @@ void ATK::SSL::allOutStrip(const AllOutStrippingOptions &options) {
 
     ATK::SSL::AllOutSslStrippingStrategy::Builder builder(device);
 
-    if (options.mitmStrategy == ATK::SSL::MitmStrategy::DNS &&
-        !options.attackerIp.has_value()) {
-        throw std::runtime_error("Could not run SSL attack since no attacker "
-                                 "IP was supplied while using DNS strategy!");
-    }
     if (options.mitmStrategy == ATK::SSL::MitmStrategy::DNS) {
-        const pcpp::IPv4Address attackerIpAddress(options.attackerIp.value());
-        builder.addAttackerIp(attackerIpAddress);
+        if (options.attackerIp.has_value()) {
+            const pcpp::IPv4Address attackerIpAddress(options.attackerIp.value());
+            builder.addAttackerIp(attackerIpAddress);
+        } else {
+            throw std::runtime_error("Could not run SSL attack since no attacker "
+                                 "IP was supplied while using DNS strategy!");
+        }
     }
 
     builder = builder.setMitmStrategy(options.mitmStrategy);
@@ -57,14 +57,14 @@ void ATK::SSL::silentStrip(const SilentStrippingOptions &options) {
 
     ATK::SSL::SilentSslStrippingStrategy::Builder builder(device);
 
-    if (options.mitmStrategy == ATK::SSL::MitmStrategy::DNS &&
-        !options.attackerIp.has_value()) {
-        throw std::runtime_error("Could not run SSL attack since no attacker "
-                                 "IP was supplied while using DNS strategy!");
-    }
     if (options.mitmStrategy == ATK::SSL::MitmStrategy::DNS) {
-        const pcpp::IPv4Address attackerIpAddress(options.attackerIp.value());
-        builder.addAttackerIp(attackerIpAddress);
+        if (options.attackerIp.has_value()) {
+            const pcpp::IPv4Address attackerIpAddress(options.attackerIp.value());
+            builder.addAttackerIp(attackerIpAddress);
+        } else {
+            throw std::runtime_error("Could not run SSL attack since no attacker "
+                                 "IP was supplied while using DNS strategy!");
+        }
     }
     
 
