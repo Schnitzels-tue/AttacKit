@@ -34,10 +34,9 @@
 #include <vector>
 
 #ifdef __linux__
-#include <signal.h>
+#include <csignal>
 #include <sys/prctl.h>
 #include <sys/types.h>
-#include <sys/wait.h>
 #include <unistd.h>
 
 #endif
