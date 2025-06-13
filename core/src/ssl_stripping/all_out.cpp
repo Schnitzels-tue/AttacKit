@@ -259,12 +259,10 @@ void ATK::SSL::AllOutSslStrippingStrategy::execute() {
     const pid_t pid = fork();
     if (pid == 0) {
         // To make sure child kills itself when this process dies
-        prctl(
-            PR_SET_PDEATHSIG,
-            SIGTERM); // NOLINT(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
-        execl(
-            "/bin/sh", "sh", "-c", cmd.c_str(),
-            nullptr); // NOLINT(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
+        prctl(PR_SET_PDEATHSIG, SIGTERM);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
+        execl("/bin/sh", "sh", "-c", cmd.c_str(), nullptr);
         _exit(1);
     }
 #endif

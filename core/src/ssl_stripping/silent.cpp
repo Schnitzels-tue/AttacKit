@@ -1,3 +1,4 @@
+#include "ssl_stripping/silent.h"
 #include "HttpLayer.h"
 #include "IPv4Layer.h"
 #include "IpAddress.h"
@@ -9,7 +10,6 @@
 #include "common/common.h"
 #include "log.h"
 #include "ssl_stripping/public.h"
-#include "ssl_stripping/silent.h"
 #include <algorithm>
 #include <boost/asio/connect.hpp>
 #include <boost/asio/io_context.hpp>
@@ -32,6 +32,7 @@
 #include <thread>
 #include <unordered_set>
 #include <vector>
+
 
 #ifdef __linux__
 #include <csignal>
@@ -362,12 +363,10 @@ void ATK::SSL::SilentSslStrippingStrategy::execute() {
     const pid_t pid = fork();
     if (pid == 0) {
         // To make sure child kills itself when this process dies
-        prctl(
-            PR_SET_PDEATHSIG,
-            SIGTERM); // NOLINT(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
-        execl(
-            "/bin/sh", "sh", "-c", cmd.c_str(),
-            nullptr); // NOLINT(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
+        prctl(PR_SET_PDEATHSIG, SIGTERM);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
+        execl("/bin/sh", "sh", "-c", cmd.c_str(), nullptr);
         _exit(1);
     }
 #endif
