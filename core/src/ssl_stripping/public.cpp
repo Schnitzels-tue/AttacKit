@@ -27,11 +27,13 @@ void ATK::SSL::allOutStrip(const AllOutStrippingOptions &options) {
 
     if (options.mitmStrategy == ATK::SSL::MitmStrategy::DNS) {
         if (options.attackerIp.has_value()) {
-            const pcpp::IPv4Address attackerIpAddress(options.attackerIp.value());
+            const pcpp::IPv4Address attackerIpAddress(
+                options.attackerIp.value());
             builder.addAttackerIp(attackerIpAddress);
         } else {
-            throw std::runtime_error("Could not run SSL attack since no attacker "
-                                 "IP was supplied while using DNS strategy!");
+            throw std::runtime_error(
+                "Could not run SSL attack since no attacker "
+                "IP was supplied while using DNS strategy!");
         }
     }
 
@@ -59,14 +61,15 @@ void ATK::SSL::silentStrip(const SilentStrippingOptions &options) {
 
     if (options.mitmStrategy == ATK::SSL::MitmStrategy::DNS) {
         if (options.attackerIp.has_value()) {
-            const pcpp::IPv4Address attackerIpAddress(options.attackerIp.value());
+            const pcpp::IPv4Address attackerIpAddress(
+                options.attackerIp.value());
             builder.addAttackerIp(attackerIpAddress);
         } else {
-            throw std::runtime_error("Could not run SSL attack since no attacker "
-                                 "IP was supplied while using DNS strategy!");
+            throw std::runtime_error(
+                "Could not run SSL attack since no attacker "
+                "IP was supplied while using DNS strategy!");
         }
     }
-    
 
     for (const std::string &victimIpStr : options.victimIps) {
         const pcpp::IPv4Address victimIp(victimIpStr);

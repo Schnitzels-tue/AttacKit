@@ -33,7 +33,6 @@
 #include <unordered_set>
 #include <vector>
 
-
 #ifdef __linux__
 #include <csignal>
 #include <sys/prctl.h>

@@ -8,7 +8,6 @@
 #include <mutex>
 #include <queue>
 
-
 namespace ATK::SSL {
 /**
  * All out ssl stripping strategy, will capture every http get request packet
@@ -51,7 +50,6 @@ class AllOutSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
     void execute() override;
 
   private:
-    
     // Function to get global variables safely
     struct HttpMessageData {
         std::queue<std::string> httpMessages;
@@ -74,10 +72,11 @@ class AllOutSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
         }
     }
 
-    static void onPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device,
-                         void *cookie);
+    static void onPacketArrives(pcpp::RawPacket *packet,
+                                pcpp::PcapLiveDevice *device, void *cookie);
 
-    static std::optional<std::string> connectWithServer(const std::string &domain);
+    static std::optional<std::string>
+    connectWithServer(const std::string &domain);
     static void runHttpDummyServer();
 
     pcpp::PcapLiveDevice *device_;

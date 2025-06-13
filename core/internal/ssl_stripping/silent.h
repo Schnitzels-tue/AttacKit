@@ -9,7 +9,6 @@
 #include <queue>
 #include <utility>
 
-
 namespace ATK::SSL {
 /**
  * Silent ssl stripping attack.

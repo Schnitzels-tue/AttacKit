@@ -5,10 +5,7 @@
 #include <unordered_set>
 
 namespace ATK::SSL {
-enum MitmStrategy {
-    ARP,
-    DNS
-};
+enum MitmStrategy { ARP, DNS };
 
 struct AllOutStrippingOptions {
     std::string ifaceIpOrName;
