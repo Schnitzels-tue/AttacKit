@@ -103,8 +103,8 @@ void CLIExecutor::invokeSslStrippingArp(std::vector<std::string> args) {
     const int SILENT_NUM_ARGS = 4;
     if ((!stringToBool(args[0]) && args.size() != ALL_OUT_NUM_ARGS) ||
         (stringToBool(args[0]) && args.size() != SILENT_NUM_ARGS)) {
-        LOG_ERROR(
-            "Found wrong number of arguments for executing ssl attack under arp");
+        LOG_ERROR("Found wrong number of arguments for executing ssl attack "
+                  "under arp");
         throw std::runtime_error("Wrong number of arguments");
     }
     if (!stringToBool(args[0])) { // all-out
@@ -133,8 +133,8 @@ void CLIExecutor::invokeSslStrippingDns(std::vector<std::string> args) {
     const int SILENT_NUM_ARGS = 5;
     if ((!stringToBool(args[0]) && args.size() != ALL_OUT_NUM_ARGS) ||
         (stringToBool(args[0]) && args.size() != SILENT_NUM_ARGS)) {
-        LOG_ERROR(
-            "Found wrong number of arguments for executing ssl attack under dns");
+        LOG_ERROR("Found wrong number of arguments for executing ssl attack "
+                  "under dns");
         throw std::runtime_error("Wrong number of arguments");
     }
     if (!stringToBool(args[0])) { // all-out
