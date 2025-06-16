@@ -80,8 +80,8 @@ AttacKit:
 - Install [Npcap](https://nmap.org/npcap/)
   (Enable "Install Npcap in WinPcap API-compatible Mode" if prompted)
 - Download the [npcap-sdk](https://npcap.com/#download), rename it to ``npcap-sdk`` and put it into the thirdparty folder
-- Install [OpenSSL](https://slproweb.com/products/Win32OpenSSL.html), rename it to ``boost-sdk`` and put it into the thirdpary folder
-- Download the [boost-sdk](https://www.boost.org/releases/latest/) and
+- Install [OpenSSL](https://slproweb.com/products/Win32OpenSSL.html)
+- Download the [boost-sdk](https://www.boost.org/releases/latest/), rename it to ``boost-sdk`` and put it into the thirdpary folder
 
 #### macOS (Homebrew) Currently doesn't work
 
