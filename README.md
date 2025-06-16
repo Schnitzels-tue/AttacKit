@@ -1,52 +1,79 @@
+
 # AttacKit
 
-**AttacKit** is a command-line tool designed for performing various network attacks including ARP spoofing, DNS spoofing, and SSL stripping via ARP or DNS. It is intended for educational use by penetration testers and network security researchers to simulate and analyze insecure environments.
+<!--toc:start-->
+- [AttacKit](#attackit)
+  - [Features](#features)
+  - [Installation](#installation)
+    - [Prerequisites](#prerequisites)
+    - [Modes of Operation](#modes-of-operation)
+    - [Modes and Functions](#modes-and-functions)
+  - [Examples](#examples)
+  - [Exit Codes](#exit-codes)
+  - [Developer Notes](#developer-notes)
+  - [License](#license)
+  - [Author & Support](#author--support)
+<!--toc:end-->
 
-> ⚠️ **Warning**: This tool is for ethical and legal use only. Unauthorized use on networks without permission is illegal and unethical.
+**AttacKit** is a command-line utility for executing network attacks such as ARP
+spoofing, DNS spoofing, and SSL stripping. It is intended for educational use
+by penetration testers and network security professionals to simulate and
+analyze insecure environments.
+
+> ⚠️ **Warning**: Use this tool ethically and legally. Unauthorized use on
+> networks without permission is illegal and unethical.
 
 ## Features
 
-- ARP Spoofing (targeted or broadcast)
-- DNS Spoofing
-- SSL Stripping via ARP or DNS
-- Quiet Mode for stealthy, precise attacks
-- All-Out Mode for broad, aggressive network disruption
+- ARP spoofing (targeted or broadcast)
+- DNS spoofing
+- SSL stripping via ARP or DNS
+- Quiet mode for stealthy, precision attacks
+- All-out mode for broad, aggressive disruption
 
 ## Installation
 
 ### Prerequisites
 
-Before running or developing AttacKit, ensure the following dependencies are installed:
+Ensure the following dependencies are installed before using or developing
+AttacKit:
 
-**Linux:**
+#### Linux
 
-- **Debian/Ubuntu (APT):**
+- **Debian/Ubuntu**:
+
   ```bash
   sudo apt-get install libpcap-dev
   ```
 
-- **Fedora (DNF):**
+- **Fedora**:
+
   ```bash
   sudo dnf install libpcap-devel
   ```
 
-- **Arch Linux (Pacman):**
+- **Arch Linux**:
+
   ```bash
   sudo pacman -S libpcap
   ```
 
-- **Alpine Linux (APK):**
+- **Alpine Linux**:
+
   ```bash
   sudo apk add libpcap-dev
   ```
 
-**Windows:**
+#### Windows
 
 - Install [Npcap](https://nmap.org/npcap/)  
-  (choose "Install Npcap in WinPcap API-compatible Mode" if prompted)
+  (Enable "Install Npcap in WinPcap API-compatible Mode" if prompted)
 
-**Homebrew:**
-- brew install libpcap
+#### macOS (Homebrew)
+
+```bash
+brew install libpcap
+```
 
 ## Usage
 
@@ -56,105 +83,119 @@ attackit [OPTIONS] COMMAND [COMMAND OPTIONS]
 
 ### Modes of Operation
 
-- `--quiet` – Enables silent, targeted attacks. Requires specific victim IPs and spoof targets.
-- `--all-out` – Enables aggressive, broadcast attacks. Targets all devices on the network.
+- `--quiet` – Enables silent, targeted attacks. Requires victim and spoof IPs.
+- `--all-out` – Enables aggressive, broadcast-based attacks across the network.
 
-> ⚠️ `--quiet` and `--all-out` are mutually exclusive.
+> ⚠️ `--quiet` and `--all-out` cannot be used together.
 
-### Commands
+### Modes and Functions
 
-#### `--arp`
+AttacKit commands operate differently depending on the mode (`--quiet` or
+`--all-out`) and attack type.
 
-Performs an ARP spoofing attack.
+#### ARP Spoofing
 
-```bash
-attackit --arp ifaceIpOrName [attackerMac] [victimIp] [ipToSpoof]
-```
+- **Quiet Mode** (`--quiet --arp`):  
+  Targets specific victim IP(s) and spoofed IP(s) for precise ARP poisoning.
 
-- In **quiet mode**: `victimIp` and `ipToSpoof` are required
-- In **all-out mode**: only `ifaceIpOrName` is required
-- Multiple IPs can be comma-separated
+  ```bash
+  attackit --quiet --arp ifaceIpOrName [attackerMac] victimIp ipToSpoof
+  ```
 
-#### `--dns`
+- **All-Out Mode** (`--all-out --arp`):  
+  Performs a broad ARP spoofing attack across the entire network.
 
-Performs a DNS spoofing attack.
+  ```bash
+  attackit --arp ifaceIpOrName --all-out
+  ```
 
-```bash
-attackit --dns ifaceIpOrName attackerIp [victimIps] [domainsToSpoof]
-```
+#### DNS Spoofing
 
-- In **quiet mode**: both `victimIps` and `domainsToSpoof` must be specified
-- Use comma-separated lists for multiple values
+- **Quiet Mode** (`--quiet --dns`):  
+  Spoofs DNS queries for specific victims and domains.
 
-#### `--ssldns`
+  ```bash
+  attackit --quiet --dns ifaceIpOrName attackerIp victimIps domainsToSpoof
+  ```
 
-Performs DNS-based SSL stripping.
+- **All-Out Mode** (Not typically supported for DNS spoofing in this tool)
 
-```bash
-attackit --ssldns ifaceIpOrName attackerIp victimIps domainsToStrip
-```
+#### SSL Stripping
 
-- All arguments are required
+- **DNS-Based SSL Stripping** (`--ssldns`):  
+  Strips SSL via DNS spoofing for specified victims and domains.
 
-#### `--sslarp`
+  ```bash
+  attackit --ssldns ifaceIpOrName attackerIp victimIps domainsToStrip
+  ```
 
-Performs ARP-based SSL stripping.
+- **ARP-Based SSL Stripping** (`--sslarp`):  
+  Strips SSL via ARP spoofing for specified victims and domains.
 
-```bash
-attackit --sslarp ifaceIpOrName victimIps domainsToStrip
-```
-
-- All arguments are required
+  ```bash
+  attackit --sslarp ifaceIpOrName victimIps domainsToStrip
+  ```
 
 ## Examples
 
 **All-out ARP spoofing:**
+
 ```bash
 attackit --arp eth0 --all-out
 ```
 
-**Targeted (quiet) DNS spoofing:**
+**Targeted (quiet mode) DNS spoofing:**
+
 ```bash
-attackit --quiet --dns eth0 192.168.1.10 192.168.1.15 example.com,google.com
+attackit --quiet --dns eth0 192.168.1.10 192.168.1.15 \
+  example.com,google.com
 ```
 
 ## Exit Codes
 
 - `0` – Success
-- `1` – Error or exception occurred
+- `1` – An error or exception occurred
 
 ## Developer Notes
 
-To build or modify AttacKit, install the required `libpcap` development package for your system:
+To build or contribute to AttacKit, ensure `libpcap` development headers are
+installed:
 
 **Debian/Ubuntu:**
+
 ```bash
 sudo apt install libpcap-dev
 ```
 
 **Fedora:**
+
 ```bash
 sudo dnf install libpcap-devel
 ```
 
 **Arch Linux:**
+
 ```bash
 sudo pacman -S libpcap
 ```
 
 **Alpine Linux:**
+
 ```bash
 sudo apk add libpcap-dev
 ```
 
 **Windows:**
+
 - Install [Npcap](https://nmap.org/npcap/)
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.  
+See the [LICENSE](LICENSE) file for full terms.
 
 ## Author & Support
 
 - Developed by the **AttacKit Team**
-- Report bugs or issues at: [GitHub Issues](https://github.com/Schnitzels-tue/AttacKit/issues)
+- Submit bugs and feature requests via  
+  [GitHub Issues](https://github.com/Schnitzels-tue/AttacKit/issues)
