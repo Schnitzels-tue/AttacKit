@@ -87,6 +87,8 @@ AttacKit:
 
 ```bash
 brew install libpcap
+brew install openssl
+brew install boost
 ```
 
 ## Usage
