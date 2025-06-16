@@ -52,13 +52,13 @@ Perform a DNS spoofing attack. In all-out mode, all DNS queries on the interface
 .B --ssldns
 \fIifaceIpOrName\fR \fIattackerIp\fR \fIvictimIps\fR \fIdomainsToStrip\fR
 
-Perform a DNS-based SSL stripping attack. All arguments are required, especially in quiet mode to specify victims and domains for stripping.
+Perform a DNS-based SSL stripping attack. In quiet mode, \fIvictimIps\fR and \fIdomainsToStrip\fR must be specified. Multiple victims and domains can be comma-separated.
 
 .TP
 .B --sslarp
 \fIifaceIpOrName\fR \fIvictimIps\fR \fIdomainsToStrip\fR
 
-Perform an ARP-based SSL stripping attack. All arguments are required in quiet mode to specify victims and domains.
+Perform an ARP-based SSL stripping attack. In quiet mode, \fIvictimIps\fR and \fIdomainsToStrip\fR must be specified. Multiple victims and domains can be comma-separated.
 
 .SH EXAMPLES
 
