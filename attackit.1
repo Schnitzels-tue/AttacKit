@@ -1,38 +1,38 @@
 .TH ATTACKIT 1 "June 2025" "AttacKit 1.0" "User Commands"
 
 .SH NAME
-attackit \- Network spoofing and interception tool
+attackit \- Network spoofing and interception toolkit for red-team operations
 
 .SH SYNOPSIS
 .B attackit
 [\fIOPTIONS\fR] \fICOMMAND\fR [\fICOMMAND OPTIONS\fR]
 
 .SH DESCRIPTION
-AttacKit is a CLI tool for performing network attacks such as ARP spoofing, DNS spoofing, and SSL stripping (via ARP or DNS). It is designed for penetration testers and security researchers to simulate and analyze network vulnerabilities.
+AttacKit is a command-line tool designed for network spoofing and interception operations. It provides simulated attack capabilities such as ARP spoofing, DNS spoofing, and SSL stripping (via either DNS or ARP-based man-in-the-middle positioning).
 
-The tool supports two primary modes:
+The tool supports two primary operational modes:
 
 .TP
 .B Quiet Mode (\fB--quiet\fR)
-Targets specific victims and domains/IPs for stealthy, minimal-noise attacks. Requires victim IPs and/or domains depending on the attack. Cannot be used with \fB--all-out\fR.
+Executes stealth attacks targeting specific IP addresses or domains. This mode suppresses noisy traffic and requires explicit specification of targets. Quiet mode is not compatible with \fB--all-out\fR.
 
 .TP
 .B All-Out Mode (\fB--all-out\fR)
-Broadcast mode that targets all devices or DNS queries on the network, useful for rapid and broad attacks. Cannot be used with \fB--quiet\fR.
+Performs broadcast attacks on all devices or DNS queries on the network. Parameters specific to quiet mode are ignored in this mode. Cannot be combined with \fB--quiet\fR.
 
 .SH OPTIONS
 
 .TP
 .B --help
-Display the help menu.
+Displays this help screen.
 
 .TP
 .B --quiet
-Enable quiet mode: silent targeting of specific IPs/domains. Cannot be combined with --all-out.
+Enables quiet mode. Requires certain arguments per command (e.g., victim IPs and domains). Cannot be combined with --all-out.
 
 .TP
 .B --all-out
-Enable all-out mode: broad broadcast attacks affecting all targets. Cannot be combined with --quiet.
+Enables broadcast attack mode. Command-specific targeting arguments (victim IPs/domains) must not be provided.
 
 .SH COMMANDS
 
@@ -40,44 +40,105 @@ Enable all-out mode: broad broadcast attacks affecting all targets. Cannot be co
 .B --arp
 \fIifaceIpOrName\fR [\fIattackerMac\fR] [\fIvictimIp\fR] [\fIipToSpoof\fR]
 
-Perform an ARP spoofing attack. The \fIattackerMac\fR parameter is optional. In quiet mode, \fIvictimIp\fR and \fIipToSpoof\fR are required. Multiple IP addresses can be specified using comma separation.
+Performs an ARP spoofing attack on the specified interface. The attacker's MAC address is optional and auto-detected if not provided. In \fB--quiet\fR mode, both \fIvictimIp\fR and \fIipToSpoof\fR are required. Supports comma-separated values for multiple victims and spoof targets.
+
+In \fB--all-out\fR mode (default), targets all devices without requiring additional arguments.
+
+Example:
+.RS
+\fBattackit --quiet --arp eth0 00:11:22:33:44:55 192.168.0.10,192.168.0.11 192.168.0.1\fR
+.RE
 
 .TP
 .B --dns
 \fIifaceIpOrName\fR \fIattackerIp\fR [\fIvictimIps\fR] [\fIdomainsToSpoof\fR]
 
-Perform a DNS spoofing attack. In all-out mode, all DNS queries on the interface are spoofed. In quiet mode, \fIvictimIps\fR and \fIdomainsToSpoof\fR must be specified. Multiple victims and domains can be comma-separated.
+Performs a DNS spoofing attack. In \fB--quiet\fR mode, both \fIvictimIps\fR and \fIdomainsToSpoof\fR are required. Each can be a comma-separated list. The tool will inject spoofed responses only to queries from the specified victims and only for the specified domains.
+
+In \fB--all-out\fR mode, spoofed responses are sent to **all DNS queries** observed on the interface. In this mode, victim and domain parameters are ignored and must not be supplied.
+
+Example:
+.RS
+\fBattackit --quiet --dns eth0 192.168.0.100 192.168.0.15,192.168.0.20 example.com,www.google.com\fR
+.RE
 
 .TP
 .B --ssldns
 \fIifaceIpOrName\fR \fIattackerIp\fR \fIvictimIps\fR \fIdomainsToStrip\fR
 
-Perform a DNS-based SSL stripping attack. In quiet mode, \fIvictimIps\fR and \fIdomainsToStrip\fR must be specified. Multiple victims and domains can be comma-separated.
+Performs an SSL stripping attack via DNS spoofing. The tool automatically performs DNS spoofing to redirect HTTP traffic to the attacker.
+
+In \fB--quiet\fR mode, both \fIvictimIps\fR and \fIdomainsToStrip\fR are required. Each can be comma-separated. SSL stripping is attempted only on HTTP GET requests where both the source IP matches a victim IP and the requested domain matches a target domain.
+
+If either condition fails, the request is ignored. This command applies exclusively to unencrypted HTTP GET requests.
+
+In \fB--all-out\fR mode, spoofed DNS responses are sent to all queries, and any redirected HTTP GET requests received are subject to SSL stripping attempts without filtering.
+
+Example:
+.RS
+\fBattackit --quiet --ssldns eth0 192.168.0.1 192.168.0.50 secure.com,banking.com\fR
+.RE
 
 .TP
 .B --sslarp
 \fIifaceIpOrName\fR \fIvictimIps\fR \fIdomainsToStrip\fR
 
-Perform an ARP-based SSL stripping attack. In quiet mode, \fIvictimIps\fR and \fIdomainsToStrip\fR must be specified. Multiple victims and domains can be comma-separated.
+Performs SSL stripping via ARP spoofing. The tool automatically runs ARP spoofing to act as a man-in-the-middle on the interface. SSL stripping is only attempted on incoming HTTP GET requests.
+
+In \fB--quiet\fR mode, both \fIvictimIps\fR and \fIdomainsToStrip\fR must be specified. A request is stripped only if it matches both a victim IP and a target domain.
+
+In \fB--all-out\fR mode, ARP spoofing is run without target filtering, and HTTP GET requests are stripped regardless of origin, provided the attacker is in the traffic path.
+
+Example:
+.RS
+\fBattackit --quiet --sslarp eth0 192.168.0.25,192.168.0.30 login.site.com,secure.shop\fR
+.RE
 
 .SH EXAMPLES
 
 .TP
-Run an all-out ARP spoofing attack on interface eth0:
+Run an all-out ARP spoofing attack:
 .B attackit --arp eth0 --all-out
 
 .TP
-Run a quiet DNS spoofing attack on eth0 targeting specific IPs and domains:
-.B attackit --quiet --dns eth0 192.168.1.10 192.168.1.15 example.com,google.com
+Perform a quiet DNS spoofing attack with specific victims and domains:
+.B attackit --quiet --dns eth0 192.168.1.100 192.168.1.10,192.168.1.12 example.com,bank.com
+
+.TP
+Execute SSL stripping via DNS spoofing, filtering based on victim IP and domains:
+.B attackit --quiet --ssldns eth0 192.168.0.1 192.168.0.10 secure.bank.com,login.site.net
+
+.TP
+Perform ARP-based SSL stripping with precise filtering:
+.B attackit --quiet --sslarp eth0 192.168.0.50,192.168.0.51 sensitive.com,account.portal
+
+.SH NOTES
+.IP \(bu
+Only one mode flag (\fB--quiet\fR or \fB--all-out\fR) may be used per command.
+.IP \(bu
+Comma-separated arguments allow bulk victim/domain targeting.
+.IP \(bu
+Some attacks require elevated privileges or raw socket access.
+.IP \(bu
+SSL stripping operates only on unencrypted HTTP GET traffic.
 
 .SH EXIT STATUS
-Returns 0 on success, 1 on error.
+
+.TP
+.B 0
+Success
+
+.TP
+.B 1
+Execution failed (invalid arguments, insufficient permissions, etc.)
 
 .SH AUTHOR
 Written by the AttacKit development team.
 
 .SH REPORTING BUGS
-Report bugs at https://github.com/Schnitzels-tue/AttacKit/issues
+Report issues at:
+.B https://github.com/Schnitzels-tue/AttacKit/issues
 
-.SH COPYRIGHT
-Copyright (C) 2025 AttacKit. Licensed under the MIT License.
+.SH LICENSE
+Copyright (C) 2025 AttacKit  
+Licensed under the MIT License.
