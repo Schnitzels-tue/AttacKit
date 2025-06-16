@@ -34,7 +34,10 @@ analyze insecure environments.
 
 ### Prerequisites
 
-Ensure the following dependencies are installed before using or developing
+Building attackit requires the following dependencies:
+- Libpcap/Npcap
+-  LibSSL
+-  boost
 AttacKit:
 
 #### Linux
@@ -42,33 +45,45 @@ AttacKit:
 - **Debian/Ubuntu**:
 
   ```bash
+
   sudo apt-get install libpcap-dev
+  sudo apt-get install libssl-dev
+  sudo apt-get install libboost-all-dev
   ```
 
 - **Fedora**:
 
   ```bash
   sudo dnf install libpcap-devel
+  sudo dnf install openssl-devel
+  sudo dnf install boost-devel
   ```
 
 - **Arch Linux**:
 
   ```bash
   sudo pacman -S libpcap
+  sudo pacman -S openssl
+  sudo pacman -S boost
   ```
 
 - **Alpine Linux**:
 
   ```bash
   sudo apk add libpcap-dev
+  sudo apk add openssl-dev
+  sudo apk add boost-dev
   ```
 
 #### Windows
 
-- Install [Npcap](https://nmap.org/npcap/)  
+- Install [Npcap](https://nmap.org/npcap/)
   (Enable "Install Npcap in WinPcap API-compatible Mode" if prompted)
+- Download the [npcap-sdk](https://npcap.com/#download), rename it to ``npcap-sdk`` and put it into the thirdparty folder
+- Install [OpenSSL](https://slproweb.com/products/Win32OpenSSL.html), rename it to ``boost-sdk`` and put it into the thirdpary folder
+- Download the [boost-sdk](https://www.boost.org/releases/latest/) and
 
-#### macOS (Homebrew)
+#### macOS (Homebrew) Currently doesn't work
 
 ```bash
 brew install libpcap
@@ -154,39 +169,6 @@ attackit --quiet --dns eth0 192.168.1.10 192.168.1.15 \
 
 - `0` – Success
 - `1` – An error or exception occurred
-
-## Developer Notes
-
-To build or contribute to AttacKit, ensure `libpcap` development headers are
-installed:
-
-**Debian/Ubuntu:**
-
-```bash
-sudo apt install libpcap-dev
-```
-
-**Fedora:**
-
-```bash
-sudo dnf install libpcap-devel
-```
-
-**Arch Linux:**
-
-```bash
-sudo pacman -S libpcap
-```
-
-**Alpine Linux:**
-
-```bash
-sudo apk add libpcap-dev
-```
-
-**Windows:**
-
-- Install [Npcap](https://nmap.org/npcap/)
 
 ## License
 
