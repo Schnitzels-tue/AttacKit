@@ -42,8 +42,10 @@
 #endif
 
 void ATK::SSL::SilentSslStrippingStrategy::runHttpDummyServer() {
+    LOG_INFO("got here");
     const uint16_t HTTP_PORT = 80;
     std::thread([]() {
+        LOG_INFO("got here");
         try {
             boost::asio::io_context ioc;
             LOG_INFO("got here");
