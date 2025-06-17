@@ -46,13 +46,17 @@ void ATK::SSL::SilentSslStrippingStrategy::runHttpDummyServer() {
     std::thread([]() {
         try {
             boost::asio::io_context ioc;
+            LOG_INFO("got here");
             boost::asio::ip::tcp::acceptor acceptor(
                 ioc, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(),
                                                     HTTP_PORT));
 
+            LOG_INFO("got here");
             while (true) {
                 boost::asio::ip::tcp::socket socket(ioc);
+                LOG_INFO("got here");
                 acceptor.accept(socket);
+                LOG_INFO("got here");
 
                 auto &httpMessageData = getHttpMessageData();
 
