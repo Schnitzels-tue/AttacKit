@@ -35,9 +35,10 @@ analyze insecure environments.
 ### Prerequisites
 
 Building attackit requires the following dependencies:
+
 - Libpcap/Npcap
--  LibSSL
--  boost
+- LibSSL
+- boost
 AttacKit:
 
 #### Linux
@@ -152,13 +153,9 @@ AttacKit commands operate differently depending on the mode (`--quiet` or
   attackit --sslarp ifaceIpOrName victimIps domainsToStrip
   ```
 
+  **Arp ssl stripping does not have an all out mode**
+
 ## Examples
-
-**All-out ARP spoofing:**
-
-```bash
-attackit --arp eth0 --all-out
-```
 
 **Targeted (quiet mode) DNS spoofing:**
 

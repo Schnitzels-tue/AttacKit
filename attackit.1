@@ -87,8 +87,6 @@ Performs SSL stripping via ARP spoofing. The tool automatically runs ARP spoofin
 
 In \fB--quiet\fR mode, both \fIvictimIps\fR and \fIdomainsToStrip\fR must be specified. A request is stripped only if it matches both a victim IP and a target domain.
 
-In \fB--all-out\fR mode, ARP spoofing is run without target filtering, and HTTP GET requests are stripped regardless of origin, provided the attacker is in the traffic path.
-
 Example:
 .RS
 \fBattackit --quiet --sslarp eth0 192.168.0.25,192.168.0.30 login.site.com,secure.shop\fR
