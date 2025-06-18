@@ -398,6 +398,7 @@ void ATK::SSL::SilentSslStrippingStrategy::execute() {
 
     std::promise<void> completionPromise;
     std::future<void> completionFuture = completionPromise.get_future();
+    completionPromise.set_value();
 
     if (!device_->setFilter("tcp dst port 80")) {
         LOG_ERROR("Cannot set tcp filter");
