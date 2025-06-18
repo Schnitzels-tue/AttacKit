@@ -10,7 +10,9 @@ Checks: "*,
         -objc-*,
         -openmp-*,
         -bugprone-easily-swappable-parameters,
-        -misc-include-cleaner
+        -misc-include-cleaner,
+        -cert-env33-c,
+        -concurrency-mt-unsafe
 "
 WarningsAsErrors: ''
 HeaderFilterRegex: '^(?!.*thirdparty).*'
