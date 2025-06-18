@@ -41,6 +41,7 @@
 
 void ATK::SSL::SilentSslStrippingStrategy::cleanup(int signum) {
     LOG_INFO("Caught signal " + std::to_string(signum) + ", cleaning up...");
+    (void)signum;
 
     for (const std::string &ipx : domainIps_) {
         const std::string cmd =
