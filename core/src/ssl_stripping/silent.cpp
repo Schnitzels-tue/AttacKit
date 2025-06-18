@@ -39,6 +39,17 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+void ATK::SSL::SilentSslStrippingStrategy::cleanup(int signum) {
+    std::cerr << "Caught signal " << signum << ", cleaning up...\n";
+
+    for (const std::string& ipx : domainIps_) {
+        std::string cmd = "ip addr del " + ipx + "/32 dev " + device_->getName();
+        std::system(cmd.c_str());
+    }
+
+    std::exit(0);
+}
+
 #endif
 
 void ATK::SSL::SilentSslStrippingStrategy::runHttpDummyServer() {
@@ -292,9 +303,12 @@ void ATK::SSL::SilentSslStrippingStrategy::execute() {
             std::optional<std::unordered_set<std::string>> currentIps =
                 resolveDomainToIP(domain, "https");
             if (currentIps.has_value()) {
+                domainIps_ = currentIps.value();
                 for (const auto &currentIp : currentIps.value()) {
                     ipsToSpoofCommaSeparated += currentIp;
                     ipsToSpoofCommaSeparated += ',';
+                    std::string cmd = "ip addr add " + currentIp + "/32 dev " + device_->getName();
+                    std::system(cmd.c_str());
                 }
             }
         }
