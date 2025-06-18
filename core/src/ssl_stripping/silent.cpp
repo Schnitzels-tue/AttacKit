@@ -309,7 +309,11 @@ void ATK::SSL::SilentSslStrippingStrategy::execute() {
                     #ifdef __linux__
                     std::string cmd = "ip addr add " + currentIp + "/32 dev " + device_->getName();
                     std::system(cmd.c_str());
-                    std::signal(SIGINT, cleanup);
+                    static ATK::SSL::SilentSslStrippingStrategy* thisInstance = this;
+
+                    std::signal(SIGINT, [](int signum) {
+                        thisInstance->cleanup(signum);
+                    });
                     #endif
                 }
             }
