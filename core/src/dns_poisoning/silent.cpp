@@ -15,7 +15,6 @@
 #include <stdexcept>
 #include <string>
 
-// TODO (extract constant)
 const int DNS_PORT = 53;
 
 void ATK::DNS::SilentDnsPoisoningStrategy::onPacketArrives(
@@ -104,8 +103,6 @@ void ATK::DNS::SilentDnsPoisoningStrategy::onPacketArrives(
 void ATK::DNS::SilentDnsPoisoningStrategy::execute() {
     std::promise<void> completionPromise;
     std::future completionFuture = completionPromise.get_future();
-
-    // TODO(kala and nick) decide if default port is enough
 
     pcpp::PortFilter dnsPortFilter(DNS_PORT, pcpp::SRC_OR_DST);
     pcpp::ProtoFilter udpFilter(pcpp::UDP);

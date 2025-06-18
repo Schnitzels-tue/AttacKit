@@ -11,7 +11,6 @@
 #include <unordered_set>
 #include <utility>
 
-// TODO (kala and nick) document this
 void ATK::DNS::allOutPoison(const AllOutPoisoningOptions &options) {
     pcpp::PcapLiveDevice *device =
         pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(
@@ -32,7 +31,6 @@ void ATK::DNS::allOutPoison(const AllOutPoisoningOptions &options) {
     dnsPoisoningContext.execute();
 }
 
-// TODO (kala and nick) document this
 void ATK::DNS::silentPoison(const SilentPoisoningOptions &options) {
     pcpp::PcapLiveDevice *device =
         pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(

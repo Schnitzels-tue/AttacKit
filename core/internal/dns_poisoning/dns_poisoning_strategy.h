@@ -33,7 +33,6 @@ class DnsPoisoningStrategy {
                                  void *cookie) = 0;
 
   protected:
-    // TODO confirm size
     static constexpr int DNS_PACKET_SIZE = 512;
 };
 
