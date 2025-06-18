@@ -39,6 +39,18 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+void ATK::SSL::SilentSslStrippingStrategy::cleanup(int signum) {
+    LOG_INFO("Caught signal " + std::to_string(signum) + ", cleaning up...");
+    (void)signum;
+
+    for (const std::string &ipx : domainIps_) {
+        const std::string cmd =
+            "ip addr del " + ipx + "/32 dev " + device_->getName();
+        std::system(cmd.c_str());
+    }
+
+    (void)std::raise(SIGTERM);
+}
 #endif
 
 void ATK::SSL::SilentSslStrippingStrategy::runHttpDummyServer() {
@@ -292,9 +304,21 @@ void ATK::SSL::SilentSslStrippingStrategy::execute() {
             std::optional<std::unordered_set<std::string>> currentIps =
                 resolveDomainToIP(domain, "https");
             if (currentIps.has_value()) {
+                domainIps_ = currentIps.value();
                 for (const auto &currentIp : currentIps.value()) {
                     ipsToSpoofCommaSeparated += currentIp;
                     ipsToSpoofCommaSeparated += ',';
+#ifdef __linux__
+                    const std::string cmd = "ip addr add " + currentIp +
+                                            "/32 dev " + device_->getName();
+                    std::system(cmd.c_str());
+                    static ATK::SSL::SilentSslStrippingStrategy *thisInstance =
+                        this;
+
+                    (void)std::signal(SIGINT, [](int signum) {
+                        thisInstance->cleanup(signum);
+                    });
+#endif
                 }
             }
         }

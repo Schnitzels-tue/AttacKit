@@ -7,6 +7,7 @@
 #include <condition_variable>
 #include <mutex>
 #include <queue>
+#include <unordered_set>
 #include <utility>
 
 namespace ATK::SSL {
@@ -107,10 +108,13 @@ class SilentSslStrippingStrategy : public ATK::SSL::SslStrippingStrategy {
 
     static void runHttpDummyServer();
 
+    void cleanup(int);
+
     pcpp::PcapLiveDevice *device_;
     pcpp::IPv4Address attackerIp_;
     std::vector<pcpp::IPv4Address> victimIps_;
     std::vector<std::string> domainsToStrip_;
     ATK::SSL::MitmStrategy mitmStrategy_;
+    std::unordered_set<std::string> domainIps_;
 };
 } // namespace ATK::SSL
