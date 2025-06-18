@@ -396,10 +396,6 @@ void ATK::SSL::SilentSslStrippingStrategy::execute() {
         throw std::runtime_error("Unable to open interface");
     }
 
-    std::promise<void> completionPromise;
-    std::future<void> completionFuture = completionPromise.get_future();
-    completionPromise.set_value();
-
     if (!device_->setFilter("tcp dst port 80")) {
         LOG_ERROR("Cannot set tcp filter");
         device_->close();
@@ -410,16 +406,10 @@ void ATK::SSL::SilentSslStrippingStrategy::execute() {
     if (!device_->startCapture(
             [this](pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device,
                    void *cookie) { onPacketArrives(packet, device, cookie); },
-            &completionFuture)) {
+            nullptr)) {
         device_->close();
         throw std::runtime_error("Unable to start capturing http packets");
     };
-
-    try {
-        completionFuture.get();
-    } catch (const std::exception &e) {
-        device_->close();
-    }
 
     device_->close();
 }
