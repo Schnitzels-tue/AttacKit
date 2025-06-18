@@ -40,7 +40,7 @@
 #include <unistd.h>
 
 void ATK::SSL::SilentSslStrippingStrategy::cleanup(int signum) {
-    LOG_INFO("Caught signal " + std::to_string(signum) + ", cleaning up...\n");
+    LOG_INFO("Caught signal " + std::to_string(signum) + ", cleaning up...");
 
     for (const std::string& ipx : domainIps_) {
         std::string cmd = "ip addr del " + ipx + "/32 dev " + device_->getName();
