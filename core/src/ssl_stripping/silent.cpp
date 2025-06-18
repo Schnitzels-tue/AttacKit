@@ -47,7 +47,7 @@ void ATK::SSL::SilentSslStrippingStrategy::cleanup(int signum) {
         std::system(cmd.c_str());
     }
 
-    throw std::runtime_error("Shutting down via signal");
+    std::raise(SIGTERM);
 }
 #endif
 
