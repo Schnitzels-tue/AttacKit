@@ -48,7 +48,7 @@ void ATK::SSL::SilentSslStrippingStrategy::cleanup(int signum) {
         std::system(cmd.c_str());
     }
 
-    (void) std::raise(SIGTERM);
+    (void)std::raise(SIGTERM);
 }
 #endif
 
@@ -308,13 +308,13 @@ void ATK::SSL::SilentSslStrippingStrategy::execute() {
                     ipsToSpoofCommaSeparated += currentIp;
                     ipsToSpoofCommaSeparated += ',';
 #ifdef __linux__
-                    const std::string cmd = "ip addr add " + currentIp + "/32 dev " +
-                                      device_->getName();
+                    const std::string cmd = "ip addr add " + currentIp +
+                                            "/32 dev " + device_->getName();
                     std::system(cmd.c_str());
                     static ATK::SSL::SilentSslStrippingStrategy *thisInstance =
                         this;
 
-                    (void) std::signal(SIGINT, [](int signum) {
+                    (void)std::signal(SIGINT, [](int signum) {
                         thisInstance->cleanup(signum);
                     });
 #endif
