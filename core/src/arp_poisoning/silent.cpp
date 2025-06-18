@@ -93,7 +93,6 @@ void ATK::ARP::SilentArpPoisoningStrategy::execute() {
     andFilter.addFilter(&etherTypeFilter);
     andFilter.addFilter(&protoFilter);
     andFilter.addFilter(&notDeviceMacAdress);
-    // TODO(jasonfu): test if ipv4 filters are usable for arp packets
 
     if (!device_->setFilter(andFilter)) {
         device_->close();
