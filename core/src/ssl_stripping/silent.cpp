@@ -40,7 +40,7 @@
 #include <unistd.h>
 
 void ATK::SSL::SilentSslStrippingStrategy::cleanup(int signum) {
-    std::cerr << "Caught signal " << signum << ", cleaning up...\n";
+    LOG_INFO("Caught signal " + signum + ", cleaning up...\n");
 
     for (const std::string& ipx : domainIps_) {
         std::string cmd = "ip addr del " + ipx + "/32 dev " + device_->getName();
@@ -307,8 +307,11 @@ void ATK::SSL::SilentSslStrippingStrategy::execute() {
                 for (const auto &currentIp : currentIps.value()) {
                     ipsToSpoofCommaSeparated += currentIp;
                     ipsToSpoofCommaSeparated += ',';
+                    #ifdef __linux__
                     std::string cmd = "ip addr add " + currentIp + "/32 dev " + device_->getName();
                     std::system(cmd.c_str());
+                    std::signal(SIGINT, cleanup);
+                    #endif
                 }
             }
         }
