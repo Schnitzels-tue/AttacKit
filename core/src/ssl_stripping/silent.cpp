@@ -42,8 +42,9 @@
 void ATK::SSL::SilentSslStrippingStrategy::cleanup(int signum) {
     LOG_INFO("Caught signal " + std::to_string(signum) + ", cleaning up...");
 
-    for (const std::string& ipx : domainIps_) {
-        std::string cmd = "ip addr del " + ipx + "/32 dev " + device_->getName();
+    for (const std::string &ipx : domainIps_) {
+        std::string cmd =
+            "ip addr del " + ipx + "/32 dev " + device_->getName();
         std::system(cmd.c_str());
     }
 
@@ -306,15 +307,17 @@ void ATK::SSL::SilentSslStrippingStrategy::execute() {
                 for (const auto &currentIp : currentIps.value()) {
                     ipsToSpoofCommaSeparated += currentIp;
                     ipsToSpoofCommaSeparated += ',';
-                    #ifdef __linux__
-                    std::string cmd = "ip addr add " + currentIp + "/32 dev " + device_->getName();
+#ifdef __linux__
+                    std::string cmd = "ip addr add " + currentIp + "/32 dev " +
+                                      device_->getName();
                     std::system(cmd.c_str());
-                    static ATK::SSL::SilentSslStrippingStrategy* thisInstance = this;
+                    static ATK::SSL::SilentSslStrippingStrategy *thisInstance =
+                        this;
 
                     std::signal(SIGINT, [](int signum) {
                         thisInstance->cleanup(signum);
                     });
-                    #endif
+#endif
                 }
             }
         }

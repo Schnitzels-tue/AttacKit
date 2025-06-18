@@ -222,7 +222,8 @@ void ATK::SSL::AllOutSslStrippingStrategy::onPacketArrives(
 void ATK::SSL::AllOutSslStrippingStrategy::execute() {
     std::string cmd;
     if (mitmStrategy_ == ATK::SSL::MitmStrategy::ARP) {
-        LOG_ERROR("SSL ARP does not support all-out mode! Try using DNS instead.");
+        LOG_ERROR(
+            "SSL ARP does not support all-out mode! Try using DNS instead.");
         throw std::runtime_error("Unsupported exception");
     }
     std::ostringstream command;
